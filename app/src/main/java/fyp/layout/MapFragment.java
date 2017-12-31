@@ -100,6 +100,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleA
         transaction.add(R.id.mapView, fragment);
         transaction.commit();
 
+
         fragment.getMapAsync(this);
 
 
@@ -129,6 +130,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleA
             }, MY_PERMISSION_REQUEST_CODE);
         } else {
             if (checkPlayServices()) {
+                //googleMap.setMyLocationEnabled(true);
                 buildGoogleApiClient();
                 createLocationRequest();
                 mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, second, meters, MapFragment.this);
@@ -250,9 +252,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleA
         float accuracy = location.getAccuracy();
 
         // marker
-        if (mCurrLocationMarker != null) {
+        /*if (mCurrLocationMarker != null) {
             mCurrLocationMarker.remove();
-        }
+        }*/
 
         /*
         LatLng pp = new LatLng(11.5448729, 104.8921668);
@@ -267,11 +269,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleA
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
         markerOptions.title("Current Position");
-        //markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
         mCurrLocationMarker = googleMap.addMarker(markerOptions);
 
+
         //move map camera
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
         // marker
     }
 
