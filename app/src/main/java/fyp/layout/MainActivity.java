@@ -2,7 +2,8 @@ package fyp.layout;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.FragmentManager;
+//import android.app.FragmentManager;
+//import android.app.Fragment;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -34,7 +35,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-//import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -111,10 +112,11 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         navigationView.setCheckedItem(R.id.nav_position);
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        PositionFragment positionFragment = new PositionFragment();
         fragmentManager.beginTransaction()
                 .replace(R.id.content_frame
-                        , new PositionFragment())
+                        , positionFragment)
                 .commit();
     }
 
@@ -155,7 +157,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
 
         if (id == R.id.nav_position) {
             // Handle the camera action
