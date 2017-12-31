@@ -28,9 +28,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:paddingTop="65dp">
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
+    android:paddingTop="60dp">
 
 <com.google.android.gms.maps.MapView
     android:id="@+id/mapView"
