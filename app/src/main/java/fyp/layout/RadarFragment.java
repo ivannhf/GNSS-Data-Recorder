@@ -1,5 +1,6 @@
 package fyp.layout;
 
+
 //import android.app.Fragment;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -27,8 +28,7 @@ public class RadarFragment extends Fragment {
         return myView;
     }
 
-
-
-
-
 }
+
+
+
