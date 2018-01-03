@@ -165,6 +165,11 @@ public class MainActivity extends AppCompatActivity
                     .replace(R.id.content_frame
                             , new PositionFragment())
                     .commit();
+        } else if (id == R.id.nav_list) {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.content_frame
+                            , new ListFragment())
+                    .commit();
         } else if (id == R.id.nav_radar) {
             fragmentManager.beginTransaction()
                     .replace(R.id.content_frame
