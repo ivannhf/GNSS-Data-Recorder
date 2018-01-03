@@ -16,8 +16,6 @@ public class RadarFragment extends Fragment {
     View myView;
 
 
-
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {

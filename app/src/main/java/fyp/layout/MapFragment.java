@@ -3,6 +3,7 @@ package fyp.layout;
 import android.Manifest;
 import android.app.Activity;
 //import android.app.Fragment;
+import android.content.Context;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.support.v4.app.Fragment;
@@ -57,7 +58,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
     //View myView;
 
-    private static int zoomLv = 17;
+    private static final String TAG = "MapFragment";
+    Context context;
+
 
     private GoogleMap googleMap;
     Marker mCurrLocationMarker = null;
@@ -76,10 +79,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
     }
 
+
+
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         final LinearLayout myView = (LinearLayout) inflater.inflate(R.layout.map_layout, container, false);
+        context = container.getContext();
 
         FragmentManager manager = getFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
@@ -99,8 +106,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         googleMap = map;
         googleMap.setMyLocationEnabled(true);
 
-        mCurrLocationMarker = googleMap.addMarker(new MarkerOptions().position(new LatLng(22.304185, 114.179534)).title("Current Position"));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(22.304185, 114.179534), 17));
+        //mCurrLocationMarker = googleMap.addMarker(new MarkerOptions().position(new LatLng(22.304185, 114.179534)).title("Current Position"));
+        //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(22.304185, 114.179534), 17));
 
         locationManager = (LocationManager) getActivity().getSystemService(getActivity().LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -131,11 +138,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
         //Toast.makeText(getContext(), "Lat: " + latitude + " Lng: " + longitude, Toast.LENGTH_LONG).show();
 
-/*
+
         if (mCurrLocationMarker != null) {
             mCurrLocationMarker.remove();
         }
-*/
+
 
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
@@ -143,12 +150,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
         //if ((markerOptions != null) && (latLng != null)) {
         //mCurrLocationMarker = googleMap.addMarker(new MarkerOptions().position(latLng));
-        //mCurrLocationMarker = googleMap.addMarker(markerOptions);
+        mCurrLocationMarker = googleMap.addMarker(markerOptions);
         //mCurrLocationMarker.setPosition(new LatLng(latitude, longitude));
         //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
-        mCurrLocationMarker.setPosition(latLng);
+        //mCurrLocationMarker.setPosition(latLng);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
-        Toast.makeText(getContext(), "Marker Updated\n" + latLng, Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "Marker Updated\n" + latLng, Toast.LENGTH_SHORT).show();
         //}
 
     }
