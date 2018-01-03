@@ -66,24 +66,14 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, LocationListener {
 
     private static final String TAG = "MainActivity";
+    private static MainActivity sInstance;
 
-    private LocationManager mLocationManager;
-    private TextView longitudeField, latitudeField;
-    private String provider;
 
-    private static final int MY_PERMISSION_REQUEST_CODE = 7171;
-    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 7172;
-    private LocationRequest mLocationRequest;
-    private GoogleApiClient mGoogleApiClient;
+    private LocationManager locationManager;
     private Location mLastLocation;
-    private boolean mRequestingLocationUpdates = false;
-
-    private static int UPDATE_INTERVAL = 5000;  // Sec
-    private static int FASTEST_INTERVAL = 3000; // Sec
-    private static int DISPLACEMENT = 10;   // Meter
 
 
     @Override
@@ -118,6 +108,21 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.content_frame
                         , positionFragment)
                 .commit();
+
+
+        sInstance = this;
+
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            }, 1000);
+        } else {
+            locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, this);
+        }
+
     }
 
     @Override
@@ -200,25 +205,64 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onStart() {
+        locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, this);
+
         super.onStart();
     }
 
     @Override
     protected void onResume() {
+        locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, this);
+        Toast.makeText(this, "App resume", Toast.LENGTH_SHORT).show();
         super.onResume();
 
     }
 
     @Override
     protected void onPause() {
+        locationManager.removeUpdates(this);
+        Toast.makeText(this, "App pause", Toast.LENGTH_SHORT).show();
         super.onPause();
 
     }
 
     @Override
     protected void onStop() {
+        locationManager.removeUpdates(this);
+        Toast.makeText(this, "App stop", Toast.LENGTH_SHORT).show();
         super.onStop();
 
     }
 
+    @Override
+    protected void onDestroy() {
+        locationManager.removeUpdates(this);
+        Toast.makeText(this, "App destroy", Toast.LENGTH_SHORT).show();
+        super.onDestroy();
+    }
+
+    static MainActivity getInstance() {
+        return sInstance;
+    }
+
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mLastLocation = location;
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
 }

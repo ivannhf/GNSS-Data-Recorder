@@ -154,7 +154,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
         //mCurrLocationMarker.setPosition(latLng);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
-        Toast.makeText(context, "Marker Updated\n" + latLng, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(context, "Marker Updated\n" + latLng, Toast.LENGTH_SHORT).show();
         //}
 
     }

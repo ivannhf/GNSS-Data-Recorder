@@ -28,6 +28,7 @@ import com.google.android.gms.location.LocationServices;
 public class PositionFragment extends Fragment implements LocationListener {
 
     private static final String TAG = "PositionFragment";
+    Context context;
 
     View myView;
 
@@ -49,6 +50,7 @@ public class PositionFragment extends Fragment implements LocationListener {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         myView = inflater.inflate(R.layout.position_layout, container, false);
+        context = container.getContext();
 
         longitudeField = (TextView) myView.findViewById(R.id.TV_long);
         latitudeField = (TextView) myView.findViewById(R.id.TV_lat);
@@ -66,6 +68,8 @@ public class PositionFragment extends Fragment implements LocationListener {
             //locationRequest = new LocationRequest();
         }
 
+
+
         return myView;
     }
 
@@ -79,6 +83,8 @@ public class PositionFragment extends Fragment implements LocationListener {
 
         longitudeField.setText("Longitude: " + longitude + " .");
         latitudeField.setText("Latitude: " + latitude + " .");
+
+        //Toast.makeText(context, "Position fixed: " + TAG, Toast.LENGTH_SHORT).show();
     }
 
     @Override
