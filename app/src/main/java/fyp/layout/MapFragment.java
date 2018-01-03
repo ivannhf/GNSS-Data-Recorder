@@ -61,7 +61,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     private static final String TAG = "MapFragment";
     Context context;
 
-
     private GoogleMap googleMap;
     Marker mCurrLocationMarker = null;
 

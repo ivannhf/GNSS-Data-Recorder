@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
+    <group
+        android:id="@+id/group1"
+        android:checkableBehavior="single">
+
         <item
             android:id="@+id/nav_position"
             android:icon="@drawable/ic_menu_position"
             android:title="Position" />
+        <item
+            android:id="@+id/nav_list"
+            android:icon="@drawable/ic_menu_list"
+            android:title="Satellite List" />
         <item
             android:id="@+id/nav_radar"
             android:icon="@drawable/ic_menu_radar"
@@ -22,6 +29,18 @@
             android:id="@+id/nav_tool"
             android:icon="@drawable/ic_menu_manage"
             android:title="Tools" />
+
+    </group>
+
+    <group
+        android:id="@+id/group2"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_info"
+            android:icon="@drawable/ic_menu_info"
+            android:title="Info" />
+
     </group>
 
     <!--

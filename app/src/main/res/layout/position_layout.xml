@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:text="Logitude: "
+        android:text="Logitude: 0.0 ."
         android:textSize="25sp" />
 
     <TextView
@@ -24,14 +24,7 @@
         android:layout_alignStart="@+id/TV_long"
         android:layout_below="@+id/TV_long"
         android:layout_marginTop="29dp"
-        android:text="Latitude: "
+        android:text="Latitude: 0.0 ."
         android:textSize="25sp" />
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="Position" />
 </LinearLayout>
