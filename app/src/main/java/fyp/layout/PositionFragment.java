@@ -70,6 +70,7 @@ public class PositionFragment extends Fragment implements LocationListener {
 
 
 
+
         return myView;
     }
 

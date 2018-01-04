@@ -15,8 +15,12 @@
         android:layout_centerVertical="true"
         android:text="List" />
 
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <TextView
+        android:id="@+id/List"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text="List" />
 
 </LinearLayout>

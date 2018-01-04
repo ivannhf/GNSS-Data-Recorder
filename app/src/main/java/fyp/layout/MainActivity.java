@@ -71,6 +71,9 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "MainActivity";
     private static MainActivity sInstance;
 
+    // Listeners for Fragments
+    private ArrayList<MainActivityListener> mMainActivityListeners = new ArrayList<MainActivityListener>();
+    boolean mStarted;
 
     private LocationManager locationManager;
     private Location mLastLocation;
@@ -121,6 +124,7 @@ public class MainActivity extends AppCompatActivity
             }, 1000);
         } else {
             locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, this);
+            gpsStart();
         }
 
     }
@@ -245,6 +249,10 @@ public class MainActivity extends AppCompatActivity
         return sInstance;
     }
 
+    void addListener(MainActivityListener listener) {
+        mMainActivityListeners.add(listener);
+    }
+
 
     @Override
     public void onLocationChanged(Location location) {
@@ -264,5 +272,30 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onProviderDisabled(String provider) {
 
+    }
+
+    private synchronized void gpsStart() {
+        if (!mStarted) {
+            mStarted = true;
+            locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, this);
+        }
+        for (MainActivityListener listener : mMainActivityListeners) {
+            listener.gpsStart();
+        }
+    }
+
+    private synchronized void gpsStop() {
+        if (mStarted) {
+            locationManager.removeUpdates(this);
+            mStarted = false;
+            // Stop progress bar
+            setSupportProgressBarIndeterminateVisibility(Boolean.FALSE);
+
+            // Reset the options menu to trigger updates to action bar menu items
+            invalidateOptionsMenu();
+        }
+        for (MainActivityListener listener : mMainActivityListeners) {
+            listener.gpsStop();
+        }
     }
 }
