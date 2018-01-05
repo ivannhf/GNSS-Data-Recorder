@@ -1,6 +1,7 @@
 package fyp.layout;
 
 import android.Manifest;
+import android.location.GnssStatus;
 import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -23,9 +24,10 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 
 
-public class PositionFragment extends Fragment implements LocationListener {
+public class PositionFragment extends Fragment implements MainActivityListener {
 
     private static final String TAG = "PositionFragment";
     Context context;
@@ -55,9 +57,11 @@ public class PositionFragment extends Fragment implements LocationListener {
         longitudeField = (TextView) myView.findViewById(R.id.TV_long);
         latitudeField = (TextView) myView.findViewById(R.id.TV_lat);
 
-        locationManager = (LocationManager) getActivity().getSystemService(getActivity().LOCATION_SERVICE);
+        MainActivity.getInstance().addListener(this);
 
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        //locationManager = (LocationManager) getActivity().getSystemService(getActivity().LOCATION_SERVICE);
+
+        /*if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(), new String[]{
                     Manifest.permission.ACCESS_FINE_LOCATION,
@@ -66,7 +70,7 @@ public class PositionFragment extends Fragment implements LocationListener {
         } else {
             locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, PositionFragment.this);
             //locationRequest = new LocationRequest();
-        }
+        }*/
 
 
 
@@ -74,6 +78,16 @@ public class PositionFragment extends Fragment implements LocationListener {
         return myView;
     }
 
+
+    @Override
+    public void gpsStart() {
+
+    }
+
+    @Override
+    public void gpsStop() {
+
+    }
 
     @Override
     public void onLocationChanged(Location location) {
@@ -85,7 +99,29 @@ public class PositionFragment extends Fragment implements LocationListener {
         longitudeField.setText("Longitude: " + longitude + " .");
         latitudeField.setText("Latitude: " + latitude + " .");
 
-        //Toast.makeText(context, "Position fixed: " + TAG, Toast.LENGTH_SHORT).show();
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+        //Toast.makeText(context, "Position fixed: " + latLng, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onGnssFirstFix(int ttffMillis) {
+
+    }
+
+    @Override
+    public void onSatelliteStatusChanged(GnssStatus status) {
+
+    }
+
+    @Override
+    public void onGnssStarted() {
+
+    }
+
+    @Override
+    public void onGnssStopped() {
+
     }
 
     @Override

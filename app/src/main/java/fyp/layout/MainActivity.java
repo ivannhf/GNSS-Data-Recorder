@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
@@ -81,11 +82,13 @@ public class MainActivity extends AppCompatActivity
     private GnssStatus.Callback mGnssStatusListener;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -117,7 +120,6 @@ public class MainActivity extends AppCompatActivity
 
 
         sInstance = this;
-
 
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -215,16 +217,33 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onStart() {
-        locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, this);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            }, 1000);
+        } else {
+            locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, this);
+        }
 
         super.onStart();
     }
 
     @Override
     protected void onResume() {
-        locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, this);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            }, 1000);
+        } else {
+            locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, this);
+            addGnssStatusListener();
+        }
         //Toast.makeText(this, "App resume", Toast.LENGTH_SHORT).show();
-        addGnssStatusListener();
+
         super.onResume();
 
     }

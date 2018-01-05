@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:text="List" />
+        android:text="No. of satellites (Fixed satellites  / Total satellites): 0/0" />
 
     <GridView
         android:id="@+id/SatList"
@@ -27,6 +27,6 @@
         android:columnWidth="50dp"
         android:stretchMode="columnWidth"
         android:listSelector="@android:color/transparent"
-        android:gravity="center" />
+        android:gravity="left" />
 
 </LinearLayout>

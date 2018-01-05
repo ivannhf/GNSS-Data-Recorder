@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 //import android.app.Fragment;
 import android.content.Context;
+import android.location.GnssStatus;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.support.v4.app.Fragment;
@@ -54,7 +55,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, LocationListener {
+public class MapFragment extends Fragment implements OnMapReadyCallback, MainActivityListener {
 
     //View myView;
 
@@ -78,9 +79,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
     }
 
-
-
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -103,12 +101,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     public void onMapReady(GoogleMap map) {
         //map is ready
         googleMap = map;
-        googleMap.setMyLocationEnabled(true);
+        //googleMap.setMyLocationEnabled(true);
 
         //mCurrLocationMarker = googleMap.addMarker(new MarkerOptions().position(new LatLng(22.304185, 114.179534)).title("Current Position"));
         //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(22.304185, 114.179534), 17));
 
-        locationManager = (LocationManager) getActivity().getSystemService(getActivity().LOCATION_SERVICE);
+        /*locationManager = (LocationManager) getActivity().getSystemService(getActivity().LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(), new String[]{
@@ -118,8 +116,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         } else {
             locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, MapFragment.this);
             //locationRequest = new LocationRequest();
-        }
+        }*/
+        MainActivity.getInstance().addListener(this);
 
+
+    }
+
+    @Override
+    public void gpsStart() {
+
+    }
+
+    @Override
+    public void gpsStop() {
 
     }
 
@@ -156,6 +165,26 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
         //Toast.makeText(context, "Marker Updated\n" + latLng, Toast.LENGTH_SHORT).show();
         //}
+
+    }
+
+    @Override
+    public void onGnssFirstFix(int ttffMillis) {
+
+    }
+
+    @Override
+    public void onSatelliteStatusChanged(GnssStatus status) {
+
+    }
+
+    @Override
+    public void onGnssStarted() {
+
+    }
+
+    @Override
+    public void onGnssStopped() {
 
     }
 
