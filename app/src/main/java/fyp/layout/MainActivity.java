@@ -18,6 +18,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Criteria;
+import android.location.GnssMeasurement;
 import android.location.GnssMeasurementsEvent;
 import android.location.GnssNavigationMessage;
 import android.location.GnssStatus;
@@ -66,6 +67,9 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import static fyp.layout.util.GpsTestUtil.writeGnssMeasurementToLog;
+
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, LocationListener {
 
@@ -80,6 +84,8 @@ public class MainActivity extends AppCompatActivity
     private Location mLastLocation;
     private GnssStatus mGnssStatus;
     private GnssStatus.Callback mGnssStatusListener;
+    private GnssMeasurementsEvent.Callback mGnssMeasurementsListener;
+    boolean mWriteGnssMeasurementToLog;
 
 
     @Override
@@ -367,5 +373,49 @@ public class MainActivity extends AppCompatActivity
         };
         locationManager.registerGnssStatusCallback(mGnssStatusListener);
 
+    }
+
+    private void addGnssMeasurementsListener() {
+        mGnssMeasurementsListener = new GnssMeasurementsEvent.Callback() {
+            @Override
+            public void onGnssMeasurementsReceived(GnssMeasurementsEvent event) {
+                for (MainActivityListener listener : mMainActivityListeners) {
+                    listener.onGnssMeasurementsReceived(event);
+                }
+                if (mWriteGnssMeasurementToLog) {
+                    for (GnssMeasurement m : event.getMeasurements()) {
+                        writeGnssMeasurementToLog(m);
+                    }
+                }
+            }
+
+            @Override
+            public void onStatusChanged(int status) {
+                final String statusMessage;
+                switch (status) {
+                    case STATUS_LOCATION_DISABLED:
+                        statusMessage = getString(R.string.gnss_measurement_status_loc_disabled);
+                        break;
+                    case STATUS_NOT_SUPPORTED:
+                        statusMessage = getString(R.string.gnss_measurement_status_not_supported);
+                        break;
+                    case STATUS_READY:
+                        statusMessage = getString(R.string.gnss_measurement_status_ready);
+                        break;
+                    default:
+                        statusMessage = getString(R.string.gnss_status_unknown);
+                }
+                Log.d(TAG, "GnssMeasurementsEvent.Callback.onStatusChanged() - " + statusMessage);
+                if (fyp.layout.util.GpsTestUtil.canManageDialog(MainActivity.this)) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, statusMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        };
+        locationManager.registerGnssMeasurementsCallback(mGnssMeasurementsListener);
     }
 }

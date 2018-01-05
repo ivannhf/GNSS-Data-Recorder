@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 //import android.app.Fragment;
 import android.content.Context;
+import android.location.GnssMeasurementsEvent;
 import android.location.GnssStatus;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -185,6 +186,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MainAct
 
     @Override
     public void onGnssStopped() {
+
+    }
+
+    @Override
+    public void onGnssMeasurementsReceived(GnssMeasurementsEvent event) {
 
     }
 

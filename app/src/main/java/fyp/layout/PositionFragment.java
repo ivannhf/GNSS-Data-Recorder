@@ -1,6 +1,7 @@
 package fyp.layout;
 
 import android.Manifest;
+import android.location.GnssMeasurementsEvent;
 import android.location.GnssStatus;
 import android.support.v4.app.Fragment;
 import android.content.Context;
@@ -121,6 +122,11 @@ public class PositionFragment extends Fragment implements MainActivityListener {
 
     @Override
     public void onGnssStopped() {
+
+    }
+
+    @Override
+    public void onGnssMeasurementsReceived(GnssMeasurementsEvent event) {
 
     }
 

@@ -20,4 +20,6 @@ public interface MainActivityListener extends LocationListener {
     void onGnssStarted();
 
     void onGnssStopped();
+
+    void onGnssMeasurementsReceived(GnssMeasurementsEvent event);
 }

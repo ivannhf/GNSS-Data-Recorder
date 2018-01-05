@@ -3,6 +3,7 @@ package fyp.layout;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.location.GnssMeasurementsEvent;
 import android.location.GnssStatus;
 import android.location.Location;
 import android.location.LocationManager;
@@ -146,6 +147,11 @@ public class ListFragment extends Fragment implements MainActivityListener {
 
     @Override
     public void onGnssStopped() {
+
+    }
+
+    @Override
+    public void onGnssMeasurementsReceived(GnssMeasurementsEvent event) {
 
     }
 
