@@ -12,4 +12,10 @@
     <string name="google_map_api_key">AIzaSyC3nNZV0POlegfFJcDMaMy04uXhxs-LA20</string>
 
 
+
+    <!-- List Fragment -->
+    <string name="gps_num_sats_value">%1$d/%2$d</string>
+    <string name="gps_elevation_column_value">%1$s\u00B0</string>
+    <string name="gps_azimuth_column_value">%1$s\u00B0</string>
+
 </resources>

@@ -77,6 +77,9 @@ public class MainActivity extends AppCompatActivity
 
     private LocationManager locationManager;
     private Location mLastLocation;
+    private GnssStatus mGnssStatus;
+    private GnssStatus.Callback mGnssStatusListener;
+
 
 
     @Override
@@ -115,6 +118,8 @@ public class MainActivity extends AppCompatActivity
 
         sInstance = this;
 
+
+
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -125,6 +130,7 @@ public class MainActivity extends AppCompatActivity
         } else {
             locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, this);
             gpsStart();
+            addGnssStatusListener();
         }
 
     }
@@ -217,7 +223,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, this);
-        Toast.makeText(this, "App resume", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "App resume", Toast.LENGTH_SHORT).show();
+        addGnssStatusListener();
         super.onResume();
 
     }
@@ -225,7 +232,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         locationManager.removeUpdates(this);
-        Toast.makeText(this, "App pause", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "App pause", Toast.LENGTH_SHORT).show();
         super.onPause();
 
     }
@@ -233,7 +240,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         locationManager.removeUpdates(this);
-        Toast.makeText(this, "App stop", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "App stop", Toast.LENGTH_SHORT).show();
         super.onStop();
 
     }
@@ -241,7 +248,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         locationManager.removeUpdates(this);
-        Toast.makeText(this, "App destroy", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "App destroy", Toast.LENGTH_SHORT).show();
         super.onDestroy();
     }
 
@@ -253,10 +260,14 @@ public class MainActivity extends AppCompatActivity
         mMainActivityListeners.add(listener);
     }
 
-
+    // location listener
     @Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
+
+        for (MainActivityListener listener : mMainActivityListeners) {
+            listener.onLocationChanged(mLastLocation);
+        }
     }
 
     @Override
@@ -273,6 +284,7 @@ public class MainActivity extends AppCompatActivity
     public void onProviderDisabled(String provider) {
 
     }
+    // location listener
 
     private synchronized void gpsStart() {
         if (!mStarted) {
@@ -297,5 +309,44 @@ public class MainActivity extends AppCompatActivity
         for (MainActivityListener listener : mMainActivityListeners) {
             listener.gpsStop();
         }
+    }
+
+    private void addGnssStatusListener() {
+        mGnssStatusListener = new GnssStatus.Callback() {
+            @Override
+            public void onStarted() {
+                for (MainActivityListener listener : mMainActivityListeners) {
+                    listener.onGnssStarted();
+                }
+            }
+
+            @Override
+            public void onStopped() {
+                for (MainActivityListener listener : mMainActivityListeners) {
+                    listener.onGnssStopped();
+                }
+            }
+
+            @Override
+            public void onFirstFix(int ttffMillis) {
+                for (MainActivityListener listener : mMainActivityListeners) {
+                    listener.onGnssFirstFix(ttffMillis);
+                }
+            }
+
+            @Override
+            public void onSatelliteStatusChanged(GnssStatus status) {
+                mGnssStatus = status;
+
+                // Stop progress bar after the first status information is obtained
+                setSupportProgressBarIndeterminateVisibility(Boolean.FALSE);
+
+                for (MainActivityListener listener : mMainActivityListeners) {
+                    listener.onSatelliteStatusChanged(mGnssStatus);
+                }
+            }
+        };
+        locationManager.registerGnssStatusCallback(mGnssStatusListener);
+
     }
 }
