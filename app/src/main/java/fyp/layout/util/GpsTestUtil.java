@@ -84,4 +84,19 @@ public class GpsTestUtil {
             return !activity.isFinishing();
         }
     }
+
+    public static int dpToPixels(Context context, float dp) {
+        // Get the screen's density scale
+        final float scale = context.getResources().getDisplayMetrics().density;
+        // Convert the dps to pixels, based on density scale
+        return (int) (dp * scale + 0.5f);
+    }
+
+    public static boolean isRotationVectorSensorSupported(Context context) {
+        SensorManager sensorManager = (SensorManager) context
+                .getSystemService(Context.SENSOR_SERVICE);
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD &&
+                sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) != null;
+    }
+
 }

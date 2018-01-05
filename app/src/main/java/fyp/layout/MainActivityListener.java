@@ -1,5 +1,6 @@
 package fyp.layout;
 
+import android.hardware.SensorEvent;
 import android.location.GnssMeasurementsEvent;
 import android.location.GnssStatus;
 import android.location.GpsStatus;
@@ -11,8 +12,6 @@ public interface MainActivityListener extends LocationListener {
 
     void gpsStop();
 
-    void onLocationChanged(Location location);
-
     void onGnssFirstFix(int ttffMillis);
 
     void onSatelliteStatusChanged(GnssStatus status);
@@ -22,4 +21,6 @@ public interface MainActivityListener extends LocationListener {
     void onGnssStopped();
 
     void onGnssMeasurementsReceived(GnssMeasurementsEvent event);
+
+    void onOrientationChanged(double orientation, double tilt);
 }

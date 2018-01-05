@@ -41,6 +41,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.Surface;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -61,6 +62,7 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.MapsInitializer;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -71,7 +73,7 @@ import static fyp.layout.util.GpsTestUtil.writeGnssMeasurementToLog;
 
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, LocationListener {
+        implements NavigationView.OnNavigationItemSelectedListener, LocationListener, SensorEventListener {
 
     private static final String TAG = "MainActivity";
     private static MainActivity sInstance;
@@ -86,6 +88,16 @@ public class MainActivity extends AppCompatActivity
     private GnssStatus.Callback mGnssStatusListener;
     private GnssMeasurementsEvent.Callback mGnssMeasurementsListener;
     boolean mWriteGnssMeasurementToLog;
+
+    // Sensor Event
+    private SensorManager mSensorManager;
+    private static boolean mTruncateVector = false;
+    private static float[] mRotationMatrix = new float[16];
+    private static float[] mRemappedMatrix = new float[16];
+    private static float[] mValues = new float[3];
+    private static float[] mTruncatedRotationVector = new float[4];
+    boolean mFaceTrueNorth;
+    private GeomagneticField mGeomagneticField;
 
 
     @Override
@@ -127,6 +139,7 @@ public class MainActivity extends AppCompatActivity
 
         sInstance = this;
 
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -248,6 +261,8 @@ public class MainActivity extends AppCompatActivity
             locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, this);
             addGnssStatusListener();
         }
+
+        addOrientationSensorListener();
         //Toast.makeText(this, "App resume", Toast.LENGTH_SHORT).show();
 
         super.onResume();
@@ -285,10 +300,27 @@ public class MainActivity extends AppCompatActivity
         mMainActivityListeners.add(listener);
     }
 
+    private void addOrientationSensorListener() {
+        if (fyp.layout.util.GpsTestUtil.isRotationVectorSensorSupported(this)) {
+            // Use the modern rotation vector sensors
+            Sensor vectorSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+            mSensorManager.registerListener(this, vectorSensor, 16000); // ~60hz
+        } else {
+            // Use the legacy orientation sensors
+            Sensor sensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+            if (sensor != null) {
+                mSensorManager.registerListener(this, sensor,
+                        SensorManager.SENSOR_DELAY_GAME);
+            }
+        }
+    }
+
     // location listener
     @Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
+
+        updateGeomagneticField();
 
         for (MainActivityListener listener : mMainActivityListeners) {
             listener.onLocationChanged(mLastLocation);
@@ -417,5 +449,102 @@ public class MainActivity extends AppCompatActivity
             }
         };
         locationManager.registerGnssMeasurementsCallback(mGnssMeasurementsListener);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        double orientation = Double.NaN;
+        double tilt = Double.NaN;
+
+        switch (event.sensor.getType()) {
+            case Sensor.TYPE_ROTATION_VECTOR:
+                // Modern rotation vector sensors
+                if (!mTruncateVector) {
+                    try {
+                        SensorManager.getRotationMatrixFromVector(mRotationMatrix, event.values);
+                    } catch (IllegalArgumentException e) {
+                        // On some Samsung devices, an exception is thrown if this vector > 4 (see #39)
+                        // Truncate the array, since we can deal with only the first four values
+                        Log.e(TAG, "Samsung device error? Will truncate vectors - " + e);
+                        mTruncateVector = true;
+                        // Do the truncation here the first time the exception occurs
+                        getRotationMatrixFromTruncatedVector(event.values);
+                    }
+                } else {
+                    // Truncate the array to avoid the exception on some devices (see #39)
+                    getRotationMatrixFromTruncatedVector(event.values);
+                }
+
+                int rot = getWindowManager().getDefaultDisplay().getRotation();
+                switch (rot) {
+                    case Surface.ROTATION_0:
+                        // No orientation change, use default coordinate system
+                        SensorManager.getOrientation(mRotationMatrix, mValues);
+                        // Log.d(TAG, "Rotation-0");
+                        break;
+                    case Surface.ROTATION_90:
+                        // Log.d(TAG, "Rotation-90");
+                        SensorManager.remapCoordinateSystem(mRotationMatrix, SensorManager.AXIS_Y,
+                                SensorManager.AXIS_MINUS_X, mRemappedMatrix);
+                        SensorManager.getOrientation(mRemappedMatrix, mValues);
+                        break;
+                    case Surface.ROTATION_180:
+                        // Log.d(TAG, "Rotation-180");
+                        SensorManager
+                                .remapCoordinateSystem(mRotationMatrix, SensorManager.AXIS_MINUS_X,
+                                        SensorManager.AXIS_MINUS_Y, mRemappedMatrix);
+                        SensorManager.getOrientation(mRemappedMatrix, mValues);
+                        break;
+                    case Surface.ROTATION_270:
+                        // Log.d(TAG, "Rotation-270");
+                        SensorManager
+                                .remapCoordinateSystem(mRotationMatrix, SensorManager.AXIS_MINUS_Y,
+                                        SensorManager.AXIS_X, mRemappedMatrix);
+                        SensorManager.getOrientation(mRemappedMatrix, mValues);
+                        break;
+                    default:
+                        // This shouldn't happen - assume default orientation
+                        SensorManager.getOrientation(mRotationMatrix, mValues);
+                        // Log.d(TAG, "Rotation-Unknown");
+                        break;
+                }
+                orientation = Math.toDegrees(mValues[0]);  // azimuth
+                tilt = Math.toDegrees(mValues[1]);
+                break;
+            case Sensor.TYPE_ORIENTATION:
+                // Legacy orientation sensors
+                orientation = event.values[0];
+                break;
+            default:
+                // A sensor we're not using, so return
+                return;
+        }
+
+        // Correct for true north, if preference is set
+        if (mFaceTrueNorth && mGeomagneticField != null) {
+            orientation += mGeomagneticField.getDeclination();
+            // Make sure value is between 0-360
+            orientation = fyp.layout.util.MathUtils.mod((float) orientation, 360.0f);
+        }
+
+        for (MainActivityListener listener : mMainActivityListeners) {
+            listener.onOrientationChanged(orientation, tilt);
+        }
+    }
+
+    private void getRotationMatrixFromTruncatedVector(float[] vector) {
+        System.arraycopy(vector, 0, mTruncatedRotationVector, 0, 4);
+        SensorManager.getRotationMatrixFromVector(mRotationMatrix, mTruncatedRotationVector);
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
+    private void updateGeomagneticField() {
+        mGeomagneticField = new GeomagneticField((float) mLastLocation.getLatitude(),
+                (float) mLastLocation.getLongitude(), (float) mLastLocation.getAltitude(),
+                mLastLocation.getTime());
     }
 }

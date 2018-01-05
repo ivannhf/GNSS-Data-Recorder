@@ -131,6 +131,11 @@ public class PositionFragment extends Fragment implements MainActivityListener {
     }
 
     @Override
+    public void onOrientationChanged(double orientation, double tilt) {
+
+    }
+
+    @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
 
     }

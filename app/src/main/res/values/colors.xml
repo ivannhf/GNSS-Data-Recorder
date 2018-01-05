@@ -4,4 +4,8 @@
     <color name="colorPrimaryDark">#383838</color>
     <color name="colorAccent">#636363</color>
     <color name="teal">#009688</color>
+
+    <!-- skyview -->
+    <color name="not_in_view_sat">#11000000</color>
+
 </resources>

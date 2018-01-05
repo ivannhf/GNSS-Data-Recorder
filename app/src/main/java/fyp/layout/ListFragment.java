@@ -156,6 +156,11 @@ public class ListFragment extends Fragment implements MainActivityListener {
     }
 
     @Override
+    public void onOrientationChanged(double orientation, double tilt) {
+
+    }
+
+    @Override
     public void onLocationChanged(Location location) {
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         //Toast.makeText(context, "" + latLng, Toast.LENGTH_SHORT).show();

@@ -195,6 +195,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MainAct
     }
 
     @Override
+    public void onOrientationChanged(double orientation, double tilt) {
+
+    }
+
+    @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
 
     }
