@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="23dp"
+    android:layout_marginRight="23dp"
+    android:layout_marginTop="0dp"
+    android:orientation="vertical">
+
+    <!-- GPS -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textGPS"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="GPS"
+            android:textAlignment="center" />
+
+        <ProgressBar
+            android:id="@+id/progressBarGPS"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/Sat_GPS"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="0/0"
+            android:textAlignment="center" />
+    </LinearLayout>
+
+    <!-- GLO -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textGLO"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="GLONASS"
+            android:textAlignment="center" />
+
+        <ProgressBar
+            android:id="@+id/progressBarGLO"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/Sat_GLO"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="0/0"
+            android:textAlignment="center" />
+    </LinearLayout>
+
+    <!-- QZSS -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textQZSS"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="QZSS"
+            android:textAlignment="center" />
+
+        <ProgressBar
+            android:id="@+id/progressBarQZSS"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/Sat_QZSS"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="0/0"
+            android:textAlignment="center" />
+    </LinearLayout>
+
+    <!-- BEIDOU -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textBD"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="BEIDOU"
+            android:textAlignment="center" />
+
+        <ProgressBar
+            android:id="@+id/progressBarBD"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/Sat_BD"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="0/0"
+            android:textAlignment="center" />
+    </LinearLayout>
+
+    <!-- GAL -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textGAL"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:textAlignment="center"
+            android:text="GALILEO" />
+
+        <ProgressBar
+            android:id="@+id/progressBarGAL"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"/>
+
+        <TextView
+            android:id="@+id/Sat_GAL"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:textAlignment="center"
+            android:text="0/0" />
+    </LinearLayout>
+
+</LinearLayout>

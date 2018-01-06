@@ -34,9 +34,11 @@ public class ListFragment extends Fragment implements MainActivityListener {
 
     TextView tv, mNumSats;
 
+    /*
     private LocationManager locationManager = null;
     private GnssStatus.Callback mGnssStatusListener;
     private GnssStatus mGnssStatus;
+    */
 
     // SvGrid
     private SvGridAdapter mAdapter;
@@ -61,7 +63,7 @@ public class ListFragment extends Fragment implements MainActivityListener {
         context = container.getContext();
         resources = getResources();
 
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        //locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
         mNumSats = (TextView) myView.findViewById(R.id.num_sats);
 

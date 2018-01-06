@@ -228,10 +228,10 @@ public class MainActivity extends AppCompatActivity
                             , toolFragment)
                     .commit();
         } else if (id == R.id.nav_info) {
-            InfoFragment infoFragment = new InfoFragment();
+            SysFragment sysFragment = new SysFragment();
             fragmentManager.beginTransaction()
                     .replace(R.id.content_frame
-                            , infoFragment)
+                            , sysFragment)
                     .commit();
         }
 
