@@ -58,12 +58,6 @@ public class SysFragment extends Fragment implements MainActivityListener {
         bdBar = (ProgressBar) myView.findViewById(R.id.progressBarBD);
         galBar = (ProgressBar) myView.findViewById(R.id.progressBarGAL);
 
-        /*gpsBar.setMin(0);
-        gloBar.setMin(0);
-        qzssBar.setMin(0);
-        bdBar.setMin(0);
-        galBar.setMin(0);*/
-
         return myView;
     }
 
