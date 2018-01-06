@@ -7,7 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class RadarFragment extends Fragment {
+public class InfoFragment extends Fragment {
     View myView;
 
     @Nullable
@@ -17,4 +17,5 @@ public class RadarFragment extends Fragment {
 
         return myView;
     }
+
 }

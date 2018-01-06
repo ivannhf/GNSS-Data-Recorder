@@ -227,6 +227,12 @@ public class MainActivity extends AppCompatActivity
                     .replace(R.id.content_frame
                             , toolFragment)
                     .commit();
+        } else if (id == R.id.nav_info) {
+            InfoFragment infoFragment = new InfoFragment();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.content_frame
+                            , infoFragment)
+                    .commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
