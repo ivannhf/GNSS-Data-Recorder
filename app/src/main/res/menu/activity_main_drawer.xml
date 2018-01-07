@@ -39,6 +39,7 @@
         <item
             android:id="@+id/nav_info"
             android:icon="@drawable/ic_menu_info"
+            android:checkable="false"
             android:title="Info" />
 
     </group>

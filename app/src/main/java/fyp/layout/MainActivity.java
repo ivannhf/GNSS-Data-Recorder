@@ -79,6 +79,9 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "MainActivity";
     private static MainActivity sInstance;
 
+    int lastFragID;
+
+
     PositionFragment positionFragment;
     ListFragment listFragment;
     RadarFragment radarFragment;
@@ -151,6 +154,7 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.content_frame
                         , positionFragment)
                 .commit();
+        lastFragID = R.id.nav_position;
 
 
         sInstance = this;
@@ -169,6 +173,7 @@ public class MainActivity extends AppCompatActivity
             gpsStart();
             addGnssStatusListener();
             addGnssMeasurementsListener();
+            addGnssGnssNavigationMessageListener();
         }
 
 
@@ -214,7 +219,6 @@ public class MainActivity extends AppCompatActivity
         FragmentManager fragmentManager = getSupportFragmentManager();
 
         if (id == R.id.nav_position) {
-            // Handle the camera action
             fragmentManager.beginTransaction()
                     .replace(R.id.content_frame
                             , positionFragment)
@@ -240,17 +244,11 @@ public class MainActivity extends AppCompatActivity
                             , mapFragment)
                     .commit();
         } else if (id == R.id.nav_tool) {
-            //ToolFragment toolFragment = new ToolFragment();
             fragmentManager.beginTransaction()
                     .replace(R.id.content_frame
                             , toolFragment)
                     .commit();
         } else if (id == R.id.nav_info) {
-            //SysFragment sysFragment = new SysFragment();
-            /*fragmentManager.beginTransaction()
-                    .replace(R.id.content_frame
-                            , sysFragment)
-                    .commit();*/
             InfoFragment infoFragment = new InfoFragment();
             infoFragment.show(getSupportFragmentManager(), "info");
         }
