@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity
     private GnssStatus mGnssStatus;
     private GnssStatus.Callback mGnssStatusListener;
     private GnssMeasurementsEvent.Callback mGnssMeasurementsListener;
+    private GnssNavigationMessage.Callback mGnssNavigationMessageListener;
     boolean mWriteGnssMeasurementToLog;
 
     // Sensor Event
@@ -166,7 +167,10 @@ public class MainActivity extends AppCompatActivity
             locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, this);
             gpsStart();
             addGnssStatusListener();
+            addGnssMeasurementsListener();
         }
+
+
     }
 
     @Override
@@ -468,6 +472,23 @@ public class MainActivity extends AppCompatActivity
             }
         };
         locationManager.registerGnssMeasurementsCallback(mGnssMeasurementsListener);
+    }
+
+    private void addGnssGnssNavigationMessageListener() {
+        mGnssNavigationMessageListener = new GnssNavigationMessage.Callback() {
+            @Override
+            public void onGnssNavigationMessageReceived(GnssNavigationMessage event) {
+                for (MainActivityListener listener : mMainActivityListeners) {
+                    listener.onGnssNavigationMessageReceived(event);
+                }
+            }
+
+            @Override
+            public void onStatusChanged(int status) {
+
+            }
+        };
+        locationManager.registerGnssNavigationMessageCallback(mGnssNavigationMessageListener);
     }
 
     @Override

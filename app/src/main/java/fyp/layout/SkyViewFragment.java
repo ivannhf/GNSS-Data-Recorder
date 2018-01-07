@@ -10,6 +10,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.location.GnssMeasurementsEvent;
+import android.location.GnssNavigationMessage;
 import android.location.GnssStatus;
 import android.location.Location;
 import android.os.Build;
@@ -146,6 +147,11 @@ public class SkyViewFragment extends Fragment implements MainActivityListener{
     @Override
     public void onGnssMeasurementsReceived(GnssMeasurementsEvent event) {
         mSkyView.setGnssMeasurementEvent(event);
+    }
+
+    @Override
+    public void onGnssNavigationMessageReceived(GnssNavigationMessage event) {
+
     }
 
     public static class GpsSkyView extends View implements MainActivityListener {
@@ -644,6 +650,11 @@ public class SkyViewFragment extends Fragment implements MainActivityListener{
 
         @Override
         public void onGnssMeasurementsReceived(GnssMeasurementsEvent event) {
+
+        }
+
+        @Override
+        public void onGnssNavigationMessageReceived(GnssNavigationMessage event) {
 
         }
     }

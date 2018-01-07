@@ -5,6 +5,7 @@ package fyp.layout;
 import android.content.Context;
 import android.content.res.Resources;
 import android.location.GnssMeasurementsEvent;
+import android.location.GnssNavigationMessage;
 import android.location.GnssStatus;
 import android.location.Location;
 import android.os.Build;
@@ -168,6 +169,11 @@ public class SysFragment extends Fragment implements MainActivityListener {
 
     @Override
     public void onGnssMeasurementsReceived(GnssMeasurementsEvent event) {
+
+    }
+
+    @Override
+    public void onGnssNavigationMessageReceived(GnssNavigationMessage event) {
 
     }
 
