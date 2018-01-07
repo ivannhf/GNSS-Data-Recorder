@@ -90,7 +90,7 @@ public class InfoFragment extends DialogFragment implements MainActivityListener
 
     @Override
     public void onSatelliteStatusChanged(GnssStatus status) {
-        Toast.makeText(getContext(), "change", Toast.LENGTH_SHORT).show();
+
     }
 
     @Override
