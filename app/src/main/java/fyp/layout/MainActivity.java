@@ -17,6 +17,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.icu.text.IDNA;
 import android.location.Criteria;
 import android.location.GnssMeasurement;
 import android.location.GnssMeasurementsEvent;
@@ -250,6 +251,8 @@ public class MainActivity extends AppCompatActivity
                     .replace(R.id.content_frame
                             , sysFragment)
                     .commit();*/
+            InfoFragment infoFragment = new InfoFragment();
+            infoFragment.show(getSupportFragmentManager(), "info");
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
