@@ -268,6 +268,9 @@ public class MainActivity extends AppCompatActivity
             }, 1000);
         } else {
             locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, this);
+            addGnssStatusListener();
+            addGnssMeasurementsListener();
+            addGnssGnssNavigationMessageListener();
         }
 
         super.onStart();
@@ -284,6 +287,8 @@ public class MainActivity extends AppCompatActivity
         } else {
             locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, this);
             addGnssStatusListener();
+            addGnssMeasurementsListener();
+            addGnssGnssNavigationMessageListener();
         }
 
         addOrientationSensorListener();

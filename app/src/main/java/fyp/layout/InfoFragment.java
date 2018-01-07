@@ -14,6 +14,7 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 import java.io.IOException;
 
 public class InfoFragment extends DialogFragment implements MainActivityListener {
+    private static final String TAG = "InfoFragment";
     View myView;
     Context context;
 
@@ -106,14 +108,31 @@ public class InfoFragment extends DialogFragment implements MainActivityListener
     @Override
     public void onGnssMeasurementsReceived(GnssMeasurementsEvent event) {
         for (GnssMeasurement measurement : event.getMeasurements()) {
-            if ((measurement.hasAutomaticGainControlLevelDb() == true) && (android.os.Build.VERSION.SDK_INT >= 26)) gainCtrl.setText("yes");
-            if (measurement.hasCarrierCycles() == true) carrierCyc.setText("yes");
-            if (measurement.hasCarrierFrequencyHz() == true) carrierFreq.setText("yes");
-            if (measurement.hasCarrierPhase() == true) carrierPhase.setText("yes");
-            if (measurement.hasCarrierPhaseUncertainty() == true) carrierPhaUn.setText("yes");
-            if (measurement.hasSnrInDb() == true) SNR.setText("yes");
+            if ((measurement.hasAutomaticGainControlLevelDb() == true) && (android.os.Build.VERSION.SDK_INT >= 26)) {
+                gainCtrl.setText("yes");
+            } else gainCtrl.setText("no");
+
+            if (measurement.hasCarrierCycles() == true) {
+                carrierCyc.setText("yes");
+            } else carrierCyc.setText("no");
+
+            if (measurement.hasCarrierFrequencyHz() == true) {
+                carrierFreq.setText("yes");
+            } else carrierFreq.setText("no");
+
+            if (measurement.hasCarrierPhase() == true) {
+                carrierPhase.setText("yes");
+            } else carrierPhase.setText("no");
+
+            if (measurement.hasCarrierPhaseUncertainty() == true) {
+                carrierPhaUn.setText("yes");
+            } else carrierPhaUn.setText("no");
+
+            if (measurement.hasSnrInDb() == true) {
+                SNR.setText("yes");
+            } else SNR.setText("no");
         }
-        Toast.makeText(getContext(), "Get gnss measure", Toast.LENGTH_SHORT).show();
+
     }
 
     @Override
