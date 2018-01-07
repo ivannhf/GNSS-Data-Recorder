@@ -78,6 +78,13 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "MainActivity";
     private static MainActivity sInstance;
 
+    PositionFragment positionFragment;
+    ListFragment listFragment;
+    RadarFragment radarFragment;
+    LogFragment logFragment;
+    MapFragment mapFragment;
+    ToolFragment toolFragment;
+
     // Listeners for Fragments
     private ArrayList<MainActivityListener> mMainActivityListeners = new ArrayList<MainActivityListener>();
     boolean mStarted;
@@ -128,9 +135,16 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
+        positionFragment = new PositionFragment();
+        listFragment = new ListFragment();
+        radarFragment = new RadarFragment();
+        logFragment = new LogFragment();
+        mapFragment = new MapFragment();
+        toolFragment = new ToolFragment();
+
         navigationView.setCheckedItem(R.id.nav_position);
         FragmentManager fragmentManager = getSupportFragmentManager();
-        PositionFragment positionFragment = new PositionFragment();
         fragmentManager.beginTransaction()
                 .replace(R.id.content_frame
                         , positionFragment)
@@ -153,7 +167,6 @@ public class MainActivity extends AppCompatActivity
             gpsStart();
             addGnssStatusListener();
         }
-
     }
 
     @Override
@@ -199,40 +212,40 @@ public class MainActivity extends AppCompatActivity
             // Handle the camera action
             fragmentManager.beginTransaction()
                     .replace(R.id.content_frame
-                            , new PositionFragment())
+                            , positionFragment)
                     .commit();
         } else if (id == R.id.nav_list) {
             fragmentManager.beginTransaction()
                     .replace(R.id.content_frame
-                            , new ListFragment())
+                            , listFragment)
                     .commit();
         } else if (id == R.id.nav_radar) {
             fragmentManager.beginTransaction()
                     .replace(R.id.content_frame
-                            , new RadarFragment())
+                            , radarFragment)
                     .commit();
         } else if (id == R.id.nav_log) {
             fragmentManager.beginTransaction()
                     .replace(R.id.content_frame
-                            , new LogFragment())
+                            , logFragment)
                     .commit();
         } else if (id == R.id.nav_map) {
             fragmentManager.beginTransaction()
                     .replace(R.id.content_frame
-                            , new MapFragment())
+                            , mapFragment)
                     .commit();
         } else if (id == R.id.nav_tool) {
-            ToolFragment toolFragment = new ToolFragment();
+            //ToolFragment toolFragment = new ToolFragment();
             fragmentManager.beginTransaction()
                     .replace(R.id.content_frame
                             , toolFragment)
                     .commit();
         } else if (id == R.id.nav_info) {
-            SysFragment sysFragment = new SysFragment();
-            fragmentManager.beginTransaction()
+            //SysFragment sysFragment = new SysFragment();
+            /*fragmentManager.beginTransaction()
                     .replace(R.id.content_frame
                             , sysFragment)
-                    .commit();
+                    .commit();*/
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
