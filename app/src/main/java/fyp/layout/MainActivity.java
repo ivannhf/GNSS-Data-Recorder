@@ -471,7 +471,8 @@ public class MainActivity extends AppCompatActivity
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(MainActivity.this, statusMessage, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(MainActivity.this, statusMessage, Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, statusMessage);
                         }
                     });
                 }
