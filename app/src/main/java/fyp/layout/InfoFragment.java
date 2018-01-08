@@ -146,6 +146,11 @@ public class InfoFragment extends DialogFragment implements MainActivityListener
     }
 
     @Override
+    public void sensorValue(double gyroX, double gyroY, double gyroZ, double accelX, double accelY, double accelZ, double heading) {
+
+    }
+
+    @Override
     public void onLocationChanged(Location location) {
 
     }

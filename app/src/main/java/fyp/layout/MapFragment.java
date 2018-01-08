@@ -58,8 +58,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, MainActivityListener {
+    @Override
+    public void sensorValue(double gyroX, double gyroY, double gyroZ, double accelX, double accelY, double accelZ, double heading) {
 
-    //View myView;
+    }
+//View myView;
 
     private static final String TAG = "MapFragment";
     Context context;

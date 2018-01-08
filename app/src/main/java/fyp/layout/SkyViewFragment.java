@@ -51,6 +51,11 @@ public class SkyViewFragment extends Fragment implements MainActivityListener{
         }
     }
 
+    @Override
+    public void sensorValue(double gyroX, double gyroY, double gyroZ, double accelX, double accelY, double accelZ, double heading) {
+
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -596,6 +601,11 @@ public class SkyViewFragment extends Fragment implements MainActivityListener{
         public void onOrientationChanged(double orientation, double tilt) {
             mOrientation = orientation;
             invalidate();
+        }
+
+        @Override
+        public void sensorValue(double gyroX, double gyroY, double gyroZ, double accelX, double accelY, double accelZ, double heading) {
+
         }
 
         @Override

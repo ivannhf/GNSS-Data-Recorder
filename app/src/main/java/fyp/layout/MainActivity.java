@@ -79,8 +79,9 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "MainActivity";
     private static MainActivity sInstance;
 
-    int lastFragID;
-
+    double gyroX = 0, gyroY = 0, gyroZ = 0, accelX = 0, accelY = 0, accelZ = 0, heading = 0;
+    double orientation = Double.NaN;
+    double tilt = Double.NaN;
 
     PositionFragment positionFragment;
     ListFragment listFragment;
@@ -103,6 +104,7 @@ public class MainActivity extends AppCompatActivity
 
     // Sensor Event
     private SensorManager mSensorManager;
+    private Sensor gyroSensor, accSensor, magSensor;
     private static boolean mTruncateVector = false;
     private static float[] mRotationMatrix = new float[16];
     private static float[] mRemappedMatrix = new float[16];
@@ -154,12 +156,16 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.content_frame
                         , positionFragment)
                 .commit();
-        lastFragID = R.id.nav_position;
+
 
 
         sInstance = this;
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+
+        gyroSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        accSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        magSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -334,6 +340,10 @@ public class MainActivity extends AppCompatActivity
             // Use the modern rotation vector sensors
             Sensor vectorSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
             mSensorManager.registerListener(this, vectorSensor, 16000); // ~60hz
+
+            mSensorManager.registerListener(this, gyroSensor, mSensorManager.SENSOR_DELAY_NORMAL);
+            mSensorManager.registerListener(this, accSensor, mSensorManager.SENSOR_DELAY_NORMAL);
+            mSensorManager.registerListener(this, magSensor, mSensorManager.SENSOR_DELAY_NORMAL);
         } else {
             // Use the legacy orientation sensors
             Sensor sensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
@@ -500,8 +510,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        double orientation = Double.NaN;
-        double tilt = Double.NaN;
+        // orientation = Double.NaN;
+        //double tilt = Double.NaN;
+        //double gyroX = 0, gyroY = 0, gyroZ = 0, accelX = 0, accelY = 0, accelZ = 0, heading = 0;
 
         switch (event.sensor.getType()) {
             case Sensor.TYPE_ROTATION_VECTOR:
@@ -562,6 +573,19 @@ public class MainActivity extends AppCompatActivity
                 // Legacy orientation sensors
                 orientation = event.values[0];
                 break;
+            case Sensor.TYPE_GYROSCOPE:
+                gyroX = event.values[0];
+                gyroY = event.values[1];
+                gyroZ = event.values[2];
+                break;
+            case Sensor.TYPE_ACCELEROMETER:
+                accelX= event.values[0];
+                accelY = event.values[1];
+                accelZ = event.values[2];
+                break;
+            case Sensor.TYPE_MAGNETIC_FIELD:
+                heading = event.values[0];
+                break;
             default:
                 // A sensor we're not using, so return
                 return;
@@ -576,6 +600,7 @@ public class MainActivity extends AppCompatActivity
 
         for (MainActivityListener listener : mMainActivityListeners) {
             listener.onOrientationChanged(orientation, tilt);
+            listener.sensorValue(gyroX, gyroY, gyroZ, accelX, accelY, accelZ, heading);
         }
     }
 

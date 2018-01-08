@@ -142,6 +142,11 @@ public class PositionFragment extends Fragment implements MainActivityListener {
     }
 
     @Override
+    public void sensorValue(double gyroX, double gyroY, double gyroZ, double accelX, double accelY, double accelZ, double heading) {
+
+    }
+
+    @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
 
     }
