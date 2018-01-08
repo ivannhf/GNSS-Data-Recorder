@@ -204,6 +204,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MainAct
     }
 
     @Override
+    public void onNmeaReceived(long l, String s) {
+
+    }
+
+    @Override
     public void onOrientationChanged(double orientation, double tilt) {
 
     }

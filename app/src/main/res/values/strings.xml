@@ -12,7 +12,6 @@
     <string name="google_map_api_key">AIzaSyC3nNZV0POlegfFJcDMaMy04uXhxs-LA20</string>
 
 
-
     <!-- List Fragment -->
     <string name="gps_num_sats_value">%1$d/%2$d</string>
     <string name="gps_elevation_column_value">%1$s\u00B0</string>
@@ -23,5 +22,27 @@
     <string name="gnss_measurement_status_not_supported">Device does not support tracking of GNSS Measurements</string>
     <string name="gnss_measurement_status_ready">GNSS Measurements are successfully being tracked</string>
     <string name="gnss_status_unknown">Unknown status callback</string>
+
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Settings -->
+    <string name="pref_title">Settings</string>
+
+    <string name="pref_radar_category_title">Radar</string>
+
+    <string name="pref_tilt_radar_with_sensors_title">Radar rotation</string>
+    <string name="pref_tilt_radar_with_sensors_summary">Set radar always rotate to heading north</string>
+
+    <string name="pref_map_category_title">Map</string>
+
+    <string name="pref_map_type_title">Map Type</string>
+    <string name="pref_map_type_summary">Sets the type of map tiles shown</string>
+    <string name="pref_map_type_dialog_title">Choose Map Type</string>
+
+    <string name="pref_log_category_title">Logging</string>
+
+    <string name="pref_log_type_title">Log type</string>
+    <string name="pref_log_type_summary">Sets the type of logging format</string>
+    <string name="pref_log_type_dialog_title">Choose Log Type</string>
 
 </resources>

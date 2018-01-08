@@ -1,15 +1,18 @@
 package fyp.layout;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 //import android.app.FragmentManager;
 //import android.app.Fragment;
+import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.hardware.GeomagneticField;
@@ -31,6 +34,7 @@ import android.location.LocationProvider;
 import android.location.OnNmeaMessageListener;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -78,6 +82,7 @@ public class MainActivity extends AppCompatActivity
 
     private static final String TAG = "MainActivity";
     private static MainActivity sInstance;
+    SharedPreferences setting;
 
     double gyroX = 0, gyroY = 0, gyroZ = 0, accelX = 0, accelY = 0, accelZ = 0, heading = 0;
     double orientation = Double.NaN;
@@ -89,6 +94,9 @@ public class MainActivity extends AppCompatActivity
     LogFragment logFragment;
     MapFragment mapFragment;
     ToolFragment toolFragment;
+
+    LoggerFile loggerFile;
+    LoggerUI loggerUI;
 
     // Listeners for Fragments
     private ArrayList<MainActivityListener> mMainActivityListeners = new ArrayList<MainActivityListener>();
@@ -113,23 +121,43 @@ public class MainActivity extends AppCompatActivity
     boolean mFaceTrueNorth;
     private GeomagneticField mGeomagneticField;
 
+    FloatingActionButton fab, fab_stop;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        PreferenceManager.setDefaultValues(this, R.xml.settings, false);
+        setting = PreferenceManager.getDefaultSharedPreferences(this);
+
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        //FloatingActionButton
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab_stop = (FloatingActionButton) findViewById(R.id.fab_stop);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Logging Started", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                fab_stop.setVisibility(View.VISIBLE);
+                fab.setVisibility(View.INVISIBLE);
+                loggerFile.startNewLog();
+            }
+        });
+        fab_stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Logging Stopped", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+                fab_stop.setVisibility(View.INVISIBLE);
+                fab.setVisibility(View.VISIBLE);
+                loggerFile.send();
             }
         });
 
@@ -150,13 +178,14 @@ public class MainActivity extends AppCompatActivity
         mapFragment = new MapFragment();
         toolFragment = new ToolFragment();
 
+
+
         navigationView.setCheckedItem(R.id.nav_position);
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.content_frame
                         , positionFragment)
                 .commit();
-
 
 
         sInstance = this;
@@ -182,6 +211,16 @@ public class MainActivity extends AppCompatActivity
             addGnssGnssNavigationMessageListener();
         }
 
+        if(ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+            }, 1001);
+        }
+
+        loggerFile = new LoggerFile(this);
+        loggerUI = new LoggerUI();
+        logFragment.setLoggerFile(loggerFile);
+        logFragment.setUILogger(loggerUI);
 
     }
 
@@ -211,6 +250,7 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            startActivity(new Intent(this, Setting.class));
             return true;
         }
 
@@ -508,6 +548,18 @@ public class MainActivity extends AppCompatActivity
         locationManager.registerGnssNavigationMessageCallback(mGnssNavigationMessageListener);
     }
 
+    private void addNmeaMessageListener() {
+        OnNmeaMessageListener nmeaListener =
+                new OnNmeaMessageListener() {
+                    @Override
+                    public void onNmeaMessage(String s, long l) {
+                        for (MainActivityListener listener : mMainActivityListeners) {
+                            listener.onNmeaReceived(l, s);
+                        }
+                    }
+                };
+    }
+
     @Override
     public void onSensorChanged(SensorEvent event) {
         // orientation = Double.NaN;
@@ -579,7 +631,7 @@ public class MainActivity extends AppCompatActivity
                 gyroZ = event.values[2];
                 break;
             case Sensor.TYPE_ACCELEROMETER:
-                accelX= event.values[0];
+                accelX = event.values[0];
                 accelY = event.values[1];
                 accelZ = event.values[2];
                 break;

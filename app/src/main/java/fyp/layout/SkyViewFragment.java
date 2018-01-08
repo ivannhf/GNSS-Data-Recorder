@@ -3,7 +3,9 @@ package fyp.layout;
 
 //import android.app.Fragment;
 import android.annotation.SuppressLint;
+import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -18,6 +20,7 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +34,7 @@ import fyp.layout.util.GnssType;
 public class SkyViewFragment extends Fragment implements MainActivityListener{
     private final static String TAG = "RadarFragment";
     View myView;
-
+    Context context;
 
     public static int mHeight;
 
@@ -63,6 +66,10 @@ public class SkyViewFragment extends Fragment implements MainActivityListener{
         //return myView;
 
         mSkyView = new GpsSkyView(getActivity());
+        context = getContext();
+
+        SharedPreferences setting = context.getSharedPreferences("setting", Context.MODE_PRIVATE);
+
 
 
         MainActivity.getInstance().addListener(this);
@@ -97,6 +104,11 @@ public class SkyViewFragment extends Fragment implements MainActivityListener{
         //view.addView(mSkyView);
         return mSkyView;
         //return myView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 
     @Override
@@ -156,6 +168,11 @@ public class SkyViewFragment extends Fragment implements MainActivityListener{
 
     @Override
     public void onGnssNavigationMessageReceived(GnssNavigationMessage event) {
+
+    }
+
+    @Override
+    public void onNmeaReceived(long l, String s) {
 
     }
 
@@ -665,6 +682,11 @@ public class SkyViewFragment extends Fragment implements MainActivityListener{
 
         @Override
         public void onGnssNavigationMessageReceived(GnssNavigationMessage event) {
+
+        }
+
+        @Override
+        public void onNmeaReceived(long l, String s) {
 
         }
     }

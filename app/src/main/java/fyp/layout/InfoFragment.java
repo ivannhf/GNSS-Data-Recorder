@@ -3,6 +3,7 @@ package fyp.layout;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.location.GnssMeasurement;
 import android.location.GnssMeasurementsEvent;
 import android.location.GnssNavigationMessage;
@@ -112,6 +113,7 @@ public class InfoFragment extends DialogFragment implements MainActivityListener
                 gainCtrl.setText("yes");
             } else gainCtrl.setText("no");
 
+
             if (measurement.hasCarrierCycles() == true) {
                 carrierCyc.setText("yes");
             } else carrierCyc.setText("no");
@@ -137,6 +139,11 @@ public class InfoFragment extends DialogFragment implements MainActivityListener
 
     @Override
     public void onGnssNavigationMessageReceived(GnssNavigationMessage event) {
+
+    }
+
+    @Override
+    public void onNmeaReceived(long l, String s) {
 
     }
 

@@ -4,6 +4,12 @@ package fyp.layout;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.location.GnssMeasurementsEvent;
+import android.location.GnssNavigationMessage;
+import android.location.GnssStatus;
+import android.location.Location;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -23,7 +29,7 @@ import android.widget.TextView;
 import fyp.layout.LoggerUI;
 
 
-public class LogFragment extends Fragment {
+public class LogFragment extends Fragment implements MainActivityListener {
 
     View myView;
 
@@ -39,9 +45,11 @@ public class LogFragment extends Fragment {
     private LoggerFile loggerFile;
 
     private final UIFragmentComponent mUiComponent = new UIFragmentComponent();
-    public void setFileLogger(LoggerFile value) {
+
+    public void setLoggerFile(LoggerFile value) {
         loggerFile = value;
     }
+
     public void setUILogger(LoggerUI value) {
         loggerUI = value;
     }
@@ -51,6 +59,8 @@ public class LogFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         myView = inflater.inflate(R.layout.log_layout, container, false);
+
+        MainActivity.getInstance().addListener(this);
 
         logView = (TextView) myView.findViewById(R.id.log_view);
         logScroll = (ScrollView) myView.findViewById(R.id.log_scroll);
@@ -63,11 +73,13 @@ public class LogFragment extends Fragment {
         autoScroll = (CheckBox) myView.findViewById(R.id.autoScroll);
 
         LoggerUI currentUiLogger = loggerUI;
+        loggerUI = new LoggerUI();
         if (currentUiLogger != null) {
             currentUiLogger.setUiFragmentComponent(mUiComponent);
         }
 
         LoggerFile currentFileLogger = loggerFile;
+        loggerFile = new LoggerFile(getContext());
         if (currentFileLogger != null) {
             currentFileLogger.setUiComponent(mUiComponent);
         }
@@ -104,10 +116,10 @@ public class LogFragment extends Fragment {
                     isAutoScroll = true;
                 } else {
                     isAutoScroll = false;
-                } ;
+                }
+                ;
             }
         });
-
 
 
         return myView;
@@ -119,6 +131,81 @@ public class LogFragment extends Fragment {
         timer.setEnabled(!started);
     }
 
+    @Override
+    public void gpsStart() {
+
+    }
+
+    @Override
+    public void gpsStop() {
+
+    }
+
+    @Override
+    public void onGnssFirstFix(int ttffMillis) {
+
+    }
+
+    @Override
+    public void onSatelliteStatusChanged(GnssStatus status) {
+
+    }
+
+    @Override
+    public void onGnssStarted() {
+
+    }
+
+    @Override
+    public void onGnssStopped() {
+
+    }
+
+    @Override
+    public void onGnssMeasurementsReceived(GnssMeasurementsEvent event) {
+
+    }
+
+    @Override
+    public void onGnssNavigationMessageReceived(GnssNavigationMessage event) {
+
+    }
+
+    @Override
+    public void onNmeaReceived(long l, String s) {
+
+    }
+
+    @Override
+    public void onOrientationChanged(double orientation, double tilt) {
+
+    }
+
+    @Override
+    public void sensorValue(double gyroX, double gyroY, double gyroZ, double accelX, double accelY, double accelZ, double heading) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
+
     public class UIFragmentComponent {
 
         private static final int MAX_LENGTH = 42000;
@@ -127,50 +214,42 @@ public class LogFragment extends Fragment {
         public synchronized void logTextFragment(final String tag, final String text, int color) {
             final SpannableStringBuilder builder = new SpannableStringBuilder();
             builder.append(tag).append(" | ").append(text).append("\n");
-            builder.setSpan(new ForegroundColorSpan(color), 0, builder.length(), SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-            autoScroll.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked) {
-                        builder.append("Auto Scroll: On\n");
-                    } else {
-                        builder.append("Auto Scroll: Off\n");
-                    } ;
-                }
-            });
+            builder.setSpan(
+                    new ForegroundColorSpan(color),
+                    0 /* start */,
+                    builder.length(),
+                    SpannableStringBuilder.SPAN_INCLUSIVE_EXCLUSIVE);
 
             Activity activity = getActivity();
-
-            if (activity == null) return;
-
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    logView.append(builder);
-                    Editable editable = logView.getEditableText();
-                    int length = editable.length();
-                    if (length > MAX_LENGTH) {
-                        editable.delete(0, length - LOWER_THRESHOLD);
-                    }
-
-                    if (isAutoScroll) {
-                        logScroll.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                logScroll.fullScroll(View.FOCUS_DOWN);
+            if (activity == null) {
+                return;
+            }
+            activity.runOnUiThread(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            logView.append(builder);
+                            SharedPreferences sharedPreferences = PreferenceManager.
+                                    getDefaultSharedPreferences(getActivity());
+                            Editable editable = logView.getEditableText();
+                            int length = editable.length();
+                            if (length > MAX_LENGTH) {
+                                editable.delete(0, length - LOWER_THRESHOLD);
                             }
-                        });
-                    }
-
-                }
-            });
-
+                            if (isAutoScroll) {
+                                logScroll.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        logScroll.fullScroll(View.FOCUS_DOWN);
+                                    }
+                                });
+                            }
+                        }
+                    });
         }
 
         public void startActivity(Intent intent) {
             getActivity().startActivity(intent);
         }
-
     }
 }

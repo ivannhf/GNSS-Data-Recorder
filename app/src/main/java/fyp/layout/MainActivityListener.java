@@ -25,6 +25,8 @@ public interface MainActivityListener extends LocationListener {
 
     void onGnssNavigationMessageReceived(GnssNavigationMessage event);
 
+    void onNmeaReceived(long l, String s);
+
     void onOrientationChanged(double orientation, double tilt);
 
     void sensorValue(double gyroX, double gyroY, double gyroZ, double accelX, double accelY, double accelZ, double heading);

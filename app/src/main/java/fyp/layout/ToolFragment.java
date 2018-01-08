@@ -99,6 +99,11 @@ public class ToolFragment extends Fragment implements MainActivityListener{
     }
 
     @Override
+    public void onNmeaReceived(long l, String s) {
+
+    }
+
+    @Override
     public void onOrientationChanged(double orientation, double tilt) {
 
     }

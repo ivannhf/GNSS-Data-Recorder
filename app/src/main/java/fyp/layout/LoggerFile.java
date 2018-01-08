@@ -1,6 +1,5 @@
 package fyp.layout;
 
-
 import android.content.Context;
 import android.content.Intent;
 import android.location.GnssClock;
@@ -15,11 +14,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
-import android.support.v4.*;
+import android.support.v4.BuildConfig;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.widget.Toast;
-
+import fyp.layout.LogFragment.UIFragmentComponent;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
@@ -31,11 +30,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import fyp.layout.LogFragment.UIFragmentComponent;
-
+/**
+ * A GNSS logger to store information to a file.
+ */
 public class LoggerFile implements MainActivityListener {
+
     private static final String TAG = "FileLogger";
-    private static final String FILE_PREFIX = "gnss_log";
+    private static final String FILE_PREFIX = "gnss_data";
     private static final String ERROR_WRITING_FILE = "Problem writing to file.";
     private static final String COMMENT_START = "# ";
     private static final char RECORD_DELIMITER = ',';
@@ -60,11 +61,14 @@ public class LoggerFile implements MainActivityListener {
         mUiComponent = value;
     }
 
-    public LoggerFile(Context context) {
+    public LoggerFile (Context context) {
         this.mContext = context;
         MainActivity.getInstance().addListener(this);
     }
 
+    /**
+     * Start a new file logging process.
+     */
     public void startNewLog() {
         synchronized (mFileLock) {
             File baseDirectory;
@@ -73,10 +77,10 @@ public class LoggerFile implements MainActivityListener {
                 baseDirectory = new File(Environment.getExternalStorageDirectory(), FILE_PREFIX);
                 baseDirectory.mkdirs();
             } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-                //logError("Cannot write to external storage.");
+                logError("Cannot write to external storage.");
                 return;
             } else {
-                //logError("Cannot read external storage.");
+                logError("Cannot read external storage.");
                 return;
             }
 
@@ -89,7 +93,7 @@ public class LoggerFile implements MainActivityListener {
             try {
                 currentFileWriter = new BufferedWriter(new FileWriter(currentFile));
             } catch (IOException e) {
-                //logException("Could not open file: " + currentFilePath, e);
+                logException("Could not open file: " + currentFilePath, e);
                 return;
             }
 
@@ -146,7 +150,7 @@ public class LoggerFile implements MainActivityListener {
                 currentFileWriter.write(COMMENT_START);
                 currentFileWriter.newLine();
             } catch (IOException e) {
-                //logException("Count not initialize file: " + currentFilePath, e);
+                logException("Count not initialize file: " + currentFilePath, e);
                 return;
             }
 
@@ -154,7 +158,7 @@ public class LoggerFile implements MainActivityListener {
                 try {
                     mFileWriter.close();
                 } catch (IOException e) {
-                    //logException("Unable to close all file streams.", e);
+                    logException("Unable to close all file streams.", e);
                     return;
                 }
             }
@@ -181,6 +185,10 @@ public class LoggerFile implements MainActivityListener {
         }
     }
 
+    /**
+     * Send the current log via email or other options selected from a pop menu shown to the user. A
+     * new log is started when calling this function.
+     */
     public void send() {
         if (mFile == null) {
             return;
@@ -192,48 +200,58 @@ public class LoggerFile implements MainActivityListener {
         emailIntent.putExtra(Intent.EXTRA_TEXT, "");
         // attach the file
         Uri fileURI =
-                FileProvider.getUriForFile(mContext, android.support.v4.BuildConfig.APPLICATION_ID + ".provider", mFile);
+                FileProvider.getUriForFile(mContext, BuildConfig.APPLICATION_ID + ".provider", mFile);
         emailIntent.putExtra(Intent.EXTRA_STREAM, fileURI);
-        getUiComponent().startActivity(Intent.createChooser(emailIntent, "Send log.."));
+        //getUiComponent().startActivity(Intent.createChooser(emailIntent, "Send log.."));
         if (mFileWriter != null) {
             try {
                 mFileWriter.flush();
                 mFileWriter.close();
                 mFileWriter = null;
             } catch (IOException e) {
-                //logException("Unable to close all file streams.", e);
+                logException("Unable to close all file streams.", e);
                 return;
             }
         }
     }
 
-    private void logException(String errorMessage, Exception e) {
-        //Log.e(GnssContainer.TAG + TAG, errorMessage, e);
-        Toast.makeText(mContext, errorMessage, Toast.LENGTH_LONG).show();
+    @Override
+    public void onProviderEnabled(String provider) {}
+
+    @Override
+    public void onProviderDisabled(String provider) {}
+
+    @Override
+    public void onLocationChanged(Location location) {
+        if (location.getProvider().equals(LocationManager.GPS_PROVIDER)) {
+            synchronized (mFileLock) {
+                if (mFileWriter == null) {
+                    return;
+                }
+                String locationStream =
+                        String.format(
+                                Locale.US,
+                                "Fix,%s,%f,%f,%f,%f,%f,%d",
+                                location.getProvider(),
+                                location.getLatitude(),
+                                location.getLongitude(),
+                                location.getAltitude(),
+                                location.getSpeed(),
+                                location.getAccuracy(),
+                                location.getTime());
+                try {
+                    mFileWriter.write(locationStream);
+                    mFileWriter.newLine();
+                } catch (IOException e) {
+                    logException(ERROR_WRITING_FILE, e);
+                }
+            }
+        }
     }
 
-    private void logError(String errorMessage) {
-        //Log.e(GnssContainer.TAG + TAG, errorMessage);
-        Toast.makeText(mContext, errorMessage, Toast.LENGTH_LONG).show();
-    }
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
 
-    private static class FileToDeleteFilter implements FileFilter {
-        private final List<File> mRetainedFiles;
-
-        public FileToDeleteFilter(File... retainedFiles) {
-            this.mRetainedFiles = Arrays.asList(retainedFiles);
-        }
-
-        @Override
-        public boolean accept(File pathname) {
-            if (pathname == null || !pathname.exists()) {
-                return false;
-            }
-            if (mRetainedFiles.contains(pathname)) {
-                return false;
-            }
-            return pathname.length() < MINIMUM_USABLE_FILE_SIZE_BYTES;
-        }
     }
 
     @Override
@@ -277,63 +295,10 @@ public class LoggerFile implements MainActivityListener {
                 try {
                     writeGnssMeasurementToFile(gnssClock, measurement);
                 } catch (IOException e) {
-                    //logException(ERROR_WRITING_FILE, e);
+                    logException(ERROR_WRITING_FILE, e);
                 }
             }
         }
-    }
-
-    @Override
-    public void onOrientationChanged(double orientation, double tilt) {
-
-    }
-
-    @Override
-    public void sensorValue(double gyroX, double gyroY, double gyroZ, double accelX, double accelY, double accelZ, double heading) {
-
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        if (location.getProvider().equals(LocationManager.GPS_PROVIDER)) {
-            synchronized (mFileLock) {
-                if (mFileWriter == null) {
-                    return;
-                }
-                String locationStream =
-                        String.format(
-                                Locale.US,
-                                "Fix,%s,%f,%f,%f,%f,%f,%d",
-                                location.getProvider(),
-                                location.getLatitude(),
-                                location.getLongitude(),
-                                location.getAltitude(),
-                                location.getSpeed(),
-                                location.getAccuracy(),
-                                location.getTime());
-                try {
-                    mFileWriter.write(locationStream);
-                    mFileWriter.newLine();
-                } catch (IOException e) {
-                    //logException(ERROR_WRITING_FILE, e);
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
     }
 
     @Override
@@ -364,7 +329,33 @@ public class LoggerFile implements MainActivityListener {
                 mFileWriter.write(builder.toString());
                 mFileWriter.newLine();
             } catch (IOException e) {
-                //logException(ERROR_WRITING_FILE, e);
+                logException(ERROR_WRITING_FILE, e);
+            }
+        }
+    }
+
+    @Override
+    public void onOrientationChanged(double orientation, double tilt) {
+
+    }
+
+    @Override
+    public void sensorValue(double gyroX, double gyroY, double gyroZ, double accelX, double accelY, double accelZ, double heading) {
+
+    }
+
+    @Override
+    public void onNmeaReceived(long timestamp, String s) {
+        synchronized (mFileLock) {
+            if (mFileWriter == null) {
+                return;
+            }
+            String nmeaStream = String.format(Locale.US, "NMEA,%s,%d", s, timestamp);
+            try {
+                mFileWriter.write(nmeaStream);
+                mFileWriter.newLine();
+            } catch (IOException e) {
+                logException(ERROR_WRITING_FILE, e);
             }
         }
     }
@@ -420,4 +411,41 @@ public class LoggerFile implements MainActivityListener {
         mFileWriter.newLine();
     }
 
+    private void logException(String errorMessage, Exception e) {
+        Log.e(TAG, errorMessage, e);
+        Toast.makeText(mContext, errorMessage, Toast.LENGTH_LONG).show();
+    }
+
+    private void logError(String errorMessage) {
+        Log.e(TAG, errorMessage);
+        Toast.makeText(mContext, errorMessage, Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * Implements a {@link FileFilter} to delete files that are not in the
+     * {@link FileToDeleteFilter#mRetainedFiles}.
+     */
+    private static class FileToDeleteFilter implements FileFilter {
+        private final List<File> mRetainedFiles;
+
+        public FileToDeleteFilter(File... retainedFiles) {
+            this.mRetainedFiles = Arrays.asList(retainedFiles);
+        }
+
+        /**
+         * Returns {@code true} to delete the file, and {@code false} to keep the file.
+         *
+         * <p>Files are deleted if they are not in the {@link FileToDeleteFilter#mRetainedFiles} list.
+         */
+        @Override
+        public boolean accept(File pathname) {
+            if (pathname == null || !pathname.exists()) {
+                return false;
+            }
+            if (mRetainedFiles.contains(pathname)) {
+                return false;
+            }
+            return pathname.length() < MINIMUM_USABLE_FILE_SIZE_BYTES;
+        }
+    }
 }
