@@ -2,6 +2,7 @@ package fyp.recorder;
 
 //import android.app.Fragment;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.GnssMeasurementsEvent;
 import android.location.GnssNavigationMessage;
 import android.location.GnssStatus;
@@ -78,6 +79,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MainAct
     }
 
     @Override
+    public void onResume() {
+        if(googleMap != null) {
+            SharedPreferences setting = context.getSharedPreferences("settings", Context.MODE_PRIVATE);
+            googleMap.setMapType(Integer.parseInt(setting.getString(getString(R.string.pref_key_map_type), "1")));
+        }
+        super.onResume();
+    }
+
+    @Override
     public void onMapReady(GoogleMap map) {
         //map is ready
         googleMap = map;
@@ -98,6 +108,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MainAct
             //locationRequest = new LocationRequest();
         }*/
         MainActivity.getInstance().addListener(this);
+
+
 
 
     }
