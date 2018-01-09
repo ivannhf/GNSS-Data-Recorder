@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import fyp.layout.util.GnssType;
 
@@ -67,9 +68,6 @@ public class SkyViewFragment extends Fragment implements MainActivityListener{
 
         mSkyView = new GpsSkyView(getActivity());
         context = getContext();
-
-        SharedPreferences setting = context.getSharedPreferences("setting", Context.MODE_PRIVATE);
-
 
 
         MainActivity.getInstance().addListener(this);

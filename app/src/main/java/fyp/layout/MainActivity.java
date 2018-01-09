@@ -88,12 +88,14 @@ public class MainActivity extends AppCompatActivity
     double orientation = Double.NaN;
     double tilt = Double.NaN;
 
+    FragmentManager fragmentManager;
     PositionFragment positionFragment;
     ListFragment listFragment;
     RadarFragment radarFragment;
     LogFragment logFragment;
     MapFragment mapFragment;
     ToolFragment toolFragment;
+    SkyViewFragment skyViewFragment;
 
     LoggerFile loggerFile;
     LoggerUI loggerUI;
@@ -137,30 +139,6 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //FloatingActionButton
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab_stop = (FloatingActionButton) findViewById(R.id.fab_stop);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Logging Started", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                fab_stop.setVisibility(View.VISIBLE);
-                fab.setVisibility(View.INVISIBLE);
-                loggerFile.startNewLog();
-            }
-        });
-        fab_stop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Logging Stopped", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                fab_stop.setVisibility(View.INVISIBLE);
-                fab.setVisibility(View.VISIBLE);
-                loggerFile.send();
-            }
-        });
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -170,7 +148,6 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
         positionFragment = new PositionFragment();
         listFragment = new ListFragment();
         radarFragment = new RadarFragment();
@@ -178,14 +155,19 @@ public class MainActivity extends AppCompatActivity
         mapFragment = new MapFragment();
         toolFragment = new ToolFragment();
 
-
-
         navigationView.setCheckedItem(R.id.nav_position);
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
+        //FragmentManager
+        fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().add(R.id.content_frame, positionFragment).
+                add(R.id.content_frame, listFragment).add(R.id.content_frame, radarFragment).
+                add(R.id.content_frame, logFragment).add(R.id.content_frame, mapFragment).
+                add(R.id.content_frame, toolFragment).commit();
+        fragmentManager.beginTransaction().hide(positionFragment).hide(listFragment).hide(radarFragment).hide(logFragment).hide(mapFragment).hide(toolFragment).commit();
+        fragmentManager.beginTransaction().show(positionFragment).commit();
+        /*fragmentManager.beginTransaction()
                 .replace(R.id.content_frame
                         , positionFragment)
-                .commit();
+                .commit();*/
 
 
         sInstance = this;
@@ -211,7 +193,7 @@ public class MainActivity extends AppCompatActivity
             addGnssGnssNavigationMessageListener();
         }
 
-        if(ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{
                     android.Manifest.permission.WRITE_EXTERNAL_STORAGE
             }, 1001);
@@ -221,6 +203,31 @@ public class MainActivity extends AppCompatActivity
         loggerUI = new LoggerUI();
         logFragment.setLoggerFile(loggerFile);
         logFragment.setUILogger(loggerUI);
+
+        //FloatingActionButton
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab_stop = (FloatingActionButton) findViewById(R.id.fab_stop);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Logging Started", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+                fab_stop.setVisibility(View.VISIBLE);
+                fab.setVisibility(View.INVISIBLE);
+                loggerFile.startNewLog();
+            }
+        });
+
+        fab_stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Logging Stopped", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+                fab_stop.setVisibility(View.INVISIBLE);
+                fab.setVisibility(View.VISIBLE);
+                loggerFile.send();
+            }
+        });
 
     }
 
@@ -262,37 +269,38 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        //FragmentManager fragmentManager = getSupportFragmentManager();
+
+        /*fragmentManager.beginTransaction()
+                    .replace(R.id.content_frame
+                            , listFragment)
+                    .commit();*/
+        fragmentManager.beginTransaction().hide(positionFragment).hide(listFragment).hide(radarFragment).hide(logFragment).hide(mapFragment).hide(toolFragment).commit();
 
         if (id == R.id.nav_position) {
             fragmentManager.beginTransaction()
-                    .replace(R.id.content_frame
-                            , positionFragment)
+                    .show(positionFragment)
                     .commit();
         } else if (id == R.id.nav_list) {
             fragmentManager.beginTransaction()
-                    .replace(R.id.content_frame
-                            , listFragment)
+                    .show(listFragment)
                     .commit();
         } else if (id == R.id.nav_radar) {
+            fragmentManager.beginTransaction().detach(radarFragment).attach(radarFragment).commit();
             fragmentManager.beginTransaction()
-                    .replace(R.id.content_frame
-                            , radarFragment)
+                    .show(radarFragment)
                     .commit();
         } else if (id == R.id.nav_log) {
             fragmentManager.beginTransaction()
-                    .replace(R.id.content_frame
-                            , logFragment)
+                    .show(logFragment)
                     .commit();
         } else if (id == R.id.nav_map) {
             fragmentManager.beginTransaction()
-                    .replace(R.id.content_frame
-                            , mapFragment)
+                    .show(mapFragment)
                     .commit();
         } else if (id == R.id.nav_tool) {
             fragmentManager.beginTransaction()
-                    .replace(R.id.content_frame
-                            , toolFragment)
+                    .show(toolFragment)
                     .commit();
         } else if (id == R.id.nav_info) {
             InfoFragment infoFragment = new InfoFragment();

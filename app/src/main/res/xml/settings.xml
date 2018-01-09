@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:key="@string/pref_key_radar_category"
+        android:title="@string/pref_radar_category_title">
+
+        <CheckBoxPreference
+            android:checked="true"
+            android:defaultValue="true"
+            android:key="@string/pref_key_tilt_radar_with_sensors"
+            android:summary="@string/pref_tilt_radar_with_sensors_summary"
+            android:title="@string/pref_tilt_radar_with_sensors_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="@string/pref_key_map_category"
+        android:title="@string/pref_map_category_title">
+
+        <ListPreference
+            android:defaultValue="1"
+            android:dialogTitle="@string/pref_map_type_dialog_title"
+            android:entries="@array/map_type_entries"
+            android:entryValues="@array/map_type_values"
+            android:key="@string/pref_key_map_type"
+            android:summary="@string/pref_map_type_summary"
+            android:title="@string/pref_map_type_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="@string/pref_key_log_category"
+        android:title="@string/pref_log_category_title">
+
+        <ListPreference
+            android:defaultValue="1"
+            android:dialogTitle="@string/pref_map_type_dialog_title"
+            android:entries="@array/log_type_entries"
+            android:entryValues="@array/log_type_values"
+            android:key="@string/pref_key_log_type"
+            android:summary="@string/pref_log_type_summary"
+            android:title="@string/pref_log_type_title" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

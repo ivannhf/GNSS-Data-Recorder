@@ -19,7 +19,8 @@
         class="fyp.layout.SkyViewFragment"
         android:id="@+id/skyView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="fill_parent" />
+
 
 </LinearLayout>
 

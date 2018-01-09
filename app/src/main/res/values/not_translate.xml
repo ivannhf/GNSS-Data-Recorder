@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <string name="pref_key_radar_category"><xliff:g id="preference_key">radar_category</xliff:g></string>
+
+    <string name="pref_key_tilt_radar_with_sensors"><xliff:g id="preference_key">radar_rotate</xliff:g></string>
+
+    <string name="pref_key_map_category"><xliff:g id="preference_key">map_category</xliff:g></string>
+
+    <string name="pref_key_map_type"><xliff:g id="preference_key">map_type</xliff:g></string>
+
+    <string name="pref_key_log_category"><xliff:g id="preference_key">log_category</xliff:g></string>
+
+    <string name="pref_key_log_type"><xliff:g id="preference_key">log_type</xliff:g></string>
+
+</resources>

@@ -229,8 +229,8 @@ public class LogFragment extends Fragment implements MainActivityListener {
                         @Override
                         public void run() {
                             logView.append(builder);
-                            SharedPreferences sharedPreferences = PreferenceManager.
-                                    getDefaultSharedPreferences(getActivity());
+                            /*SharedPreferences sharedPreferences = PreferenceManager.
+                                    getDefaultSharedPreferences(getActivity());*/
                             Editable editable = logView.getEditableText();
                             int length = editable.length();
                             if (length > MAX_LENGTH) {

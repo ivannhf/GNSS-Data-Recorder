@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="map_type_entries">
+        <item>Map View</item>
+        <item>Hybrid View</item>
+        <item>Satellite View</item>
+        <item>Terrain View</item>
+    </string-array>
+
+    <string-array name="map_type_values">
+        <item>1</item>
+        <item>4</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+
+    <string-array name="log_type_entries">
+        <item>Google's Raw</item>
+        <item>RINEX</item>
+    </string-array>
+
+    <string-array name="log_type_values">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+</resources>

@@ -280,7 +280,7 @@ public class LoggerUI implements MainActivityListener {
 
     private void logEvent(String tag, String message, int color) {
         String composedTag = tag;
-        Log.d(composedTag, message);
+        //Log.d(composedTag, message);
         logText(tag, message, color);
     }
 
