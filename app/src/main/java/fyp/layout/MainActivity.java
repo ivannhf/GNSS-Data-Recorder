@@ -95,7 +95,6 @@ public class MainActivity extends AppCompatActivity
     LogFragment logFragment;
     MapFragment mapFragment;
     ToolFragment toolFragment;
-    SkyViewFragment skyViewFragment;
 
     LoggerFile loggerFile;
     LoggerUI loggerUI;
@@ -270,7 +269,8 @@ public class MainActivity extends AppCompatActivity
                     .replace(R.id.content_frame
                             , listFragment)
                     .commit();*/
-        if (id != R.id.nav_info) fragmentManager.beginTransaction().hide(positionFragment).hide(listFragment).hide(radarFragment).hide(logFragment).hide(mapFragment).hide(toolFragment).commit();
+        if (id != R.id.nav_info)
+            fragmentManager.beginTransaction().hide(positionFragment).hide(listFragment).hide(radarFragment).hide(logFragment).hide(mapFragment).hide(toolFragment).commit();
 
         if (id == R.id.nav_position) {
             fragmentManager.beginTransaction()
@@ -486,7 +486,6 @@ public class MainActivity extends AppCompatActivity
             }
         };
         locationManager.registerGnssStatusCallback(mGnssStatusListener);
-
     }
 
     private void addGnssMeasurementsListener() {
