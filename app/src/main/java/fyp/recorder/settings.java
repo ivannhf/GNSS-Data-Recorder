@@ -11,7 +11,7 @@ import android.widget.LinearLayout;
 
 import fyp.layout.R;
 
-public class Setting extends PreferenceActivity {
+public class settings extends PreferenceActivity {
 
     private Toolbar mActionBar;
 
@@ -19,6 +19,7 @@ public class Setting extends PreferenceActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getPreferenceManager().setSharedPreferencesName("settings");
         addPreferencesFromResource(R.xml.settings);
     }
 

@@ -62,6 +62,7 @@ public class LogFragment extends Fragment implements MainActivityListener {
 
         logView = (TextView) myView.findViewById(R.id.log_view);
         timertv = (TextView) myView.findViewById(R.id.timer_display);
+
         logScroll = (ScrollView) myView.findViewById(R.id.log_scroll);
 
         startLog = (Button) myView.findViewById(R.id.start_logs);

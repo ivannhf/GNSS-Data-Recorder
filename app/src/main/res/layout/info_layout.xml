@@ -203,4 +203,11 @@
         android:layout_margin="20dp"
         android:background="@color/colorAccent" />
 
+    <TextView
+        android:id="@+id/setting_test"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center_horizontal"
+        android:text="?" />
+
 </LinearLayout>

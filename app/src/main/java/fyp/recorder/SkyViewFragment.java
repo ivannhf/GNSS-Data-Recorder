@@ -4,6 +4,7 @@ package fyp.recorder;
 //import android.app.Fragment;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -34,6 +35,8 @@ public class SkyViewFragment extends Fragment implements MainActivityListener{
     View myView;
     Context context;
 
+    boolean rotate = true;
+
     public static int mHeight;
 
     public static int mWidth;
@@ -48,7 +51,9 @@ public class SkyViewFragment extends Fragment implements MainActivityListener{
         }
 
         if (mSkyView != null) {
-            mSkyView.onOrientationChanged(orientation, tilt);
+            SharedPreferences setting = context.getSharedPreferences("settings", Context.MODE_PRIVATE);
+            rotate = setting.getBoolean(getString(R.string.pref_key_tilt_radar_with_sensors), true);
+            if (rotate) {mSkyView.onOrientationChanged(orientation, tilt);} else {mSkyView.onOrientationChanged(0, tilt);}
         }
     }
 

@@ -3,6 +3,7 @@ package fyp.recorder;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.location.GnssMeasurement;
 import android.location.GnssMeasurementsEvent;
 import android.location.GnssNavigationMessage;
@@ -24,6 +25,7 @@ public class InfoFragment extends DialogFragment implements MainActivityListener
     Context context;
 
     TextView gainCtrl, carrierCyc, carrierFreq, carrierPhase, carrierPhaUn, SNR;
+    TextView settingtv;
 
     @NonNull
     @Override
@@ -48,6 +50,10 @@ public class InfoFragment extends DialogFragment implements MainActivityListener
         carrierPhase = (TextView) myView.findViewById(R.id.carrierPhase_value);
         carrierPhaUn = (TextView) myView.findViewById(R.id.carrierPhaUn_value);
         SNR = (TextView) myView.findViewById(R.id.SNR_value);
+
+
+        settingtv = (TextView) myView.findViewById(R.id.setting_test);
+        settingtv.setText("");
 
         MainActivity.getInstance().addListener(this);
 
@@ -98,6 +104,17 @@ public class InfoFragment extends DialogFragment implements MainActivityListener
     @Override
     public void onGnssStopped() {
 
+    }
+
+    @Override
+    public void onResume() {
+        SharedPreferences setting = context.getSharedPreferences("settings", Context.MODE_PRIVATE);
+        Boolean rotate = false;
+        String list = "";
+        rotate = setting.getBoolean(getString(R.string.pref_key_tilt_radar_with_sensors), false);
+        list = setting.getString(getString(R.string.pref_key_log_type), "");
+        settingtv.setText(rotate + " " + list);
+        super.onResume();
     }
 
     @Override

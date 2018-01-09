@@ -241,8 +241,6 @@ public class MainActivity extends AppCompatActivity
         loggerFile.send();
     }
 
-
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -269,7 +267,7 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            startActivity(new Intent(this, Setting.class));
+            startActivity(new Intent(this, settings.class));
             return true;
         }
 
