@@ -9,14 +9,14 @@
     android:layout_marginTop="16dp">
 
     <fragment
-        class="fyp.layout.SysFragment"
+        class="fyp.logger.SysFragment"
         android:id="@+id/sys_radar"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"/>
 
     <fragment
-        class="fyp.layout.SkyViewFragment"
+        class="fyp.logger.SkyViewFragment"
         android:id="@+id/skyView"
         android:layout_width="match_parent"
         android:layout_height="fill_parent" />

@@ -1,18 +1,10 @@
-package fyp.layout;
+package fyp.logger;
 
 import android.Manifest;
-import android.app.Activity;
-import android.app.AlertDialog;
 //import android.app.FragmentManager;
 //import android.app.Fragment;
-import android.app.Application;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -21,31 +13,20 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.icu.text.IDNA;
-import android.location.Criteria;
 import android.location.GnssMeasurement;
 import android.location.GnssMeasurementsEvent;
 import android.location.GnssNavigationMessage;
 import android.location.GnssStatus;
-import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.location.OnNmeaMessageListener;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Surface;
 import android.view.View;
@@ -57,27 +38,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.api.Api;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.MapsInitializer;
-
-import java.io.FileDescriptor;
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
+
+import fyp.layout.R;
+import fyp.logger.util.GpsTestUtil;
+import fyp.logger.util.MathUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static fyp.layout.util.GpsTestUtil.writeGnssMeasurementToLog;
-import fyp.layout.TimerService.*;
 
 
 public class MainActivity extends AppCompatActivity
@@ -128,53 +96,6 @@ public class MainActivity extends AppCompatActivity
 
     FloatingActionButton fab, fab_stop;
 
-    public TimerService mTimerService;
-    public TimerValues mTimerValues =
-            new TimerValues(0 /* hours */, 0 /* minutes */, 0 /* seconds */);
-
-    private final BroadcastReceiver mBroadcastReceiver =
-            new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    checkArgument(intent != null, "Intent is null");
-
-                    short intentType =
-                            intent.getByteExtra(TimerService.EXTRA_KEY_TYPE, TimerService.TYPE_UNKNOWN);
-
-                    // Be explicit in what types are handled here
-                    switch (intentType) {
-                        case TimerService.TYPE_UPDATE:
-                        case TimerService.TYPE_FINISH:
-                            break;
-                        default:
-                            return;
-                    }
-
-                    TimerValues countdown =
-                            new TimerValues(intent.getLongExtra(TimerService.EXTRA_KEY_UPDATE_REMAINING, 0L));
-                    logFragment.displayTimer(countdown, true /* countdownStyle */);
-
-                    if (intentType == TimerService.TYPE_FINISH) {
-                        startedLogButton(false);
-                        stopLogging();
-                    }
-                }
-            };
-
-    private ServiceConnection mConnection =
-            new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName className, IBinder serviceBinder) {
-                    mTimerService = ((TimerBinder) serviceBinder).getService();
-                }
-
-                @Override
-                public void onServiceDisconnected(ComponentName className) {
-                    mTimerService = null;
-                }
-            };
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -212,8 +133,6 @@ public class MainActivity extends AppCompatActivity
                 add(R.id.content_frame, toolFragment).commit();
         fragmentManager.beginTransaction().hide(positionFragment).hide(listFragment).hide(radarFragment).hide(logFragment).hide(mapFragment).hide(toolFragment).commit();
         fragmentManager.beginTransaction().show(positionFragment).commit();
-
-        this.bindService(new Intent(this, TimerService.class), mConnection, Context.BIND_AUTO_CREATE);
 
         sInstance = this;
 
@@ -298,19 +217,11 @@ public class MainActivity extends AppCompatActivity
     public void startNewLogging () {
         logging = true;
         loggerFile.startNewLog();
-
-        if (!mTimerValues.isZero() && (mTimerService != null)) {
-            mTimerService.startTimer();
-        }
     }
 
     public void stopLogging () {
         logging = false;
         loggerFile.send();
-
-
-            mTimerService.stopTimer();
-
     }
 
 
@@ -403,8 +314,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onStart() {
-        bindService(new Intent(this, TimerService.class), mConnection, Context.BIND_AUTO_CREATE);
-
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{
@@ -438,8 +347,6 @@ public class MainActivity extends AppCompatActivity
 
         addOrientationSensorListener();
         //Toast.makeText(this, "App resume", Toast.LENGTH_SHORT).show();
-        LocalBroadcastManager.getInstance(this)
-                .registerReceiver(mBroadcastReceiver, new IntentFilter(TimerService.TIMER_ACTION));
 
         super.onResume();
 
@@ -448,7 +355,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         locationManager.removeUpdates(this);
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
         //Toast.makeText(this, "App pause", Toast.LENGTH_SHORT).show();
         super.onPause();
 
@@ -457,7 +363,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         locationManager.removeUpdates(this);
-        unbindService(mConnection);
         //Toast.makeText(this, "App stop", Toast.LENGTH_SHORT).show();
         super.onStop();
     }
@@ -478,7 +383,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void addOrientationSensorListener() {
-        if (fyp.layout.util.GpsTestUtil.isRotationVectorSensorSupported(this)) {
+        if (GpsTestUtil.isRotationVectorSensorSupported(this)) {
             // Use the modern rotation vector sensors
             Sensor vectorSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
             mSensorManager.registerListener(this, vectorSensor, 16000); // ~60hz
@@ -596,7 +501,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 if (mWriteGnssMeasurementToLog) {
                     for (GnssMeasurement m : event.getMeasurements()) {
-                        writeGnssMeasurementToLog(m);
+                        GpsTestUtil.writeGnssMeasurementToLog(m);
                     }
                 }
             }
@@ -618,7 +523,7 @@ public class MainActivity extends AppCompatActivity
                         statusMessage = getString(R.string.gnss_status_unknown);
                 }
                 Log.d(TAG, "GnssMeasurementsEvent.Callback.onStatusChanged() - " + statusMessage);
-                if (fyp.layout.util.GpsTestUtil.canManageDialog(MainActivity.this)) {
+                if (GpsTestUtil.canManageDialog(MainActivity.this)) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -748,7 +653,7 @@ public class MainActivity extends AppCompatActivity
         if (mFaceTrueNorth && mGeomagneticField != null) {
             orientation += mGeomagneticField.getDeclination();
             // Make sure value is between 0-360
-            orientation = fyp.layout.util.MathUtils.mod((float) orientation, 360.0f);
+            orientation = MathUtils.mod((float) orientation, 360.0f);
         }
 
         for (MainActivityListener listener : mMainActivityListeners) {

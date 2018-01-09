@@ -1,4 +1,4 @@
-package fyp.layout.util;
+package fyp.logger.util;
 
 
 public class MathUtils {

@@ -1,21 +1,18 @@
-package fyp.layout;
+package fyp.logger;
 
 //import android.app.Fragment;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.location.GnssMeasurementsEvent;
 import android.location.GnssNavigationMessage;
 import android.location.GnssStatus;
 import android.location.Location;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.SpannableStringBuilder;
-import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,7 +23,7 @@ import android.widget.CompoundButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import fyp.layout.LoggerUI;
+import fyp.layout.R;
 
 
 public class LogFragment extends Fragment implements MainActivityListener {
@@ -73,8 +70,6 @@ public class LogFragment extends Fragment implements MainActivityListener {
         clear = (Button) myView.findViewById(R.id.clear);
 
         autoScroll = (CheckBox) myView.findViewById(R.id.autoScroll);
-
-        displayTimer(MainActivity.getInstance().mTimerValues, false /* countdownStyle */);
 
         LoggerUI currentUiLogger = loggerUI;
         loggerUI = new LoggerUI();
@@ -134,26 +129,6 @@ public class LogFragment extends Fragment implements MainActivityListener {
 
 
         return myView;
-    }
-
-    public void displayTimer(TimerValues values, boolean countdownStyle) {
-        String content;
-
-        if (countdownStyle) {
-            content = values.toCountdownString();
-        } else {
-            content = values.toString();
-        }
-
-        //timertv.setText(String.format("%s: %s", getResources().getString(R.string.timer_display), content));
-        timertv.setText(content);
-    }
-
-    private void launchTimerDialog() {
-        TimerFragment timer = new TimerFragment();
-        timer.setTargetFragment(this, 0);
-        timer.setArguments(MainActivity.getInstance().mTimerValues.toBundle());
-        timer.show(getFragmentManager(), TIMER_FRAGMENT_TAG);
     }
 
     public void startedLog(boolean started) {

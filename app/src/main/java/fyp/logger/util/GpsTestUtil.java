@@ -1,22 +1,16 @@
-package fyp.layout.util;
+package fyp.logger.util;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.location.GnssMeasurement;
-import android.location.GnssNavigationMessage;
 import android.location.GnssStatus;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.util.Log;
 
 //import com.android.gpstest.DilutionOfPrecision;
 
-import java.util.concurrent.TimeUnit;
 
 public class GpsTestUtil {
     private static final String TAG = "GpsTestUtil";

@@ -1,4 +1,4 @@
-package fyp.layout;
+package fyp.logger;
 
 import android.hardware.SensorEvent;
 import android.location.GnssMeasurementsEvent;

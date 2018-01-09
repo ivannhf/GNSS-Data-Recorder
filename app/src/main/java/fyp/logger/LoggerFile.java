@@ -1,4 +1,4 @@
-package fyp.layout;
+package fyp.logger;
 
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +18,9 @@ import android.support.v4.BuildConfig;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.widget.Toast;
-import fyp.layout.LogFragment.UIFragmentComponent;
+
+import fyp.layout.R;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
@@ -51,13 +53,13 @@ public class LoggerFile implements MainActivityListener {
     private BufferedWriter mFileWriter;
     private File mFile;
 
-    private UIFragmentComponent mUiComponent;
+    private LogFragment.UIFragmentComponent mUiComponent;
 
-    public synchronized UIFragmentComponent getUiComponent() {
+    public synchronized LogFragment.UIFragmentComponent getUiComponent() {
         return mUiComponent;
     }
 
-    public synchronized void setUiComponent(UIFragmentComponent value) {
+    public synchronized void setUiComponent(LogFragment.UIFragmentComponent value) {
         mUiComponent = value;
     }
 

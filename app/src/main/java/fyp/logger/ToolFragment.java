@@ -1,4 +1,4 @@
-package fyp.layout;
+package fyp.logger;
 
 //import android.app.Fragment;
 import android.location.GnssMeasurementsEvent;
@@ -6,10 +6,7 @@ import android.location.GnssNavigationMessage;
 import android.location.GnssStatus;
 import android.location.Location;
 import android.support.v4.app.Fragment;
-import android.content.Context;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,6 +14,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import fyp.layout.R;
 
 public class ToolFragment extends Fragment implements MainActivityListener{
 

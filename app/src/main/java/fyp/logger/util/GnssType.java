@@ -1,4 +1,4 @@
-package fyp.layout.util;
+package fyp.logger.util;
 
 /**
  * Created by Ivan_Dktp on 5/1/2018.

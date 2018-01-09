@@ -1,4 +1,4 @@
-package fyp.layout;
+package fyp.logger;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -7,7 +7,6 @@ import android.location.GnssMeasurementsEvent;
 import android.location.GnssNavigationMessage;
 import android.location.GnssStatus;
 import android.location.Location;
-import android.location.LocationManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -19,12 +18,12 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import fyp.layout.util.GnssType;
-import fyp.layout.util.GpsTestUtil;
+import fyp.layout.R;
+import fyp.logger.util.GnssType;
+import fyp.logger.util.GpsTestUtil;
 
 public class ListFragment extends Fragment implements MainActivityListener {
     View myView;

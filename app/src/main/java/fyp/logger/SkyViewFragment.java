@@ -1,11 +1,9 @@
-package fyp.layout;
+package fyp.logger;
 
 
 //import android.app.Fragment;
 import android.annotation.SuppressLint;
-import android.app.Application;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -20,16 +18,15 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
-import android.widget.LinearLayout;
-import android.widget.Toast;
 
-import fyp.layout.util.GnssType;
+import fyp.layout.R;
+import fyp.logger.util.GnssType;
+import fyp.logger.util.GpsTestUtil;
 
 
 public class SkyViewFragment extends Fragment implements MainActivityListener{
@@ -217,7 +214,7 @@ public class SkyViewFragment extends Fragment implements MainActivityListener{
 
             mContext = context;
             mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
-            SAT_RADIUS = fyp.layout.util.GpsTestUtil.dpToPixels(context, 5);
+            SAT_RADIUS = GpsTestUtil.dpToPixels(context, 5);
 
             mHorizonActiveFillPaint = new Paint();
             mHorizonActiveFillPaint.setColor(Color.WHITE);
@@ -279,7 +276,7 @@ public class SkyViewFragment extends Fragment implements MainActivityListener{
             mPrnIdPaint.setColor(Color.BLACK);
             mPrnIdPaint.setStyle(Paint.Style.STROKE);
             mPrnIdPaint
-                    .setTextSize(fyp.layout.util.GpsTestUtil.dpToPixels(getContext(), SAT_RADIUS * PRN_TEXT_SCALE));
+                    .setTextSize(GpsTestUtil.dpToPixels(getContext(), SAT_RADIUS * PRN_TEXT_SCALE));
             mPrnIdPaint.setAntiAlias(true);
 
             mNotInViewPaint = new Paint();
@@ -445,12 +442,12 @@ public class SkyViewFragment extends Fragment implements MainActivityListener{
 
             // Change shape based on satellite operator
             GnssType operator;
-            /*if (fyp.layout.util.GpsTestUtil.isGnssStatusListenerSupported() && !mUseLegacyGnssApi) {
-                operator = fyp.layout.util.GpsTestUtil.getGnssConstellationType(constellationType);
+            /*if (GpsTestUtil.isGnssStatusListenerSupported() && !mUseLegacyGnssApi) {
+                operator = GpsTestUtil.getGnssConstellationType(constellationType);
             } else {
                 operator = GpsTestUtil.getGnssType(prn);
             }*/
-            operator = fyp.layout.util.GpsTestUtil.getGnssConstellationType(constellationType);
+            operator = GpsTestUtil.getGnssConstellationType(constellationType);
             switch (operator) {
                 case NAVSTAR:
                     c.drawCircle(x, y, SAT_RADIUS, fillPaint);
@@ -528,7 +525,7 @@ public class SkyViewFragment extends Fragment implements MainActivityListener{
             final float thresholds[];
             final int colors[];
 
-            /*if (fyp.layout.util.GpsTestUtil.isGnssStatusListenerSupported()) {
+            /*if (GpsTestUtil.isGnssStatusListenerSupported()) {
                 // Use C/N0 ranges/colors for both C/N0 and SNR on Android 7.0 and higher (see #76)
                 numSteps = mCn0Thresholds.length;
                 thresholds = mCn0Thresholds;

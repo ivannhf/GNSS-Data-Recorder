@@ -1,9 +1,8 @@
-package fyp.layout;
+package fyp.logger;
 
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.location.GnssMeasurement;
 import android.location.GnssMeasurementsEvent;
 import android.location.GnssNavigationMessage;
@@ -11,18 +10,13 @@ import android.location.GnssStatus;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.io.IOException;
+import fyp.layout.R;
 
 public class InfoFragment extends DialogFragment implements MainActivityListener {
     private static final String TAG = "InfoFragment";

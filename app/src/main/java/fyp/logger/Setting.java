@@ -1,4 +1,4 @@
-package fyp.layout;
+package fyp.logger;
 
 
 import android.os.Bundle;
@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+
+import fyp.layout.R;
 
 public class Setting extends PreferenceActivity {
 
