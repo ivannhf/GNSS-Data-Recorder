@@ -18,6 +18,7 @@
     <string name="gps_azimuth_column_value">%1$s\u00B0</string>
 
     <!-- Timer -->
+    <string name="timer_service_name">Log Count Down</string>
     <string name="timer_title">Timer Settings</string>
     <string name="timer_set">Set</string>
     <string name="timer_cancel">Cancel</string>

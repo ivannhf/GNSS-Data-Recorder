@@ -5,7 +5,7 @@ import static com.google.common.base.Preconditions.checkState;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
+import android.support.v4.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
@@ -20,11 +20,12 @@ public class TimerFragment extends DialogFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        checkState(
+        /*checkState(
                 getTargetFragment() instanceof TimerListener,
                 "Target fragment is not instance of TimerListener");
 
-        mListener = (TimerListener) getTargetFragment();
+        mListener = (TimerListener) getTargetFragment();*/
+
     }
 
     @Override

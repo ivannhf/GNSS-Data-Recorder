@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 //import android.app.FragmentManager;
 //import android.app.Fragment;
 import android.app.Application;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -74,7 +75,9 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static fyp.layout.util.GpsTestUtil.writeGnssMeasurementToLog;
+import fyp.layout.TimerService.*;
 
 
 public class MainActivity extends AppCompatActivity
@@ -102,6 +105,7 @@ public class MainActivity extends AppCompatActivity
     // Listeners for Fragments
     private ArrayList<MainActivityListener> mMainActivityListeners = new ArrayList<MainActivityListener>();
     boolean mStarted;
+    boolean logging = false;
 
     private LocationManager locationManager;
     private Location mLastLocation;
@@ -123,6 +127,52 @@ public class MainActivity extends AppCompatActivity
     private GeomagneticField mGeomagneticField;
 
     FloatingActionButton fab, fab_stop;
+
+    public TimerService mTimerService;
+    public TimerValues mTimerValues =
+            new TimerValues(0 /* hours */, 0 /* minutes */, 0 /* seconds */);
+
+    private final BroadcastReceiver mBroadcastReceiver =
+            new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    checkArgument(intent != null, "Intent is null");
+
+                    short intentType =
+                            intent.getByteExtra(TimerService.EXTRA_KEY_TYPE, TimerService.TYPE_UNKNOWN);
+
+                    // Be explicit in what types are handled here
+                    switch (intentType) {
+                        case TimerService.TYPE_UPDATE:
+                        case TimerService.TYPE_FINISH:
+                            break;
+                        default:
+                            return;
+                    }
+
+                    TimerValues countdown =
+                            new TimerValues(intent.getLongExtra(TimerService.EXTRA_KEY_UPDATE_REMAINING, 0L));
+                    logFragment.displayTimer(countdown, true /* countdownStyle */);
+
+                    if (intentType == TimerService.TYPE_FINISH) {
+                        startedLogButton(false);
+                        stopLogging();
+                    }
+                }
+            };
+
+    private ServiceConnection mConnection =
+            new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName className, IBinder serviceBinder) {
+                    mTimerService = ((TimerBinder) serviceBinder).getService();
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName className) {
+                    mTimerService = null;
+                }
+            };
 
 
     @Override
@@ -163,6 +213,7 @@ public class MainActivity extends AppCompatActivity
         fragmentManager.beginTransaction().hide(positionFragment).hide(listFragment).hide(radarFragment).hide(logFragment).hide(mapFragment).hide(toolFragment).commit();
         fragmentManager.beginTransaction().show(positionFragment).commit();
 
+        this.bindService(new Intent(this, TimerService.class), mConnection, Context.BIND_AUTO_CREATE);
 
         sInstance = this;
 
@@ -206,9 +257,8 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 Snackbar.make(view, "Logging Started", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                fab_stop.setVisibility(View.VISIBLE);
-                fab.setVisibility(View.INVISIBLE);
-                loggerFile.startNewLog();
+                startedLogButton(true);
+                startNewLogging();
             }
         });
 
@@ -217,13 +267,53 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 Snackbar.make(view, "Logging Stopped", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                fab_stop.setVisibility(View.INVISIBLE);
-                fab.setVisibility(View.VISIBLE);
-                loggerFile.send();
+                startedLogButton(false);
+                stopLogging();
             }
         });
 
     }
+
+    public void startedLogButton (boolean started) {
+        if (started) {
+            fab.setVisibility(View.INVISIBLE);
+            fab_stop.setVisibility(View.VISIBLE);
+            logFragment.startedLog(true);
+        } else {
+            fab.setVisibility(View.VISIBLE);
+            fab_stop.setVisibility(View.INVISIBLE);
+            logFragment.startedLog(false);
+        }
+    }
+
+    public  void hideFloatButton (boolean hide) {
+        if(hide) {
+            fab.setVisibility(View.INVISIBLE);
+            fab_stop.setVisibility(View.INVISIBLE);
+        } else {
+            startedLogButton(logging);
+        }
+    }
+
+    public void startNewLogging () {
+        logging = true;
+        loggerFile.startNewLog();
+
+        if (!mTimerValues.isZero() && (mTimerService != null)) {
+            mTimerService.startTimer();
+        }
+    }
+
+    public void stopLogging () {
+        logging = false;
+        loggerFile.send();
+
+
+            mTimerService.stopTimer();
+
+    }
+
+
 
     @Override
     public void onBackPressed() {
@@ -269,6 +359,9 @@ public class MainActivity extends AppCompatActivity
                     .replace(R.id.content_frame
                             , listFragment)
                     .commit();*/
+
+        hideFloatButton(false);
+
         if (id != R.id.nav_info)
             fragmentManager.beginTransaction().hide(positionFragment).hide(listFragment).hide(radarFragment).hide(logFragment).hide(mapFragment).hide(toolFragment).commit();
 
@@ -286,6 +379,7 @@ public class MainActivity extends AppCompatActivity
                     .show(radarFragment)
                     .commit();
         } else if (id == R.id.nav_log) {
+            hideFloatButton(true);
             fragmentManager.beginTransaction()
                     .show(logFragment)
                     .commit();
@@ -309,6 +403,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onStart() {
+        bindService(new Intent(this, TimerService.class), mConnection, Context.BIND_AUTO_CREATE);
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{
@@ -342,6 +438,8 @@ public class MainActivity extends AppCompatActivity
 
         addOrientationSensorListener();
         //Toast.makeText(this, "App resume", Toast.LENGTH_SHORT).show();
+        LocalBroadcastManager.getInstance(this)
+                .registerReceiver(mBroadcastReceiver, new IntentFilter(TimerService.TIMER_ACTION));
 
         super.onResume();
 
@@ -350,6 +448,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         locationManager.removeUpdates(this);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
         //Toast.makeText(this, "App pause", Toast.LENGTH_SHORT).show();
         super.onPause();
 
@@ -358,9 +457,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         locationManager.removeUpdates(this);
+        unbindService(mConnection);
         //Toast.makeText(this, "App stop", Toast.LENGTH_SHORT).show();
         super.onStop();
-
     }
 
     @Override

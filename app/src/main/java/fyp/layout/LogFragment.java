@@ -32,8 +32,9 @@ import fyp.layout.LoggerUI;
 public class LogFragment extends Fragment implements MainActivityListener {
 
     View myView;
+    private static final String TIMER_FRAGMENT_TAG = "timer";
 
-    TextView logView;
+    TextView logView, timertv;
     ScrollView logScroll;
 
     Button startLog, stopLog, timer, clear;
@@ -63,6 +64,7 @@ public class LogFragment extends Fragment implements MainActivityListener {
         MainActivity.getInstance().addListener(this);
 
         logView = (TextView) myView.findViewById(R.id.log_view);
+        timertv = (TextView) myView.findViewById(R.id.timer_display);
         logScroll = (ScrollView) myView.findViewById(R.id.log_scroll);
 
         startLog = (Button) myView.findViewById(R.id.start_logs);
@@ -71,6 +73,8 @@ public class LogFragment extends Fragment implements MainActivityListener {
         clear = (Button) myView.findViewById(R.id.clear);
 
         autoScroll = (CheckBox) myView.findViewById(R.id.autoScroll);
+
+        displayTimer(MainActivity.getInstance().mTimerValues, false /* countdownStyle */);
 
         LoggerUI currentUiLogger = loggerUI;
         loggerUI = new LoggerUI();
@@ -90,7 +94,7 @@ public class LogFragment extends Fragment implements MainActivityListener {
             @Override
             public void onClick(View v) {
                 startedLog(true);
-                loggerFile.startNewLog();
+                MainActivity.getInstance().startNewLogging();
             }
         });
 
@@ -98,7 +102,7 @@ public class LogFragment extends Fragment implements MainActivityListener {
             @Override
             public void onClick(View v) {
                 startedLog(false);
-                loggerFile.send();
+                MainActivity.getInstance().stopLogging();
             }
         });
 
@@ -121,11 +125,38 @@ public class LogFragment extends Fragment implements MainActivityListener {
             }
         });
 
+        timer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //launchTimerDialog();
+            }
+        });
+
 
         return myView;
     }
 
-    private void startedLog(boolean started) {
+    public void displayTimer(TimerValues values, boolean countdownStyle) {
+        String content;
+
+        if (countdownStyle) {
+            content = values.toCountdownString();
+        } else {
+            content = values.toString();
+        }
+
+        //timertv.setText(String.format("%s: %s", getResources().getString(R.string.timer_display), content));
+        timertv.setText(content);
+    }
+
+    private void launchTimerDialog() {
+        TimerFragment timer = new TimerFragment();
+        timer.setTargetFragment(this, 0);
+        timer.setArguments(MainActivity.getInstance().mTimerValues.toBundle());
+        timer.show(getFragmentManager(), TIMER_FRAGMENT_TAG);
+    }
+
+    public void startedLog(boolean started) {
         startLog.setEnabled(!started);
         stopLog.setEnabled(started);
         timer.setEnabled(!started);

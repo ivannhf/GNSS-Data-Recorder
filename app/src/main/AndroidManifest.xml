@@ -50,6 +50,10 @@
             android:name=".Setting"
             android:label="@string/title_activity_settings"></activity>
 
+        <service android:name="fyp.layout.TimerService"
+            android:exported="false"
+            android:description="@string/timer_service_name" />
+
     </application>
 
 </manifest>
