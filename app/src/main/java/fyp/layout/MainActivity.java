@@ -156,7 +156,6 @@ public class MainActivity extends AppCompatActivity
         toolFragment = new ToolFragment();
 
         navigationView.setCheckedItem(R.id.nav_position);
-        //FragmentManager
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().add(R.id.content_frame, positionFragment).
                 add(R.id.content_frame, listFragment).add(R.id.content_frame, radarFragment).
@@ -164,10 +163,6 @@ public class MainActivity extends AppCompatActivity
                 add(R.id.content_frame, toolFragment).commit();
         fragmentManager.beginTransaction().hide(positionFragment).hide(listFragment).hide(radarFragment).hide(logFragment).hide(mapFragment).hide(toolFragment).commit();
         fragmentManager.beginTransaction().show(positionFragment).commit();
-        /*fragmentManager.beginTransaction()
-                .replace(R.id.content_frame
-                        , positionFragment)
-                .commit();*/
 
 
         sInstance = this;
@@ -275,7 +270,7 @@ public class MainActivity extends AppCompatActivity
                     .replace(R.id.content_frame
                             , listFragment)
                     .commit();*/
-        fragmentManager.beginTransaction().hide(positionFragment).hide(listFragment).hide(radarFragment).hide(logFragment).hide(mapFragment).hide(toolFragment).commit();
+        if (id != R.id.nav_info) fragmentManager.beginTransaction().hide(positionFragment).hide(listFragment).hide(radarFragment).hide(logFragment).hide(mapFragment).hide(toolFragment).commit();
 
         if (id == R.id.nav_position) {
             fragmentManager.beginTransaction()
