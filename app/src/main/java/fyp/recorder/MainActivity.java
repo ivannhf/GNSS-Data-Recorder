@@ -208,6 +208,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        //startService(new Intent(this, bkgdService.class));
     }
 
     public void startedLogButton (boolean started) {

@@ -50,6 +50,8 @@
             android:name="fyp.recorder.settings"
             android:label="@string/title_activity_settings"></activity>
 
+        <service android:name="fyp.recorder.bkgdService" android:process=":bkgd_service" />
+
     </application>
 
 </manifest>
