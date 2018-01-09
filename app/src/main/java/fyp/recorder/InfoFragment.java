@@ -1,4 +1,4 @@
-package fyp.logger;
+package fyp.recorder;
 
 import android.app.Dialog;
 import android.content.Context;

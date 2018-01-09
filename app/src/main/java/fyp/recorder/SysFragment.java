@@ -1,4 +1,4 @@
-package fyp.logger;
+package fyp.recorder;
 
 //import android.app.Fragment;
 
@@ -20,8 +20,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import fyp.layout.R;
-import fyp.logger.util.GnssType;
-import fyp.logger.util.GpsTestUtil;
+import fyp.recorder.util.GnssType;
+import fyp.recorder.util.GpsTestUtil;
 
 
 public class SysFragment extends Fragment implements MainActivityListener {

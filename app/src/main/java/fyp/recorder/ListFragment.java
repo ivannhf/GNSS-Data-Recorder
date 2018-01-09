@@ -1,4 +1,4 @@
-package fyp.logger;
+package fyp.recorder;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -22,8 +22,8 @@ import android.widget.TextView;
 import com.google.android.gms.maps.model.LatLng;
 
 import fyp.layout.R;
-import fyp.logger.util.GnssType;
-import fyp.logger.util.GpsTestUtil;
+import fyp.recorder.util.GnssType;
+import fyp.recorder.util.GpsTestUtil;
 
 public class ListFragment extends Fragment implements MainActivityListener {
     View myView;

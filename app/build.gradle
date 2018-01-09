@@ -4,7 +4,7 @@ android {
     compileSdkVersion 27
     buildToolsVersion '26.0.2'
     defaultConfig {
-        applicationId "fyp.layout"
+        applicationId "fyp.recorder"
         minSdkVersion 24
         targetSdkVersion 27
         versionCode 1

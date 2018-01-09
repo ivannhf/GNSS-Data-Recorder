@@ -1,4 +1,4 @@
-package fyp.logger;
+package fyp.recorder;
 
 
 import android.graphics.Color;
@@ -11,7 +11,7 @@ import android.location.Location;
 import android.location.LocationProvider;
 import android.os.Bundle;
 
-import fyp.logger.LogFragment.UIFragmentComponent;
+import fyp.recorder.LogFragment.UIFragmentComponent;
 import java.text.DecimalFormat;
 
 /**

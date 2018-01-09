@@ -1,4 +1,4 @@
-package fyp.logger;
+package fyp.recorder;
 
 
 //import android.app.Fragment;
@@ -25,8 +25,8 @@ import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 
 import fyp.layout.R;
-import fyp.logger.util.GnssType;
-import fyp.logger.util.GpsTestUtil;
+import fyp.recorder.util.GnssType;
+import fyp.recorder.util.GpsTestUtil;
 
 
 public class SkyViewFragment extends Fragment implements MainActivityListener{

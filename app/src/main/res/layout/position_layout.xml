@@ -9,7 +9,7 @@
 
 
     <fragment
-        class="fyp.logger.SysFragment"
+        class="fyp.recorder.SysFragment"
         android:id="@+id/sys_position"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

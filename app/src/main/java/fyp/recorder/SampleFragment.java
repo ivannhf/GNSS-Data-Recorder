@@ -1,4 +1,4 @@
-package fyp.logger;
+package fyp.recorder;
 
 import android.support.v4.app.Fragment;
 import android.os.Bundle;

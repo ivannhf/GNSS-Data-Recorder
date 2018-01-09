@@ -1,4 +1,4 @@
-package fyp.logger;
+package fyp.recorder;
 
 import android.Manifest;
 //import android.app.FragmentManager;
@@ -38,12 +38,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import fyp.layout.R;
-import fyp.logger.util.GpsTestUtil;
-import fyp.logger.util.MathUtils;
+import fyp.recorder.util.GpsTestUtil;
+import fyp.recorder.util.MathUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -181,6 +182,14 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        fab.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(getApplicationContext(), "Click to start logging.", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+
         fab_stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -188,6 +197,14 @@ public class MainActivity extends AppCompatActivity
                         .setAction("Action", null).show();
                 startedLogButton(false);
                 stopLogging();
+            }
+        });
+
+        fab_stop.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(getApplicationContext(), "Click to stop logging.", Toast.LENGTH_SHORT).show();
+                return true;
             }
         });
 
@@ -327,6 +344,12 @@ public class MainActivity extends AppCompatActivity
             addGnssGnssNavigationMessageListener();
         }
 
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+            }, 1001);
+        }
+
         super.onStart();
     }
 
@@ -343,6 +366,12 @@ public class MainActivity extends AppCompatActivity
             addGnssStatusListener();
             addGnssMeasurementsListener();
             addGnssGnssNavigationMessageListener();
+        }
+
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+            }, 1001);
         }
 
         addOrientationSensorListener();

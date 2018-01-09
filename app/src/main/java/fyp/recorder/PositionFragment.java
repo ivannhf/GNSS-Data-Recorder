@@ -1,4 +1,4 @@
-package fyp.logger;
+package fyp.recorder;
 
 import android.location.GnssMeasurementsEvent;
 import android.location.GnssNavigationMessage;
