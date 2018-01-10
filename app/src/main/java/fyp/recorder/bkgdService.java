@@ -8,10 +8,13 @@ import android.location.GnssNavigationMessage;
 import android.location.GnssStatus;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
 public class bkgdService extends Service implements MainActivityListener{
+    private final IBinder mBinder = new MyBinder();
+
     @Override
     public void onCreate() {
         MainActivity.getInstance().addListener(this);
@@ -21,7 +24,13 @@ public class bkgdService extends Service implements MainActivityListener{
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return mBinder;
+    }
+
+    public class MyBinder extends Binder {
+        bkgdService getService() {
+            return bkgdService.this;
+        }
     }
 
     @Override

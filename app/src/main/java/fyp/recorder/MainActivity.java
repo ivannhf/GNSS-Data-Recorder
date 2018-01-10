@@ -3,8 +3,10 @@ package fyp.recorder;
 import android.Manifest;
 //import android.app.FragmentManager;
 //import android.app.Fragment;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -22,6 +24,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.OnNmeaMessageListener;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -55,6 +58,7 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "MainActivity";
     private static MainActivity sInstance;
     SharedPreferences setting;
+    private bkgdService sv;
 
     double gyroX = 0, gyroY = 0, gyroZ = 0, accelX = 0, accelY = 0, accelZ = 0, heading = 0;
     double orientation = Double.NaN;
@@ -211,7 +215,7 @@ public class MainActivity extends AppCompatActivity
         //startService(new Intent(this, bkgdService.class));
     }
 
-    public void startedLogButton (boolean started) {
+    public void startedLogButton(boolean started) {
         if (started) {
             fab.setVisibility(View.INVISIBLE);
             fab_stop.setVisibility(View.VISIBLE);
@@ -223,8 +227,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public  void hideFloatButton (boolean hide) {
-        if(hide) {
+    public void hideFloatButton(boolean hide) {
+        if (hide) {
             fab.setVisibility(View.INVISIBLE);
             fab_stop.setVisibility(View.INVISIBLE);
         } else {
@@ -232,12 +236,12 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void startNewLogging () {
+    public void startNewLogging() {
         logging = true;
         loggerFile.startNewLog();
     }
 
-    public void stopLogging () {
+    public void stopLogging() {
         logging = false;
         loggerFile.send();
     }
@@ -705,4 +709,5 @@ public class MainActivity extends AppCompatActivity
                 (float) mLastLocation.getLongitude(), (float) mLastLocation.getAltitude(),
                 mLastLocation.getTime());
     }
+
 }
