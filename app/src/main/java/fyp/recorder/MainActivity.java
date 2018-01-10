@@ -73,7 +73,9 @@ public class MainActivity extends AppCompatActivity
     ToolFragment toolFragment;
 
     LoggerFile loggerFile;
+    LoggerFileRINEX loggerFileRINEX;
     LoggerUI loggerUI;
+    int logFileType = 1;
 
     // Listeners for Fragments
     private ArrayList<MainActivityListener> mMainActivityListeners = new ArrayList<MainActivityListener>();
@@ -169,6 +171,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         loggerFile = new LoggerFile(this);
+        loggerFileRINEX = new LoggerFileRINEX(this);
         loggerUI = new LoggerUI();
         logFragment.setLoggerFile(loggerFile);
         logFragment.setUILogger(loggerUI);
@@ -237,13 +240,23 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void startNewLogging() {
+        SharedPreferences setting = this.getSharedPreferences("settings", MODE_PRIVATE);
+        logFileType = Integer.parseInt(setting.getString(getString(R.string.pref_key_log_type), "1"));
         logging = true;
-        loggerFile.startNewLog();
+        if (logFileType == 1) {
+            loggerFile.startNewLog();
+        } else if (logFileType == 2) {
+            loggerFileRINEX.startNewLog();
+        }
     }
 
     public void stopLogging() {
         logging = false;
-        loggerFile.send();
+        if (logFileType == 1) {
+            loggerFile.send();
+        } else if (logFileType == 2) {
+            loggerFileRINEX.send();
+        }
     }
 
     @Override
