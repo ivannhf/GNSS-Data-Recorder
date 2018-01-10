@@ -38,7 +38,8 @@ import java.util.Locale;
 public class LoggerFile implements MainActivityListener {
 
     private static final String TAG = "FileLogger";
-    private static final String FILE_PREFIX = "gnss_data";
+    private static final String FLOFDER_PREFIX = "AAE01_GNSS_Data/Raw";
+    private static final String FILE_PREFIX = "gnss_data_raw";
     private static final String ERROR_WRITING_FILE = "Problem writing to file.";
     private static final String COMMENT_START = "# ";
     private static final char RECORD_DELIMITER = ',';
@@ -76,7 +77,7 @@ public class LoggerFile implements MainActivityListener {
             File baseDirectory;
             String state = Environment.getExternalStorageState();
             if (Environment.MEDIA_MOUNTED.equals(state)) {
-                baseDirectory = new File(Environment.getExternalStorageDirectory(), FILE_PREFIX);
+                baseDirectory = new File(Environment.getExternalStorageDirectory(), FLOFDER_PREFIX);
                 baseDirectory.mkdirs();
             } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
                 logError("Cannot write to external storage.");
