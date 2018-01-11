@@ -142,6 +142,7 @@ public class MainActivity extends AppCompatActivity
                 add(R.id.content_frame, logFragment).add(R.id.content_frame, mapFragment).
                 add(R.id.content_frame, toolFragment).commit();
         fragmentManager.beginTransaction().hide(positionFragment).hide(listFragment).hide(radarFragment).hide(logFragment).hide(mapFragment).hide(toolFragment).commit();
+        fragmentManager.beginTransaction().detach(radarFragment).commit();
         fragmentManager.beginTransaction().show(positionFragment).commit();
 
         sInstance = this;
@@ -219,7 +220,6 @@ public class MainActivity extends AppCompatActivity
         });
 
         startService(new Intent(this, bkgdService.class));
-
 
     }
 

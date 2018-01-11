@@ -21,6 +21,8 @@ import fyp.layout.R;
 public class bkgdService extends Service {
     private static final String LOG_TAG = "ForegroundService";
 
+    private static final int ONGOING_NOTIFICATION_ID = 1;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -32,6 +34,18 @@ public class bkgdService extends Service {
         // Your logical code here
         Toast.makeText(this, "Service start", Toast.LENGTH_SHORT).show();
         //MainActivity.getInstance().addListener();
+
+        //Notification notification = new Notification();
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        Notification notification = new Notification.Builder(getApplicationContext())
+                .setContentTitle(getString(R.string.notification_title))
+                .setContentText(getString(R.string.notification_message))
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setWhen(System.currentTimeMillis())
+                .setContentIntent(pendingIntent)
+                .build();
+        this.startForeground(ONGOING_NOTIFICATION_ID, notification);
 
         return START_STICKY;
     }
