@@ -27,6 +27,7 @@ public class bkgdService extends Service {
 
         // Your logical code here
         Toast.makeText(this, "Service start", Toast.LENGTH_SHORT).show();
+        //MainActivity.getInstance().addListener();
 
         return START_STICKY;
     }
