@@ -7,6 +7,10 @@
     <string name="action_settings">Settings</string>
 
     <string name="app_version">Beta 1.0</string>
+    
+    <string name="notification_title">GNSS Data Recorder is running</string>
+    
+    <string name="notification_message">Please to not close app</string>
 
     <!--put your google api key here-->
     <string name="google_map_api_key">AIzaSyC3nNZV0POlegfFJcDMaMy04uXhxs-LA20</string>

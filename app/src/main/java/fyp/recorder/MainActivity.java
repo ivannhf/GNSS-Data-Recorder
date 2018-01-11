@@ -3,6 +3,8 @@ package fyp.recorder;
 import android.Manifest;
 //import android.app.FragmentManager;
 //import android.app.Fragment;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -102,6 +104,7 @@ public class MainActivity extends AppCompatActivity
     private GeomagneticField mGeomagneticField;
 
     FloatingActionButton fab, fab_stop;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -215,7 +218,9 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        //startService(new Intent(this, bkgdService.class));
+        startService(new Intent(this, bkgdService.class));
+
+
     }
 
     public void startedLogButton(boolean started) {
@@ -401,7 +406,7 @@ public class MainActivity extends AppCompatActivity
         addOrientationSensorListener();
         //Toast.makeText(this, "App resume", Toast.LENGTH_SHORT).show();
 
-        startService(new Intent(this, bkgdService.class));
+        //startService(new Intent(this, bkgdService.class));
 
         super.onResume();
 
