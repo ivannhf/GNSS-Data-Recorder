@@ -154,6 +154,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MainAct
         //mCurrLocationMarker.setPosition(new LatLng(latitude, longitude));
         //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
         //mCurrLocationMarker.setPosition(latLng);
+        SharedPreferences setting = context.getSharedPreferences("settings", Context.MODE_PRIVATE);
+        if (setting.getBoolean(getString(R.string.pref_key_map_cam_chase), true))
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
         //Toast.makeText(context, "Marker Updated\n" + latLng, Toast.LENGTH_SHORT).show();
         //}

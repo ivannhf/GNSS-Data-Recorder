@@ -49,6 +49,9 @@
     <string name="pref_map_type_summary">Sets the type of map tiles shown</string>
     <string name="pref_map_type_dialog_title">Choose Map Type</string>
 
+    <string name="pref_map_cam_chase_title">Camera Lock on Current Location</string>
+    <string name="pref_map_cam_chase_summary">Camera keep chasing location marker</string>
+
     <string name="pref_log_category_title">Logging</string>
 
     <string name="pref_log_type_title">Log type</string>

@@ -11,100 +11,46 @@ import android.os.Bundle;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Log;
+import android.widget.Toast;
 
-public class bkgdService extends Service implements MainActivityListener{
-    private final IBinder mBinder = new MyBinder();
+public class bkgdService extends Service {
+    private static final String LOG_TAG = "ForegroundService";
 
     @Override
     public void onCreate() {
-        MainActivity.getInstance().addListener(this);
         super.onCreate();
     }
 
-    @Nullable
     @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
-    }
+    public int onStartCommand(Intent intent, int flags, int startId) {
 
-    public class MyBinder extends Binder {
-        bkgdService getService() {
-            return bkgdService.this;
-        }
+        // Your logical code here
+        Toast.makeText(this, "Service start", Toast.LENGTH_SHORT).show();
+
+        return START_STICKY;
     }
 
     @Override
-    public void gpsStart() {
+    public void onTaskRemoved(Intent rootIntent) {
 
+        //When remove app from background then start it again
+        startService(new Intent(this, bkgdService.class));
+
+        super.onTaskRemoved(rootIntent);
     }
 
     @Override
-    public void gpsStop() {
-
-    }
-
-    @Override
-    public void onGnssFirstFix(int ttffMillis) {
-
-    }
-
-    @Override
-    public void onSatelliteStatusChanged(GnssStatus status) {
-
+    public void onDestroy() {
+        super.onDestroy();
+        Log.i(LOG_TAG, "In onDestroy");
+        Toast.makeText(this, "Service stop", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onGnssStarted() {
-
+    public IBinder onBind(Intent intent) {
+        // Used only in case of bound services.
+        return null;
     }
 
-    @Override
-    public void onGnssStopped() {
-
-    }
-
-    @Override
-    public void onGnssMeasurementsReceived(GnssMeasurementsEvent event) {
-
-    }
-
-    @Override
-    public void onGnssNavigationMessageReceived(GnssNavigationMessage event) {
-
-    }
-
-    @Override
-    public void onNmeaReceived(long l, String s) {
-
-    }
-
-    @Override
-    public void onOrientationChanged(double orientation, double tilt) {
-
-    }
-
-    @Override
-    public void sensorValue(double gyroX, double gyroY, double gyroZ, double accelX, double accelY, double accelZ, double heading) {
-
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
 }

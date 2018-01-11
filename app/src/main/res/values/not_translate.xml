@@ -9,6 +9,8 @@
 
     <string name="pref_key_map_type"><xliff:g id="preference_key">map_type</xliff:g></string>
 
+    <string name="pref_key_map_cam_chase"><xliff:g id="preference_key">map_cam_chase</xliff:g></string>
+
     <string name="pref_key_log_category"><xliff:g id="preference_key">log_category</xliff:g></string>
 
     <string name="pref_key_log_type"><xliff:g id="preference_key">log_type</xliff:g></string>

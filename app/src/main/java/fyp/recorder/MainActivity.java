@@ -285,11 +285,19 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            startActivity(new Intent(this, settings.class));
+            if (logging) {
+                Toast.makeText(this, "Setting is not allowed when logging", Toast.LENGTH_SHORT).show();
+            } else {
+                startActivity(new Intent(this, settings.class));
+            }
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void closeSetting() {
+
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -393,13 +401,15 @@ public class MainActivity extends AppCompatActivity
         addOrientationSensorListener();
         //Toast.makeText(this, "App resume", Toast.LENGTH_SHORT).show();
 
+        startService(new Intent(this, bkgdService.class));
+
         super.onResume();
 
     }
 
     @Override
     protected void onPause() {
-        locationManager.removeUpdates(this);
+        //locationManager.removeUpdates(this);
         //Toast.makeText(this, "App pause", Toast.LENGTH_SHORT).show();
         super.onPause();
 
@@ -407,14 +417,14 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onStop() {
-        locationManager.removeUpdates(this);
+        //locationManager.removeUpdates(this);
         //Toast.makeText(this, "App stop", Toast.LENGTH_SHORT).show();
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
-        locationManager.removeUpdates(this);
+        //locationManager.removeUpdates(this);
         //Toast.makeText(this, "App destroy", Toast.LENGTH_SHORT).show();
         super.onDestroy();
     }
