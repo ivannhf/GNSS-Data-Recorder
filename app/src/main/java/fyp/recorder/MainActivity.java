@@ -268,6 +268,12 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    public boolean showQuitDialog () {
+        quitAlert quit = new quitAlert();
+        quit.show(getSupportFragmentManager(), "quit");
+        return quit.isQuit();
+    }
+
     public void quitApp () {
         stopService(intentService);
         MainActivity.getInstance().finish();
@@ -279,9 +285,7 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            quitAlert quit = new quitAlert();
-            quit.show(getSupportFragmentManager(), "quit");
-            if (quit.isQuit() == true) {
+            if (showQuitDialog() == true) {
                 super.onBackPressed();
             }
         }
@@ -309,6 +313,8 @@ public class MainActivity extends AppCompatActivity
                 startActivity(new Intent(this, settings.class));
             }
             return true;
+        } else if (id == R.id.action_quit) {
+            showQuitDialog();
         }
 
         return super.onOptionsItemSelected(item);
@@ -364,6 +370,8 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_info) {
             InfoFragment infoFragment = new InfoFragment();
             infoFragment.show(getSupportFragmentManager(), "info");
+        } else if (id == R.id.nav_quit) {
+            showQuitDialog();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

@@ -42,6 +42,12 @@
             android:checkable="false"
             android:title="Info" />
 
+        <item
+            android:id="@+id/nav_quit"
+            android:icon="@drawable/ic_menu_info"
+            android:checkable="false"
+            android:title="Quit" />
+
     </group>
 
     <!--
