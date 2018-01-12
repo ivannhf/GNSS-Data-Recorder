@@ -338,7 +338,7 @@ public class MainActivity extends AppCompatActivity
 
         hideFloatButton(false);
 
-        if (id != R.id.nav_info)
+        if ((id != R.id.nav_info) && (id != R.id.nav_quit))
             fragmentManager.beginTransaction().hide(positionFragment).hide(listFragment).hide(radarFragment).hide(logFragment).hide(mapFragment).hide(toolFragment).commit();
 
         if (id == R.id.nav_position) {

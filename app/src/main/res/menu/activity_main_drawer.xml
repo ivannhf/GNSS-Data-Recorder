@@ -30,6 +30,12 @@
             android:icon="@drawable/ic_menu_manage"
             android:title="Tools" />
 
+        <item
+            android:id="@+id/nav_quit"
+            android:icon="@drawable/ic_menu_exit"
+            android:checkable="false"
+            android:title="Quit" />
+
     </group>
 
     <group
@@ -41,12 +47,6 @@
             android:icon="@drawable/ic_menu_info"
             android:checkable="false"
             android:title="Info" />
-
-        <item
-            android:id="@+id/nav_quit"
-            android:icon="@drawable/ic_menu_info"
-            android:checkable="false"
-            android:title="Quit" />
 
     </group>
 
