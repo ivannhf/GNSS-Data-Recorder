@@ -9,6 +9,7 @@ import android.location.GnssMeasurementsEvent;
 import android.location.GnssNavigationMessage;
 import android.location.GnssStatus;
 import android.location.Location;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.os.Bundle;
@@ -130,10 +131,12 @@ public class InfoFragment extends DialogFragment implements MainActivityListener
     @Override
     public void onGnssMeasurementsReceived(GnssMeasurementsEvent event) {
         for (GnssMeasurement measurement : event.getMeasurements()) {
-            if ((measurement.hasAutomaticGainControlLevelDb() == true) && (android.os.Build.VERSION.SDK_INT >= 26)) {
-                val_gainCtrl = measurement.getAutomaticGainControlLevelDb();
-                bool_gainCtrl = true;
-                //gainCtrl.setText("yes");
+            if(Build.VERSION.SDK_INT >= 26) {
+                if (measurement.hasAutomaticGainControlLevelDb() == true) {
+                    val_gainCtrl = measurement.getAutomaticGainControlLevelDb();
+                    bool_gainCtrl = true;
+                    //gainCtrl.setText("yes");
+                }
             }
             //else gainCtrl.setText("no");
 
