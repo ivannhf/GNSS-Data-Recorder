@@ -3,10 +3,13 @@ package fyp.recorder;
 import android.Manifest;
 //import android.app.FragmentManager;
 //import android.app.Fragment;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -60,7 +63,7 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "MainActivity";
     private static MainActivity sInstance;
     SharedPreferences setting;
-    private bkgdService sv;
+    public Intent intentService;
 
     double gyroX = 0, gyroY = 0, gyroZ = 0, accelX = 0, accelY = 0, accelZ = 0, heading = 0;
     double orientation = Double.NaN;
@@ -142,7 +145,7 @@ public class MainActivity extends AppCompatActivity
                 add(R.id.content_frame, logFragment).add(R.id.content_frame, mapFragment).
                 add(R.id.content_frame, toolFragment).commit();
         fragmentManager.beginTransaction().hide(positionFragment).hide(listFragment).hide(radarFragment).hide(logFragment).hide(mapFragment).hide(toolFragment).commit();
-        fragmentManager.beginTransaction().detach(radarFragment).commit();
+        //fragmentManager.beginTransaction().detach(radarFragment).commit();
         fragmentManager.beginTransaction().show(positionFragment).commit();
 
         sInstance = this;
@@ -219,7 +222,8 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        startService(new Intent(this, bkgdService.class));
+        intentService = new Intent(this, bkgdService.class);
+        startService(intentService);
 
     }
 
@@ -264,13 +268,22 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    public void quitApp () {
+        stopService(intentService);
+        MainActivity.getInstance().finish();
+    }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            quitAlert quit = new quitAlert();
+            quit.show(getSupportFragmentManager(), "quit");
+            if (quit.isQuit() == true) {
+                super.onBackPressed();
+            }
         }
     }
 
