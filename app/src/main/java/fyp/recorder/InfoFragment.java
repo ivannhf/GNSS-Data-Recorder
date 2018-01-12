@@ -27,6 +27,16 @@ public class InfoFragment extends DialogFragment implements MainActivityListener
     TextView gainCtrl, carrierCyc, carrierFreq, carrierPhase, carrierPhaUn, SNR;
     TextView settingtv;
 
+    Boolean bool_gainCtrl = null, bool_carrierCyc = null, bool_carrierFreq = null,
+            bool_carrierPhase = null, bool_carrierPhaUn = null, bool_SNR = null;
+
+    Double val_gainCtrl = null;
+    Long val_carrierCyc = null;
+    Float val_carrierFreq = null;
+    Double val_carrierPhase = null;
+    Double val_carrierPhaUn = null;
+    Double val_SNR = null;
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -121,30 +131,65 @@ public class InfoFragment extends DialogFragment implements MainActivityListener
     public void onGnssMeasurementsReceived(GnssMeasurementsEvent event) {
         for (GnssMeasurement measurement : event.getMeasurements()) {
             if ((measurement.hasAutomaticGainControlLevelDb() == true) && (android.os.Build.VERSION.SDK_INT >= 26)) {
-                gainCtrl.setText("yes");
-            } else gainCtrl.setText("no");
+                val_gainCtrl = measurement.getAutomaticGainControlLevelDb();
+                bool_gainCtrl = true;
+                //gainCtrl.setText("yes");
+            }
+            //else gainCtrl.setText("no");
 
 
             if (measurement.hasCarrierCycles() == true) {
-                carrierCyc.setText("yes");
-            } else carrierCyc.setText("no");
+                val_carrierCyc = measurement.getCarrierCycles();
+                bool_carrierCyc = true;
+                //carrierCyc.setText("yes");
+            }
+            //else carrierCyc.setText("no");
 
             if (measurement.hasCarrierFrequencyHz() == true) {
-                carrierFreq.setText("yes");
-            } else carrierFreq.setText("no");
+                val_carrierFreq = measurement.getCarrierFrequencyHz();
+                bool_carrierFreq = true;
+                //carrierFreq.setText("yes");
+            }
+            //else carrierFreq.setText("no");
 
             if (measurement.hasCarrierPhase() == true) {
-                carrierPhase.setText("yes");
+                val_carrierPhase = measurement.getCarrierPhase();
+                bool_carrierPhase = true;
+                // carrierPhase.setText("yes");
             } else carrierPhase.setText("no");
 
             if (measurement.hasCarrierPhaseUncertainty() == true) {
-                carrierPhaUn.setText("yes");
-            } else carrierPhaUn.setText("no");
+                val_carrierPhaUn = measurement.getCarrierPhaseUncertainty();
+                bool_carrierPhaUn = true;
+                //carrierPhaUn.setText("yes");
+            }
+            //else carrierPhaUn.setText("no");
 
             if (measurement.hasSnrInDb() == true) {
-                SNR.setText("yes");
-            } else SNR.setText("no");
+                val_SNR = measurement.getSnrInDb();
+                bool_SNR = true;
+                //SNR.setText("yes");
+            }
+            //else SNR.setText("no");
         }
+
+        if (val_gainCtrl != null) gainCtrl.setText("yes");
+        else gainCtrl.setText(val_gainCtrl+"");
+
+        if (val_carrierCyc != null) carrierCyc.setText("yes");
+        else carrierCyc.setText("no");
+
+        if (val_carrierFreq != null) carrierFreq.setText("yes");
+        else carrierFreq.setText("no");
+
+        if (val_carrierPhase != null) carrierPhase.setText("yes");
+        else carrierPhase.setText("no");
+
+        if (val_carrierPhaUn != null) carrierPhaUn.setText("yes");
+        else carrierPhaUn.setText("no");
+
+        if (val_SNR != null) SNR.setText("yes");
+        else SNR.setText(val_SNR +"");
 
     }
 
