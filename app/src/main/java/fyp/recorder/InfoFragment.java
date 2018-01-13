@@ -10,6 +10,7 @@ import android.location.GnssNavigationMessage;
 import android.location.GnssStatus;
 import android.location.Location;
 import android.os.Build;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.os.Bundle;
@@ -26,7 +27,7 @@ public class InfoFragment extends DialogFragment implements MainActivityListener
     Context context;
 
     TextView gainCtrl, carrierCyc, carrierFreq, carrierPhase, carrierPhaUn, SNR;
-    TextView settingtv;
+    TextView deviceModeltv, deviceManutv, devicePlatformtv;
 
     Boolean bool_gainCtrl = null, bool_carrierCyc = null, bool_carrierFreq = null,
             bool_carrierPhase = null, bool_carrierPhaUn = null, bool_SNR = null;
@@ -62,9 +63,13 @@ public class InfoFragment extends DialogFragment implements MainActivityListener
         carrierPhaUn = (TextView) myView.findViewById(R.id.carrierPhaUn_value);
         SNR = (TextView) myView.findViewById(R.id.SNR_value);
 
+        deviceModeltv = (TextView) myView.findViewById(R.id.deviceModel);
+        deviceManutv = (TextView) myView.findViewById(R.id.deviceManufacturer);
+        devicePlatformtv = (TextView) myView.findViewById(R.id.devicePlatform);
 
-        settingtv = (TextView) myView.findViewById(R.id.setting_test);
-        settingtv.setText("");
+        deviceModeltv.setText("Model: " + Build.MODEL + " (" + Build.DEVICE + ")");
+        deviceManutv.setText("Manufacturer: " + Build.MANUFACTURER);
+        devicePlatformtv.setText("Platform: " + Build.VERSION.RELEASE + " (SDK Ver.: " + Build.VERSION.SDK_INT + ")");
 
         MainActivity.getInstance().addListener(this);
 
@@ -119,12 +124,6 @@ public class InfoFragment extends DialogFragment implements MainActivityListener
 
     @Override
     public void onResume() {
-        SharedPreferences setting = context.getSharedPreferences("settings", Context.MODE_PRIVATE);
-        Boolean rotate = false;
-        String list = "";
-        rotate = setting.getBoolean(getString(R.string.pref_key_tilt_radar_with_sensors), false);
-        list = setting.getString(getString(R.string.pref_key_log_type), "");
-        settingtv.setText(rotate + " " + list);
         super.onResume();
     }
 
