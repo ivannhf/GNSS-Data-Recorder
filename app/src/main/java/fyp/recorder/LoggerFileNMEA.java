@@ -357,7 +357,7 @@ public class LoggerFileNMEA implements MainActivityListener {
                 return;
             }
             //String nmeaStream = String.format(Locale.US, "%s,%d", s, timestamp);
-            Log.d(TAG, s + timestamp);
+            //Log.d(TAG, s + timestamp);
             try {
                 mFileWriter.write(s);
                 //mFileWriter.newLine();
