@@ -54,7 +54,7 @@ public class SkyViewFragment extends Fragment implements MainActivityListener{
             SharedPreferences setting = context.getSharedPreferences("settings", Context.MODE_PRIVATE);
             rotate = setting.getBoolean(getString(R.string.pref_key_tilt_radar_with_sensors), true);
             if (rotate) {mSkyView.onOrientationChanged(orientation, tilt);}
-            //else {mSkyView.onOrientationChanged(0, tilt);}
+            else {mSkyView.onOrientationChanged(0, tilt);}
         }
     }
 
