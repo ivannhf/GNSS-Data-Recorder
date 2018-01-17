@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity
 
     LoggerFile loggerFile;
     LoggerFileRINEX loggerFileRINEX;
+    LoggerFileNMEA loggerFileNMEA;
     LoggerUI loggerUI;
     int logFileType = 1;
 
@@ -168,7 +169,8 @@ public class MainActivity extends AppCompatActivity
             gpsStart();
             addGnssStatusListener();
             addGnssMeasurementsListener();
-            addGnssGnssNavigationMessageListener();
+            addGnssNavigationMessageListener();
+            addNmeaMessageListener();
         }
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -179,6 +181,7 @@ public class MainActivity extends AppCompatActivity
 
         loggerFile = new LoggerFile(this);
         loggerFileRINEX = new LoggerFileRINEX(this);
+        loggerFileNMEA = new LoggerFileNMEA(this);
         loggerUI = new LoggerUI();
         logFragment.setLoggerFile(loggerFile);
         logFragment.setUILogger(loggerUI);
@@ -256,6 +259,8 @@ public class MainActivity extends AppCompatActivity
             loggerFile.startNewLog();
         } else if (logFileType == 2) {
             loggerFileRINEX.startNewLog();
+        } else if (logFileType == 3) {
+            loggerFileNMEA.startNewLog();
         }
     }
 
@@ -265,6 +270,8 @@ public class MainActivity extends AppCompatActivity
             loggerFile.send();
         } else if (logFileType == 2) {
             loggerFileRINEX.send();
+        } else if (logFileType == 3) {
+            loggerFileNMEA.send();
         }
     }
 
@@ -391,7 +398,8 @@ public class MainActivity extends AppCompatActivity
             locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, this);
             addGnssStatusListener();
             addGnssMeasurementsListener();
-            addGnssGnssNavigationMessageListener();
+            addGnssNavigationMessageListener();
+            addNmeaMessageListener();
         }
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -415,7 +423,8 @@ public class MainActivity extends AppCompatActivity
             locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, this);
             addGnssStatusListener();
             addGnssMeasurementsListener();
-            addGnssGnssNavigationMessageListener();
+            addGnssNavigationMessageListener();
+            addNmeaMessageListener();
         }
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -618,7 +627,7 @@ public class MainActivity extends AppCompatActivity
         locationManager.registerGnssMeasurementsCallback(mGnssMeasurementsListener);
     }
 
-    private void addGnssGnssNavigationMessageListener() {
+    private void addGnssNavigationMessageListener() {
         mGnssNavigationMessageListener = new GnssNavigationMessage.Callback() {
             @Override
             public void onGnssNavigationMessageReceived(GnssNavigationMessage event) {
@@ -645,6 +654,7 @@ public class MainActivity extends AppCompatActivity
                         }
                     }
                 };
+        locationManager.addNmeaListener(nmeaListener);
     }
 
     @Override

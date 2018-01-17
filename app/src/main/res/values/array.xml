@@ -18,11 +18,13 @@
     <string-array name="log_type_entries">
         <item>Google's Raw</item>
         <item>RINEX</item>
+        <item>NMEA</item>
     </string-array>
 
     <string-array name="log_type_values">
         <item>1</item>
         <item>2</item>
+        <item>3</item>
     </string-array>
 
 </resources>
