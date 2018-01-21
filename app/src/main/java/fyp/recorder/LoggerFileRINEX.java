@@ -28,6 +28,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -154,7 +155,6 @@ public class LoggerFileRINEX implements MainActivityListener {
                 do {
                     Log.d(TAG, "null");
                 } while ((firstFixStatus == null) || (leapSec == -1));
-                //firstFixStatus.getConstellationType(0);
                 Date firstObs = null;
                 firstObs = satSysTime(firstFixStatus.getConstellationType(0), leapSec);
                 String year = String.format("%1$tY", firstObs);
@@ -163,10 +163,12 @@ public class LoggerFileRINEX implements MainActivityListener {
                 String hour = String.format("%1$tk", firstObs);
                 String min = String.format("%1$tM", firstObs);
                 String sec = String.format("%1$tS", firstObs);
+                String nanosec = String.format("%1$tN", firstObs).substring(0,7);
                 currentFileWriter.write(String.format("%6s", year) + String.format("%6s", month) + String.format("%6s", day)
-                        + String.format("%6s", hour) + String.format("%6s", min) + String.format("%13s", sec)
+                        + String.format("%6s", hour) + String.format("%6s", min) + String.format("%5s", sec) + "." + nanosec
                         + String.format("%8s", satTypestr) + String.format("%9s", "") + "TIME OF FIRST OBS");
-                //firstObs.setTime(nowTimeUTC().getTime() + leapSec);
+                currentFileWriter.newLine();
+                currentFileWriter.write(String.format("%-60s", leapSec) + " LEAP SECONDS");
                 currentFileWriter.newLine();
 
 
@@ -380,7 +382,7 @@ public class LoggerFileRINEX implements MainActivityListener {
             }
         }*/
         GnssClock clock = event.getClock();
-        leapSec = clock.getLeapSecond();
+        leapSec = clock.getLeapSecond()/1000000000;
     }
 
     @Override
