@@ -33,6 +33,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import static android.location.GnssStatus.CONSTELLATION_BEIDOU;
+import static android.location.GnssStatus.CONSTELLATION_GALILEO;
+import static android.location.GnssStatus.CONSTELLATION_GLONASS;
+import static android.location.GnssStatus.CONSTELLATION_GPS;
+import static android.location.GnssStatus.CONSTELLATION_QZSS;
+
 /**
  * A GNSS logger to store information to a file.
  */
@@ -51,6 +57,8 @@ public class LoggerFileRINEX implements MainActivityListener {
     private static final String RINEX_SYS = "M: Mixed";
 
     private GnssStatus firstFixStatus = null;
+    private int leapSec = -1;
+    private String satTypestr = "";
 
     private static final int MAX_FILES_STORED = 100;
     private static final int MINIMUM_USABLE_FILE_SIZE_BYTES = 1000;
@@ -143,7 +151,23 @@ public class LoggerFileRINEX implements MainActivityListener {
                 currentFileWriter.newLine();
                 currentFileWriter.write(String.format("%14s", "0.0000") + String.format("%14s", "0.0000") + String.format("%14s", "0.0000") + String.format("%-18s", "") + "ANTENNA: DELTA H/E/N");
                 currentFileWriter.newLine();
-                do {} while (firstFixStatus == null);
+                do {
+                    Log.d(TAG, "null");
+                } while ((firstFixStatus == null) || (leapSec == -1));
+                //firstFixStatus.getConstellationType(0);
+                Date firstObs = null;
+                firstObs = satSysTime(firstFixStatus.getConstellationType(0), leapSec);
+                String year = String.format("%1$tY", firstObs);
+                String month = String.format("%1$tm", firstObs);
+                String day = String.format("%1$te", firstObs);
+                String hour = String.format("%1$tk", firstObs);
+                String min = String.format("%1$tM", firstObs);
+                String sec = String.format("%1$tS", firstObs);
+                currentFileWriter.write(String.format("%6s", year) + String.format("%6s", month) + String.format("%6s", day)
+                        + String.format("%6s", hour) + String.format("%6s", min) + String.format("%13s", sec)
+                        + String.format("%8s", satTypestr) + String.format("%9s", "") + "TIME OF FIRST OBS");
+                //firstObs.setTime(nowTimeUTC().getTime() + leapSec);
+                currentFileWriter.newLine();
 
 
                 currentFileWriter.write(String.format("%-60s", "") + "END OF HEADER");
@@ -355,6 +379,8 @@ public class LoggerFileRINEX implements MainActivityListener {
                 }
             }
         }*/
+        GnssClock clock = event.getClock();
+        leapSec = clock.getLeapSecond();
     }
 
     @Override
@@ -518,5 +544,31 @@ public class LoggerFileRINEX implements MainActivityListener {
             e.printStackTrace();
         }
         return utcTime;
+    }
+
+    private Date satSysTime (int satType, int leapSec) {
+        Date sysTime = nowTimeUTC();
+        switch (satType) {
+            case CONSTELLATION_GLONASS:
+                satTypestr = "GLO";
+                sysTime = nowTimeUTC();
+                break;
+            case CONSTELLATION_GPS:
+                satTypestr = "GPS";
+                sysTime.setTime(nowTimeUTC().getTime() + leapSec);
+                break;
+            case CONSTELLATION_GALILEO:
+                satTypestr = "GAL";
+                sysTime.setTime(nowTimeUTC().getTime() + leapSec);
+                break;
+            case CONSTELLATION_QZSS:
+                satTypestr = "QZS";
+                sysTime.setTime(nowTimeUTC().getTime() + leapSec);
+                break;
+            case CONSTELLATION_BEIDOU:
+                satTypestr = "BDS";
+                break;
+        }
+        return sysTime;
     }
 }
