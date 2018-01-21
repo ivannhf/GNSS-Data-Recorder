@@ -46,6 +46,12 @@ public class LoggerFileRINEX implements MainActivityListener {
     private static final char RECORD_DELIMITER = ',';
     private static final String VERSION_TAG = "Version: ";
 
+    private static final String RINEX_VERSION = "3.03";
+    private static final String RINEX_TYPE = "OBSERVATION DATA";
+    private static final String RINEX_SYS = "M: Mixed";
+
+    private GnssStatus firstFixStatus = null;
+
     private static final int MAX_FILES_STORED = 100;
     private static final int MINIMUM_USABLE_FILE_SIZE_BYTES = 1000;
 
@@ -103,20 +109,46 @@ public class LoggerFileRINEX implements MainActivityListener {
 
             // initialize the contents of the file
             try {
-                currentFileWriter.write("     3.03           OBSERVATION DATA    M: Mixed            RINEX VERSION / TYPE");
+                currentFileWriter.write("----|---1|0---|---2|0---|---3|0---|---4|0---|---5|0---|---6|0---|---7|0---|---8|0\n");
+                //currentFileWriter.write("     3.03           OBSERVATION DATA    M: Mixed            RINEX VERSION / TYPE");
+                //currentFileWriter.write("{0:9.2f}           {1:<20}{2:<20}RINEX VERSION / TYPE\n".format(RINEX_VERSION, RINEX_TYPE, RINEX_SYS));
+                //currentFileWriter.write(String.format("%5s", "") + RINEX_VERSION + String.format("%11s", "") + RINEX_TYPE + String.format("%4s", "") + RINEX_SYS + String.format("%10s", "") +"RINEX VERSION / TYPE");
+                currentFileWriter.write(String.format("%9s", RINEX_VERSION) + String.format("%11s", "") + String.format("%-20s", RINEX_TYPE) + String.format("%-20s", RINEX_SYS) + "RINEX VERSION / TYPE");
+                currentFileWriter.newLine();
                 Date date = null;
                 try {
                     SimpleDateFormat dateFormatUTC = new SimpleDateFormat("yyyyMMdd HHmmss");
                     dateFormatUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
                     String UTCdate = dateFormatUTC.format(new Date());
                     SimpleDateFormat dateFormatLocal = new SimpleDateFormat("yyyyMMdd HHmmss");
-                    date = dateFormatLocal.parse(dateFormatUTC.format(new Date()));
+                    date = dateFormatLocal.parse(UTCdate);
                 } catch (java.text.ParseException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
+                String strDate = String.format("%1$tY%1$tm%1$td %1$tH%1$tM%1$tS UTC", date);
+                currentFileWriter.write(String.format("%-20s", "GNSS Data Recorder") + String.format("%-20s", "Ivan") + String.format("%-20s", strDate) + "PGM / RUN BY / DATE");
                 currentFileWriter.newLine();
-                currentFileWriter.write("Geo++ RINEX Logger  Geo++               " + date + " UTC PGM / RUN BY / DATE");
+                currentFileWriter.write(String.format("%-60s", "Geo") + "MARKER NAME");
+                currentFileWriter.newLine();
+                currentFileWriter.write(String.format("%-60s", "GEODETIC") + "MARKER TYPE");
+                currentFileWriter.newLine();
+                currentFileWriter.write(String.format("%-20s", "OBSERVER") + String.format("%-20s", "AGENCY") + String.format("%-20s", "") + "OBSERVER / AGENCY");
+                currentFileWriter.newLine();
+                currentFileWriter.write(String.format("%-20s", "0") + String.format("%-20s", "Logger User") + String.format("%-20s", "Logger User") + "REC # / TYPE / VERS");
+                currentFileWriter.newLine();
+                currentFileWriter.write(String.format("%-20s", "0") + String.format("%-20s", "Android-Antenna") + String.format("%-20s", "") + "ANT # / TYPE");
+                currentFileWriter.newLine();
+                currentFileWriter.write(String.format("%14s", "0.0000") + String.format("%14s", "0.0000") + String.format("%14s", "0.0000") + String.format("%-18s", "") + "APPROX POSITION XYZ");
+                currentFileWriter.newLine();
+                currentFileWriter.write(String.format("%14s", "0.0000") + String.format("%14s", "0.0000") + String.format("%14s", "0.0000") + String.format("%-18s", "") + "ANTENNA: DELTA H/E/N");
+                currentFileWriter.newLine();
+                do {} while (firstFixStatus == null);
+
+
+                currentFileWriter.write(String.format("%-60s", "") + "END OF HEADER");
+                currentFileWriter.newLine();
+
                 /*currentFileWriter.write(COMMENT_START);
                 currentFileWriter.newLine();
                 currentFileWriter.write(COMMENT_START);
@@ -241,7 +273,7 @@ public class LoggerFileRINEX implements MainActivityListener {
 
     @Override
     public void onLocationChanged(Location location) {
-        if (location.getProvider().equals(LocationManager.GPS_PROVIDER)) {
+        /*if (location.getProvider().equals(LocationManager.GPS_PROVIDER)) {
             synchronized (mFileLock) {
                 if (mFileWriter == null) {
                     return;
@@ -264,7 +296,7 @@ public class LoggerFileRINEX implements MainActivityListener {
                     logException(ERROR_WRITING_FILE, e);
                 }
             }
-        }
+        }*/
     }
 
     @Override
@@ -289,7 +321,13 @@ public class LoggerFileRINEX implements MainActivityListener {
 
     @Override
     public void onSatelliteStatusChanged(GnssStatus status) {
-
+        firstFixStatus = status;
+        final int length = status.getSatelliteCount();
+        int mSvCount = 0;
+        while (mSvCount < length) {
+            int prn = status.getSvid(mSvCount);
+            mSvCount++;
+        }
     }
 
     @Override
@@ -304,7 +342,7 @@ public class LoggerFileRINEX implements MainActivityListener {
 
     @Override
     public void onGnssMeasurementsReceived(GnssMeasurementsEvent event) {
-        synchronized (mFileLock) {
+        /*synchronized (mFileLock) {
             if (mFileWriter == null) {
                 return;
             }
@@ -316,12 +354,12 @@ public class LoggerFileRINEX implements MainActivityListener {
                     logException(ERROR_WRITING_FILE, e);
                 }
             }
-        }
+        }*/
     }
 
     @Override
     public void onGnssNavigationMessageReceived(GnssNavigationMessage navigationMessage) {
-        synchronized (mFileLock) {
+        /*synchronized (mFileLock) {
             if (mFileWriter == null) {
                 return;
             }
@@ -349,7 +387,7 @@ public class LoggerFileRINEX implements MainActivityListener {
             } catch (IOException e) {
                 logException(ERROR_WRITING_FILE, e);
             }
-        }
+        }*/
     }
 
     @Override
@@ -364,7 +402,7 @@ public class LoggerFileRINEX implements MainActivityListener {
 
     @Override
     public void onNmeaReceived(long timestamp, String s) {
-        synchronized (mFileLock) {
+        /*synchronized (mFileLock) {
             if (mFileWriter == null) {
                 return;
             }
@@ -375,7 +413,7 @@ public class LoggerFileRINEX implements MainActivityListener {
             } catch (IOException e) {
                 logException(ERROR_WRITING_FILE, e);
             }
-        }
+        }*/
     }
 
     private void writeGnssMeasurementToFile(GnssClock clock, GnssMeasurement measurement)
@@ -465,5 +503,20 @@ public class LoggerFileRINEX implements MainActivityListener {
             }
             return pathname.length() < MINIMUM_USABLE_FILE_SIZE_BYTES;
         }
+    }
+
+    private Date nowTimeUTC () {
+        Date utcTime = null;
+        try {
+            SimpleDateFormat dateFormatUTC = new SimpleDateFormat("yyyyMMdd HHmmss");
+            dateFormatUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+            String UTCdate = dateFormatUTC.format(new Date());
+            SimpleDateFormat dateFormatLocal = new SimpleDateFormat("yyyyMMdd HHmmss");
+            utcTime = dateFormatLocal.parse(UTCdate);
+        } catch (java.text.ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return utcTime;
     }
 }
