@@ -563,6 +563,27 @@ public class LoggerFileRINEX implements MainActivityListener {
     }
 
     private void writeRecord() {
+        GnssMeasurementsEvent localMeasurementsEvent = gnssMeasurementsEvent;
+        GnssClock localClock = gnssClock;
+        GnssStatus localStatus = gnssStatus;
+
+        Integer satCount = 0;
+
+        for (GnssMeasurement measurement : localMeasurementsEvent.getMeasurements()) {
+            Integer type = measurement.getConstellationType();
+            Integer prn = measurement.getSvid();
+            switch (type) {
+                case CONSTELLATION_GPS:
+                case CONSTELLATION_GLONASS:
+                case CONSTELLATION_GALILEO:
+                case CONSTELLATION_BEIDOU:
+                    if (type != CONSTELLATION_GLONASS) {
+                        satCount++;
+                    } else if ((type == CONSTELLATION_GLONASS) && (prn < 93)) satCount++;
+                    break;
+            }
+        }
+
         Date date = satSysTime(satTypeint, leapSec);
         String year = String.format("%1$tY", date);
         String month = String.format("%1$tm", date);
@@ -571,7 +592,6 @@ public class LoggerFileRINEX implements MainActivityListener {
         String min = String.format("%1$tM", date);
         Double sec_db = Double.parseDouble(String.format("%1$tS", date)) + Double.parseDouble(String.format("%1$tL", date)) / 1000.0 + Double.parseDouble(String.format("%1$tL", date)) / 1000000000.0;
         String sec = String.format("%.7f", sec_db);
-        Integer satCount = 0;
         if (gnssStatus.getSatelliteCount() > 0) {
             satCount = gnssStatus.getSatelliteCount();
         } else satCount = 0;
@@ -579,16 +599,39 @@ public class LoggerFileRINEX implements MainActivityListener {
             mFileWriter.write(">" + String.format("%5s", year) + String.format("%3s", month) + String.format("%3s", day)
                     + String.format("%3s", hour) + String.format("%3s", min) + String.format("%11s", sec)
                     + String.format("%3s", "0") + String.format("%3s", satCount + ""));
-            //+ String.format("%3s", satCount + ""));
             mFileWriter.newLine();
         } catch (IOException e) {
             Log.d(TAG, "fail");
         }
 
-        for (GnssMeasurement measurement : gnssMeasurementsEvent.getMeasurements()) {
+        for (GnssMeasurement measurement : localMeasurementsEvent.getMeasurements()) {
+            String svid = "";
+            Integer prn = measurement.getSvid();
+            if (measurement.getConstellationType() == CONSTELLATION_GPS) {
+                svid = String.format("G%s", prn);
+            } else if (measurement.getConstellationType() == CONSTELLATION_GLONASS) {
+                if (prn >= 93) {
+                    Log.d(TAG, "skip measurement");
+                    continue;
+                } else svid = String.format("R%s", prn);
+            } else if (measurement.getConstellationType() == CONSTELLATION_GALILEO) {
+                svid = String.format("E%s", prn);
+            } else if (measurement.getConstellationType() == CONSTELLATION_BEIDOU) {
+                svid = String.format("C%s", prn);
+            } else if (measurement.getConstellationType() == CONSTELLATION_QZSS) {
+                Log.d(TAG, "skip measurement");
+                continue;
+            } else if (measurement.getConstellationType() == GnssStatus.CONSTELLATION_SBAS) {
+                Log.d(TAG, "skip measurement");
+                continue;
+            } else {
+                Log.d(TAG, "skip measurement");
+                continue;
+            }
+
             try {
                 //writeGnssMeasurementToFile(gnssClock, measurement);
-                mFileWriter.write(String.format("%s", measurement.getSvid()));
+                mFileWriter.write(svid);
                 mFileWriter.newLine();
             } catch (IOException e) {
                 logException(ERROR_WRITING_FILE, e);
