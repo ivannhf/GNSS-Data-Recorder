@@ -30,7 +30,7 @@
         <CheckBoxPreference
             android:checked="true"
             android:defaultValue="true"
-            android:key="@string/pref_key_tilt_radar_with_sensors"
+            android:key="@string/pref_key_map_cam_chase"
             android:summary="@string/pref_map_cam_chase_summary"
             android:title="@string/pref_map_cam_chase_title" />
 
