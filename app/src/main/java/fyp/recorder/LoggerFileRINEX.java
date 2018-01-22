@@ -63,8 +63,11 @@ public class LoggerFileRINEX implements MainActivityListener {
     Date firstObs = null;
     private GnssStatus firstFixStatus = null;
     private GnssStatus gnssStatus = null;
+    private GnssClock gnssClock = null;
+    private GnssMeasurementsEvent gnssMeasurementsEvent = null;
     private int leapSec = -1;
     private String satTypestr = "";
+    private Integer satTypeint = -1;
     private Boolean write = false;
 
     private static final int MAX_FILES_STORED = 100;
@@ -76,6 +79,19 @@ public class LoggerFileRINEX implements MainActivityListener {
     private BufferedWriter mFileWriter;
     private File mFile;
 
+    private Timer timer;
+    private TimerTask timerTask = new TimerTask() {
+        @Override
+        public void run() {
+
+            if (mFileWriter != null) {
+                writeRecord();
+                Log.d(TAG, "Write record");
+            }
+            //Log.d(TAG, "write");
+        }
+    };
+
     private LogFragment.UIFragmentComponent mUiComponent;
 
     public synchronized LogFragment.UIFragmentComponent getUiComponent() {
@@ -86,19 +102,10 @@ public class LoggerFileRINEX implements MainActivityListener {
         mUiComponent = value;
     }
 
-    public LoggerFileRINEX (Context context) {
+    public LoggerFileRINEX(Context context) {
         this.mContext = context;
         MainActivity.getInstance().addListener(this);
     }
-
-    private Timer timer;
-    private TimerTask timerTask = new TimerTask() {
-        @Override
-        public void run() {
-            if (write) writeRecord();
-            //Log.d(TAG, "write");
-        }
-    };
 
     /**
      * Start a new file logging process.
@@ -168,15 +175,10 @@ public class LoggerFileRINEX implements MainActivityListener {
                 currentFileWriter.write(String.format("%14s", "0.0000") + String.format("%14s", "0.0000") + String.format("%14s", "0.0000") + String.format("%-18s", "") + "ANTENNA: DELTA H/E/N");
                 currentFileWriter.newLine();
                 do {
-                    Log.d(TAG, "null");
+                    //Log.d(TAG, "null");
                 } while ((firstFixStatus == null) || (leapSec == -1));
                 firstObs = null;
                 firstObs = satSysTime(firstFixStatus.getConstellationType(0), leapSec);
-                if(timer != null) {
-                    return;
-                }
-                timer = new Timer();
-                timer.scheduleAtFixedRate(timerTask, 0, 1000);
                 String year = String.format("%1$tY", firstObs);
                 String month = String.format("%1$tm", firstObs);
                 String day = String.format("%1$te", firstObs);
@@ -209,6 +211,11 @@ public class LoggerFileRINEX implements MainActivityListener {
                 }
             }
 
+            if (timer == null) {
+                timer = new Timer();
+                timer.scheduleAtFixedRate(timerTask, 0, 1000);
+            }
+
             mFile = currentFile;
             mFileWriter = currentFileWriter;
             Toast.makeText(mContext, "File opened: " + currentFilePath, Toast.LENGTH_SHORT).show();
@@ -228,7 +235,6 @@ public class LoggerFileRINEX implements MainActivityListener {
                     existingFiles[i].delete();
                 }
             }
-            write = true;
 
         }
     }
@@ -241,8 +247,6 @@ public class LoggerFileRINEX implements MainActivityListener {
         if (mFile == null) {
             return;
         }
-        timer.cancel();
-        write = false;
 
         Intent emailIntent = new Intent(Intent.ACTION_SEND);
         emailIntent.setType("*/*");
@@ -266,10 +270,12 @@ public class LoggerFileRINEX implements MainActivityListener {
     }
 
     @Override
-    public void onProviderEnabled(String provider) {}
+    public void onProviderEnabled(String provider) {
+    }
 
     @Override
-    public void onProviderDisabled(String provider) {}
+    public void onProviderDisabled(String provider) {
+    }
 
     @Override
     public void onLocationChanged(Location location) {
@@ -356,8 +362,10 @@ public class LoggerFileRINEX implements MainActivityListener {
                 }
             }
         }*/
-        GnssClock clock = event.getClock();
-        leapSec = clock.getLeapSecond()/1000000000;
+        gnssClock = event.getClock();
+        leapSec = gnssClock.getLeapSecond() / 1000000000;
+
+        gnssMeasurementsEvent = event;
     }
 
     @Override
@@ -493,7 +501,7 @@ public class LoggerFileRINEX implements MainActivityListener {
 
         /**
          * Returns {@code true} to delete the file, and {@code false} to keep the file.
-         *
+         * <p>
          * <p>Files are deleted if they are not in the {@link FileToDeleteFilter#mRetainedFiles} list.
          */
         @Override
@@ -508,7 +516,7 @@ public class LoggerFileRINEX implements MainActivityListener {
         }
     }
 
-    private Date nowTimeUTC () {
+    private Date nowTimeUTC() {
         Date utcTime = null;
         try {
             SimpleDateFormat dateFormatUTC = new SimpleDateFormat("yyyyMMdd HHmmss");
@@ -523,34 +531,39 @@ public class LoggerFileRINEX implements MainActivityListener {
         return utcTime;
     }
 
-    private Date satSysTime (int satType, int leapSec) {
+    private Date satSysTime(int satType, int leapSec) {
         Date sysTime = nowTimeUTC();
         switch (satType) {
             case CONSTELLATION_GLONASS:
                 satTypestr = "GLO";
+                satTypeint = CONSTELLATION_GLONASS;
                 sysTime = nowTimeUTC();
                 break;
             case CONSTELLATION_GPS:
                 satTypestr = "GPS";
+                satTypeint = CONSTELLATION_GPS;
                 sysTime.setTime(nowTimeUTC().getTime() + leapSec);
                 break;
             case CONSTELLATION_GALILEO:
                 satTypestr = "GAL";
+                satTypeint = CONSTELLATION_GALILEO;
                 sysTime.setTime(nowTimeUTC().getTime() + leapSec);
                 break;
             case CONSTELLATION_QZSS:
                 satTypestr = "QZS";
+                satTypeint = CONSTELLATION_QZSS;
                 sysTime.setTime(nowTimeUTC().getTime() + leapSec);
                 break;
             case CONSTELLATION_BEIDOU:
                 satTypestr = "BDS";
+                satTypeint = CONSTELLATION_BEIDOU;
                 break;
         }
         return sysTime;
     }
 
-    private void writeRecord ()  {
-        Date date = nowTimeUTC();
+    private void writeRecord() {
+        Date date = satSysTime(satTypeint, leapSec);
         String year = String.format("%1$tY", date);
         String month = String.format("%1$tm", date);
         String day = String.format("%1$te", date);
@@ -558,15 +571,28 @@ public class LoggerFileRINEX implements MainActivityListener {
         String min = String.format("%1$tM", date);
         Double sec_db = Double.parseDouble(String.format("%1$tS", date)) + Double.parseDouble(String.format("%1$tL", date)) / 1000.0 + Double.parseDouble(String.format("%1$tL", date)) / 1000000000.0;
         String sec = String.format("%.7f", sec_db);
-        Integer satCount = gnssStatus.getSatelliteCount();
+        Integer satCount = 0;
+        if (gnssStatus.getSatelliteCount() > 0) {
+            satCount = gnssStatus.getSatelliteCount();
+        } else satCount = 0;
         try {
             mFileWriter.write(">" + String.format("%5s", year) + String.format("%3s", month) + String.format("%3s", day)
                     + String.format("%3s", hour) + String.format("%3s", min) + String.format("%11s", sec)
-                    + String.format("%3s", "0") );
-                    //+ String.format("%3s", satCount + ""));
+                    + String.format("%3s", "0") + String.format("%3s", satCount + ""));
+            //+ String.format("%3s", satCount + ""));
             mFileWriter.newLine();
         } catch (IOException e) {
             Log.d(TAG, "fail");
         }
+
+        for (GnssMeasurement measurement : gnssMeasurementsEvent.getMeasurements()) {
+            try {
+                //writeGnssMeasurementToFile(gnssClock, measurement);
+                mFileWriter.write("");
+            } catch (IOException e) {
+                logException(ERROR_WRITING_FILE, e);
+            }
+        }
+
     }
 }
