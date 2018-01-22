@@ -32,7 +32,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static android.location.GnssStatus.CONSTELLATION_BEIDOU;
 import static android.location.GnssStatus.CONSTELLATION_GALILEO;
@@ -57,9 +60,12 @@ public class LoggerFileRINEX implements MainActivityListener {
     private static final String RINEX_TYPE = "OBSERVATION DATA";
     private static final String RINEX_SYS = "M: Mixed";
 
+    Date firstObs = null;
     private GnssStatus firstFixStatus = null;
+    private GnssStatus gnssStatus = null;
     private int leapSec = -1;
     private String satTypestr = "";
+    private Boolean write = false;
 
     private static final int MAX_FILES_STORED = 100;
     private static final int MINIMUM_USABLE_FILE_SIZE_BYTES = 1000;
@@ -84,6 +90,15 @@ public class LoggerFileRINEX implements MainActivityListener {
         this.mContext = context;
         MainActivity.getInstance().addListener(this);
     }
+
+    private Timer timer;
+    private TimerTask timerTask = new TimerTask() {
+        @Override
+        public void run() {
+            if (write) writeRecord();
+            //Log.d(TAG, "write");
+        }
+    };
 
     /**
      * Start a new file logging process.
@@ -155,22 +170,24 @@ public class LoggerFileRINEX implements MainActivityListener {
                 do {
                     Log.d(TAG, "null");
                 } while ((firstFixStatus == null) || (leapSec == -1));
-                Date firstObs = null;
+                firstObs = null;
                 firstObs = satSysTime(firstFixStatus.getConstellationType(0), leapSec);
+                if(timer != null) {
+                    return;
+                }
+                timer = new Timer();
+                timer.scheduleAtFixedRate(timerTask, 0, 1000);
                 String year = String.format("%1$tY", firstObs);
                 String month = String.format("%1$tm", firstObs);
                 String day = String.format("%1$te", firstObs);
                 String hour = String.format("%1$tk", firstObs);
                 String min = String.format("%1$tM", firstObs);
-                String sec = String.format("%1$tS", firstObs);
                 Double sec_db = Double.parseDouble(String.format("%1$tS", firstObs)) + Double.parseDouble(String.format("%1$tL", firstObs)) / 1000.0 + Double.parseDouble(String.format("%1$tL", firstObs)) / 1000000000.0;
-                sec = String.format("%.7f", sec_db);
-                String nanosec = String.format("%1$tN", firstObs).substring(0,7);
+                String sec = String.format("%.7f", sec_db);
                 currentFileWriter.write(String.format("%6s", year) + String.format("%6s", month) + String.format("%6s", day)
                         + String.format("%6s", hour) + String.format("%6s", min) + String.format("%13s", sec)
                         + String.format("%8s", satTypestr) + String.format("%9s", "") + "TIME OF FIRST OBS");
 
-                //String.format("%5s", sec) + "." + nanosec
                 currentFileWriter.newLine();
                 currentFileWriter.write(String.format("%-59s", leapSec) + " LEAP SECONDS");
                 currentFileWriter.newLine();
@@ -178,57 +195,6 @@ public class LoggerFileRINEX implements MainActivityListener {
 
                 currentFileWriter.write(String.format("%-60s", "") + "END OF HEADER");
                 currentFileWriter.newLine();
-
-                /*currentFileWriter.write(COMMENT_START);
-                currentFileWriter.newLine();
-                currentFileWriter.write(COMMENT_START);
-                currentFileWriter.write("Header Description:");
-                currentFileWriter.newLine();
-                currentFileWriter.write(COMMENT_START);
-                currentFileWriter.newLine();
-                currentFileWriter.write(COMMENT_START);
-                currentFileWriter.write(VERSION_TAG);
-                String manufacturer = Build.MANUFACTURER;
-                String model = Build.MODEL;
-                String fileVersion =
-                        mContext.getString(R.string.app_version)
-                                + " Platform: "
-                                + Build.VERSION.RELEASE
-                                + " "
-                                + "Manufacturer: "
-                                + manufacturer
-                                + " "
-                                + "Model: "
-                                + model;
-                currentFileWriter.write(fileVersion);
-                currentFileWriter.newLine();
-                currentFileWriter.write(COMMENT_START);
-                currentFileWriter.newLine();
-                currentFileWriter.write(COMMENT_START);
-                currentFileWriter.write(
-                        "Raw,ElapsedRealtimeMillis,TimeNanos,LeapSecond,TimeUncertaintyNanos,FullBiasNanos,"
-                                + "BiasNanos,BiasUncertaintyNanos,DriftNanosPerSecond,DriftUncertaintyNanosPerSecond,"
-                                + "HardwareClockDiscontinuityCount,Svid,TimeOffsetNanos,State,ReceivedSvTimeNanos,"
-                                + "ReceivedSvTimeUncertaintyNanos,Cn0DbHz,PseudorangeRateMetersPerSecond,"
-                                + "PseudorangeRateUncertaintyMetersPerSecond,"
-                                + "AccumulatedDeltaRangeState,AccumulatedDeltaRangeMeters,"
-                                + "AccumulatedDeltaRangeUncertaintyMeters,CarrierFrequencyHz,CarrierCycles,"
-                                + "CarrierPhase,CarrierPhaseUncertainty,MultipathIndicator,SnrInDb,"
-                                + "ConstellationType,AgcDb,CarrierFrequencyHz");
-                currentFileWriter.newLine();
-                currentFileWriter.write(COMMENT_START);
-                currentFileWriter.newLine();
-                currentFileWriter.write(COMMENT_START);
-                currentFileWriter.write(
-                        "Fix,Provider,Latitude,Longitude,Altitude,Speed,Accuracy,(UTC)TimeInMs");
-                currentFileWriter.newLine();
-                currentFileWriter.write(COMMENT_START);
-                currentFileWriter.newLine();
-                currentFileWriter.write(COMMENT_START);
-                currentFileWriter.write("Nav,Svid,Type,Status,MessageId,Sub-messageId,Data(Bytes)");
-                currentFileWriter.newLine();
-                currentFileWriter.write(COMMENT_START);
-                currentFileWriter.newLine();*/
             } catch (IOException e) {
                 logException("Count not initialize file: " + currentFilePath, e);
                 return;
@@ -262,6 +228,8 @@ public class LoggerFileRINEX implements MainActivityListener {
                     existingFiles[i].delete();
                 }
             }
+            write = true;
+
         }
     }
 
@@ -273,6 +241,8 @@ public class LoggerFileRINEX implements MainActivityListener {
         if (mFile == null) {
             return;
         }
+        timer.cancel();
+        write = false;
 
         Intent emailIntent = new Intent(Intent.ACTION_SEND);
         emailIntent.setType("*/*");
@@ -352,6 +322,7 @@ public class LoggerFileRINEX implements MainActivityListener {
     @Override
     public void onSatelliteStatusChanged(GnssStatus status) {
         firstFixStatus = status;
+        gnssStatus = status;
         final int length = status.getSatelliteCount();
         int mSvCount = 0;
         while (mSvCount < length) {
@@ -576,5 +547,26 @@ public class LoggerFileRINEX implements MainActivityListener {
                 break;
         }
         return sysTime;
+    }
+
+    private void writeRecord ()  {
+        Date date = nowTimeUTC();
+        String year = String.format("%1$tY", date);
+        String month = String.format("%1$tm", date);
+        String day = String.format("%1$te", date);
+        String hour = String.format("%1$tk", date);
+        String min = String.format("%1$tM", date);
+        Double sec_db = Double.parseDouble(String.format("%1$tS", date)) + Double.parseDouble(String.format("%1$tL", date)) / 1000.0 + Double.parseDouble(String.format("%1$tL", date)) / 1000000000.0;
+        String sec = String.format("%.7f", sec_db);
+        Integer satCount = gnssStatus.getSatelliteCount();
+        try {
+            mFileWriter.write(">" + String.format("%5s", year) + String.format("%3s", month) + String.format("%3s", day)
+                    + String.format("%3s", hour) + String.format("%3s", min) + String.format("%11s", sec)
+                    + String.format("%3s", "0") );
+                    //+ String.format("%3s", satCount + ""));
+            mFileWriter.newLine();
+        } catch (IOException e) {
+            Log.d(TAG, "fail");
+        }
     }
 }
