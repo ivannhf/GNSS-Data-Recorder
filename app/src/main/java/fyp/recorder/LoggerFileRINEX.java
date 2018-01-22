@@ -163,12 +163,16 @@ public class LoggerFileRINEX implements MainActivityListener {
                 String hour = String.format("%1$tk", firstObs);
                 String min = String.format("%1$tM", firstObs);
                 String sec = String.format("%1$tS", firstObs);
+                Double sec_db = Double.parseDouble(String.format("%1$tS", firstObs)) + Double.parseDouble(String.format("%1$tL", firstObs)) / 1000.0 + Double.parseDouble(String.format("%1$tL", firstObs)) / 1000000000.0;
+                sec = String.format("%.7f", sec_db);
                 String nanosec = String.format("%1$tN", firstObs).substring(0,7);
                 currentFileWriter.write(String.format("%6s", year) + String.format("%6s", month) + String.format("%6s", day)
-                        + String.format("%6s", hour) + String.format("%6s", min) + String.format("%5s", sec) + "." + nanosec
+                        + String.format("%6s", hour) + String.format("%6s", min) + String.format("%13s", sec)
                         + String.format("%8s", satTypestr) + String.format("%9s", "") + "TIME OF FIRST OBS");
+
+                //String.format("%5s", sec) + "." + nanosec
                 currentFileWriter.newLine();
-                currentFileWriter.write(String.format("%-60s", leapSec) + " LEAP SECONDS");
+                currentFileWriter.write(String.format("%-59s", leapSec) + " LEAP SECONDS");
                 currentFileWriter.newLine();
 
 
