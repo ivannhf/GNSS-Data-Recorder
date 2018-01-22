@@ -588,7 +588,8 @@ public class LoggerFileRINEX implements MainActivityListener {
         for (GnssMeasurement measurement : gnssMeasurementsEvent.getMeasurements()) {
             try {
                 //writeGnssMeasurementToFile(gnssClock, measurement);
-                mFileWriter.write("");
+                mFileWriter.write(String.format("%s", measurement.getSvid()));
+                mFileWriter.newLine();
             } catch (IOException e) {
                 logException(ERROR_WRITING_FILE, e);
             }
