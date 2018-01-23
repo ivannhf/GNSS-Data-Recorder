@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -69,6 +70,13 @@ public class LoggerFileRINEX implements MainActivityListener {
     private String satTypestr = "";
     private Integer satTypeint = -1;
     private Boolean write = false;
+
+    private static final Double SPEED_OF_LIGHT = 299792458.0; // m/s
+    private static final Double GPS_L1_FREQ = 154.0 * 10.23e6;
+    private static final Double GPS_L1_WAVELENGTH = SPEED_OF_LIGHT / GPS_L1_FREQ;
+    private static final Integer GPS_WEEKSECS = 604800;
+    private static final Double NS_TO_S = 1.0e-9;
+    private static final Double NS_TO_M = NS_TO_S * SPEED_OF_LIGHT;
 
     private static final int MAX_FILES_STORED = 100;
     private static final int MINIMUM_USABLE_FILE_SIZE_BYTES = 1000;
@@ -569,6 +577,16 @@ public class LoggerFileRINEX implements MainActivityListener {
 
         Integer satCount = 0;
 
+        Long fullbiasnanos = 0L;
+        Double biasnanos = 0.0;
+        Double gpsweek = 0.0;
+        Double local_est_GPS_time = 0.0;
+        Double gpssow = 0.0;
+        Double TimeOffsetNanos = 0.0;
+        Double tRxSeconds = 0.0;
+        Double tTxSeconds = 0.0;
+        Double travelTime = 0.0;
+
         for (GnssMeasurement measurement : localMeasurementsEvent.getMeasurements()) {
             Integer type = measurement.getConstellationType();
             Integer prn = measurement.getSvid();
@@ -629,9 +647,40 @@ public class LoggerFileRINEX implements MainActivityListener {
                 continue;
             }
 
+            if (gnssClock.hasFullBiasNanos()) fullbiasnanos = gnssClock.getFullBiasNanos();
+            gpsweek = fullbiasnanos * NS_TO_S / GPS_WEEKSECS;
+            local_est_GPS_time = gnssClock.getTimeNanos() - (fullbiasnanos + gnssClock.getBiasNanos());
+            gpssow = local_est_GPS_time * NS_TO_S - gpsweek * GPS_WEEKSECS;
+
+            Double temp = gpssow + 0.5;
+            Double fracPart = gpssow - temp.intValue();
+
+            if (gnssClock.hasTimeUncertaintyNanos()) {
+                TimeOffsetNanos = gnssClock.getTimeUncertaintyNanos();
+            } else TimeOffsetNanos = 0.0;
+
+            if (gnssClock.hasBiasNanos()) {
+                biasnanos = gnssClock.getBiasNanos();
+            } else biasnanos = 0.0;
+
+            tRxSeconds = gpssow - TimeOffsetNanos * NS_TO_S;
+            tTxSeconds = measurement.getReceivedSvTimeNanos() * NS_TO_S;
+            travelTime = tRxSeconds - tTxSeconds;
+
+            if (travelTime < 0) travelTime += GPS_WEEKSECS;
+
+            Double c1 = travelTime * SPEED_OF_LIGHT;
+
+            c1 -= fracPart * measurement.getPseudorangeRateMetersPerSecond();
+
+            Double l1 = - measurement.getAccumulatedDeltaRangeMeters() / GPS_L1_WAVELENGTH;
+
+            Double d1 = - measurement.getPseudorangeRateMetersPerSecond() / GPS_L1_WAVELENGTH;
+
+
             try {
                 //writeGnssMeasurementToFile(gnssClock, measurement);
-                mFileWriter.write(svid);
+                mFileWriter.write(String.format("%-5s", svid) + String.format("%-10s", c1) + String.format("%-10s", measurement.getCn0DbHz()) + String.format("%-10s", l1) + String.format("%-10s", d1));
                 mFileWriter.newLine();
             } catch (IOException e) {
                 logException(ERROR_WRITING_FILE, e);
