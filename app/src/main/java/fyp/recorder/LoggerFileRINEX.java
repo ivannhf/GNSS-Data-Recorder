@@ -378,35 +378,6 @@ public class LoggerFileRINEX implements MainActivityListener {
 
     @Override
     public void onGnssNavigationMessageReceived(GnssNavigationMessage navigationMessage) {
-        /*synchronized (mFileLock) {
-            if (mFileWriter == null) {
-                return;
-            }
-            StringBuilder builder = new StringBuilder("Nav");
-            builder.append(RECORD_DELIMITER);
-            builder.append(navigationMessage.getSvid());
-            builder.append(RECORD_DELIMITER);
-            builder.append(navigationMessage.getType());
-            builder.append(RECORD_DELIMITER);
-
-            int status = navigationMessage.getStatus();
-            builder.append(status);
-            builder.append(RECORD_DELIMITER);
-            builder.append(navigationMessage.getMessageId());
-            builder.append(RECORD_DELIMITER);
-            builder.append(navigationMessage.getSubmessageId());
-            byte[] data = navigationMessage.getData();
-            for (byte word : data) {
-                builder.append(RECORD_DELIMITER);
-                builder.append(word);
-            }
-            try {
-                mFileWriter.write(builder.toString());
-                mFileWriter.newLine();
-            } catch (IOException e) {
-                logException(ERROR_WRITING_FILE, e);
-            }
-        }*/
     }
 
     @Override
@@ -421,18 +392,6 @@ public class LoggerFileRINEX implements MainActivityListener {
 
     @Override
     public void onNmeaReceived(long timestamp, String s) {
-        /*synchronized (mFileLock) {
-            if (mFileWriter == null) {
-                return;
-            }
-            String nmeaStream = String.format(Locale.US, "NMEA,%s,%d", s, timestamp);
-            try {
-                mFileWriter.write(nmeaStream);
-                mFileWriter.newLine();
-            } catch (IOException e) {
-                logException(ERROR_WRITING_FILE, e);
-            }
-        }*/
     }
 
     private void writeGnssMeasurementToFile(GnssClock clock, GnssMeasurement measurement)
@@ -625,17 +584,21 @@ public class LoggerFileRINEX implements MainActivityListener {
         for (GnssMeasurement measurement : localMeasurementsEvent.getMeasurements()) {
             String svid = "";
             Integer prn = measurement.getSvid();
+            String prnStr = "";
+            if (prn < 10) {
+                prnStr = "0" + prn;
+            } else prnStr = "" + prn;
             if (measurement.getConstellationType() == CONSTELLATION_GPS) {
-                svid = String.format("G%s", prn);
+                svid = String.format("G%s", prnStr);
             } else if (measurement.getConstellationType() == CONSTELLATION_GLONASS) {
                 if (prn >= 93) {
                     Log.d(TAG, "skip measurement");
                     continue;
-                } else svid = String.format("R%s", prn);
+                } else svid = String.format("R%s", prnStr);
             } else if (measurement.getConstellationType() == CONSTELLATION_GALILEO) {
-                svid = String.format("E%s", prn);
+                svid = String.format("E%s", prnStr);
             } else if (measurement.getConstellationType() == CONSTELLATION_BEIDOU) {
-                svid = String.format("C%s", prn);
+                svid = String.format("C%s", prnStr);
             } else if (measurement.getConstellationType() == CONSTELLATION_QZSS) {
                 Log.d(TAG, "skip measurement");
                 continue;
@@ -647,21 +610,24 @@ public class LoggerFileRINEX implements MainActivityListener {
                 continue;
             }
 
-            if (gnssClock.hasFullBiasNanos()) fullbiasnanos = gnssClock.getFullBiasNanos();
-            gpsweek = fullbiasnanos * NS_TO_S / GPS_WEEKSECS;
-            local_est_GPS_time = gnssClock.getTimeNanos() - (fullbiasnanos + gnssClock.getBiasNanos());
-            gpssow = local_est_GPS_time * NS_TO_S - gpsweek * GPS_WEEKSECS;
-
-            Double temp = gpssow + 0.5;
-            Double fracPart = gpssow - temp.intValue();
-
-            if (gnssClock.hasTimeUncertaintyNanos()) {
-                TimeOffsetNanos = gnssClock.getTimeUncertaintyNanos();
-            } else TimeOffsetNanos = 0.0;
-
             if (gnssClock.hasBiasNanos()) {
                 biasnanos = gnssClock.getBiasNanos();
             } else biasnanos = 0.0;
+
+            if (gnssClock.hasFullBiasNanos()) {
+                fullbiasnanos = gnssClock.getFullBiasNanos();
+            } else fullbiasnanos = 0L;
+
+            gpsweek = fullbiasnanos * NS_TO_S / GPS_WEEKSECS;
+            local_est_GPS_time = gnssClock.getTimeNanos() - (fullbiasnanos + biasnanos);
+            gpssow = local_est_GPS_time * NS_TO_S - gpsweek * GPS_WEEKSECS;
+
+            Double temp = gpssow + 0.5;
+            Double fracPart = gpssow % 1;
+
+            if (measurement.getTimeOffsetNanos() > 0) {
+                TimeOffsetNanos = measurement.getTimeOffsetNanos();
+            } else TimeOffsetNanos = 0.0;
 
             tRxSeconds = gpssow - TimeOffsetNanos * NS_TO_S;
             tTxSeconds = measurement.getReceivedSvTimeNanos() * NS_TO_S;
@@ -673,14 +639,18 @@ public class LoggerFileRINEX implements MainActivityListener {
 
             c1 -= fracPart * measurement.getPseudorangeRateMetersPerSecond();
 
-            Double l1 = - measurement.getAccumulatedDeltaRangeMeters() / GPS_L1_WAVELENGTH;
+            Double l1 = -measurement.getAccumulatedDeltaRangeMeters() / GPS_L1_WAVELENGTH;
 
-            Double d1 = - measurement.getPseudorangeRateMetersPerSecond() / GPS_L1_WAVELENGTH;
+            Double d1 = -measurement.getPseudorangeRateMetersPerSecond() / GPS_L1_WAVELENGTH;
 
+            String obsStr = String.format("%.3f", c1);
+            String LL1Str = String.format("%.3f", l1);
+            String singalStr = String.format("%.3f", measurement.getCn0DbHz());
+            String d1Str = String.format("%.3f", d1);
 
             try {
                 //writeGnssMeasurementToFile(gnssClock, measurement);
-                mFileWriter.write(String.format("%-5s", svid) + String.format("%-10s", c1) + String.format("%-10s", measurement.getCn0DbHz()) + String.format("%-10s", l1) + String.format("%-10s", d1));
+                mFileWriter.write(svid + String.format("%14s", obsStr) + String.format("%17s", LL1Str) + String.format("%15s", singalStr) + String.format("%16s", d1Str));
                 mFileWriter.newLine();
             } catch (IOException e) {
                 logException(ERROR_WRITING_FILE, e);

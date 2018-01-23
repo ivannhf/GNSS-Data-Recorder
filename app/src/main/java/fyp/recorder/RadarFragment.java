@@ -23,13 +23,13 @@ public class RadarFragment extends Fragment {
 
     @Override
     public void onResume() {
-        skyview.setVisibility(View.VISIBLE);
+        //skyview.setVisibility(View.VISIBLE);
         super.onResume();
     }
 
     @Override
     public void onPause() {
-        skyview.setVisibility(View.INVISIBLE);
+        //skyview.setVisibility(View.INVISIBLE);
         super.onPause();
     }
 }
