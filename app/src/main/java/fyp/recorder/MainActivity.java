@@ -257,7 +257,7 @@ public class MainActivity extends AppCompatActivity
         Set<String> selections = setting.getStringSet(getString(R.string.pref_key_log_type), null);
         String[] selected = selections.toArray(new String[]{});
 
-        Toast.makeText(this, selected[0] + selected[1], Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, selected[0] + selected[1], Toast.LENGTH_LONG).show();
 
         logRaw = false;
         logRINEX = false;

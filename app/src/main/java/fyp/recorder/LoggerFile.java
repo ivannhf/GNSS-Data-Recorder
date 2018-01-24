@@ -2,6 +2,7 @@ package fyp.recorder;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.GnssClock;
 import android.location.GnssMeasurement;
 import android.location.GnssMeasurementsEvent;
@@ -14,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.support.v4.BuildConfig;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
@@ -26,11 +28,15 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.Key;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * A GNSS logger to store information to a file.
@@ -53,6 +59,8 @@ public class LoggerFile implements MainActivityListener {
     private final Object mFileLock = new Object();
     private BufferedWriter mFileWriter;
     private File mFile;
+
+    private Boolean logRaw, logNav, logNmea, logFix;
 
     private LogFragment.UIFragmentComponent mUiComponent;
 
@@ -186,6 +194,39 @@ public class LoggerFile implements MainActivityListener {
                 }
             }
         }
+
+        SharedPreferences setting = mContext.getSharedPreferences("settings", MODE_PRIVATE);
+        Set<String> selections = setting.getStringSet(mContext.getString(R.string.pref_key_raw_log_type), null);
+        String[] selected = selections.toArray(new String[]{});
+
+        logRaw = false;
+        logNmea = false;
+        logFix = false;
+        logNav = false;
+
+        for (int i = 0; i < selected.length; i++) {
+            switch (Integer.parseInt(selected[i])) {
+                case 1:
+                    logRaw = true;
+                    Log.d(TAG, selected[i]);
+                    break;
+                case 2:
+                    logNmea = true;
+                    Log.d(TAG, selected[i]);
+                    break;
+                case 3:
+                    logFix = true;
+                    Log.d(TAG, selected[i]);
+                    break;
+                case 4:
+                    logNav = true;
+                    Log.d(TAG, selected[i]);
+                    break;
+            }
+        }
+
+
+
     }
 
     /**
@@ -243,8 +284,10 @@ public class LoggerFile implements MainActivityListener {
                                 location.getAccuracy(),
                                 location.getTime());
                 try {
-                    mFileWriter.write(locationStream);
-                    mFileWriter.newLine();
+                    if(logFix) {
+                        mFileWriter.write(locationStream);
+                        mFileWriter.newLine();
+                    }
                 } catch (IOException e) {
                     logException(ERROR_WRITING_FILE, e);
                 }
@@ -296,7 +339,7 @@ public class LoggerFile implements MainActivityListener {
             GnssClock gnssClock = event.getClock();
             for (GnssMeasurement measurement : event.getMeasurements()) {
                 try {
-                    writeGnssMeasurementToFile(gnssClock, measurement);
+                    if (logRaw) writeGnssMeasurementToFile(gnssClock, measurement);
                 } catch (IOException e) {
                     logException(ERROR_WRITING_FILE, e);
                 }
@@ -329,8 +372,10 @@ public class LoggerFile implements MainActivityListener {
                 builder.append(word);
             }
             try {
-                mFileWriter.write(builder.toString());
-                mFileWriter.newLine();
+                if (logNav) {
+                    mFileWriter.write(builder.toString());
+                    mFileWriter.newLine();
+                }
             } catch (IOException e) {
                 logException(ERROR_WRITING_FILE, e);
             }
@@ -355,8 +400,10 @@ public class LoggerFile implements MainActivityListener {
             }
             String nmeaStream = String.format(Locale.US, "NMEA,%s,%d", s, timestamp);
             try {
-                mFileWriter.write(nmeaStream);
-                mFileWriter.newLine();
+                if (logNmea) {
+                    mFileWriter.write(nmeaStream);
+                    mFileWriter.newLine();
+                }
             } catch (IOException e) {
                 logException(ERROR_WRITING_FILE, e);
             }
