@@ -40,14 +40,12 @@
         android:key="@string/pref_key_log_category"
         android:title="@string/pref_log_category_title">
 
-        <ListPreference
-            android:defaultValue="1"
-            android:dialogTitle="@string/pref_map_type_dialog_title"
+        <MultiSelectListPreference
+            android:defaultValue="@array/log_type_default"
             android:entries="@array/log_type_entries"
             android:entryValues="@array/log_type_values"
-            android:key="@string/pref_key_log_type"
-            android:summary="@string/pref_log_type_summary"
-            android:title="@string/pref_log_type_title" />
+            android:key="pref_key_log_type"
+            android:title="Log Type" />
 
     </PreferenceCategory>
 

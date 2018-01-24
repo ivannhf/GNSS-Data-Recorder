@@ -49,6 +49,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import fyp.layout.R;
 import fyp.recorder.util.GpsTestUtil;
@@ -81,7 +82,7 @@ public class MainActivity extends AppCompatActivity
     LoggerFileRINEX loggerFileRINEX;
     LoggerFileNMEA loggerFileNMEA;
     LoggerUI loggerUI;
-    int logFileType = 1;
+    boolean logRaw = false, logRINEX = false, logNMEA = false;
 
     // Listeners for Fragments
     private ArrayList<MainActivityListener> mMainActivityListeners = new ArrayList<MainActivityListener>();
@@ -253,35 +254,61 @@ public class MainActivity extends AppCompatActivity
 
     public void startNewLogging() {
         SharedPreferences setting = this.getSharedPreferences("settings", MODE_PRIVATE);
-        logFileType = Integer.parseInt(setting.getString(getString(R.string.pref_key_log_type), "1"));
+        Set<String> selections = setting.getStringSet(getString(R.string.pref_key_log_type), null);
+        String[] selected = selections.toArray(new String[]{});
+
+        Toast.makeText(this, selected[0] + selected[1], Toast.LENGTH_LONG).show();
+
+        logRaw = false;
+        logRINEX = false;
+        logNMEA = false;
+
+        for (int i = 0; i < selected.length; i++) {
+            switch (Integer.parseInt(selected[i])) {
+                case 1:
+                    logRaw = true;
+                    break;
+                case 2:
+                    logRINEX = true;
+                    break;
+                case 3:
+                    logNMEA = true;
+                    break;
+            }
+        }
+
         logging = true;
-        if (logFileType == 1) {
+        if (logRaw) {
             loggerFile.startNewLog();
-        } else if (logFileType == 2) {
+        }
+        if (logRINEX) {
             loggerFileRINEX.startNewLog();
-        } else if (logFileType == 3) {
+        }
+        if (logNMEA) {
             loggerFileNMEA.startNewLog();
         }
     }
 
     public void stopLogging() {
         logging = false;
-        if (logFileType == 1) {
+        if (logRaw) {
             loggerFile.send();
-        } else if (logFileType == 2) {
+        }
+        if (logRINEX) {
             loggerFileRINEX.send();
-        } else if (logFileType == 3) {
+        }
+        if (logNMEA) {
             loggerFileNMEA.send();
         }
     }
 
-    public boolean showQuitDialog () {
+    public boolean showQuitDialog() {
         quitAlert quit = new quitAlert();
         quit.show(getSupportFragmentManager(), "quit");
         return quit.isQuit();
     }
 
-    public void quitApp () {
+    public void quitApp() {
         stopService(intentService);
         MainActivity.getInstance().finish();
     }
