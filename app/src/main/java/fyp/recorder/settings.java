@@ -1,7 +1,9 @@
 package fyp.recorder;
 
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.support.v7.widget.Toolbar;
@@ -10,11 +12,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import java.util.Set;
+
 import fyp.layout.R;
 
 public class settings extends PreferenceActivity {
 
     private Toolbar mActionBar;
+
+    SharedPreferences.OnSharedPreferenceChangeListener rawLogListener;
+
+    Boolean logRaw = false;
 
     @SuppressWarnings("deprecation")
     @Override
@@ -22,6 +30,23 @@ public class settings extends PreferenceActivity {
         super.onCreate(savedInstanceState);
         getPreferenceManager().setSharedPreferencesName("settings");
         addPreferencesFromResource(R.xml.settings);
+
+        final SharedPreferences preferences = this.getSharedPreferences("settings", MODE_PRIVATE);
+        rawLogListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                Set<String> selections = preferences.getStringSet(getString(R.string.pref_key_log_type), null);
+                String[] selected = selections.toArray(new String[]{});
+                logRaw = false;
+                for (int i = 0; i < selected.length; i++) {
+                    if (Integer.parseInt(selected[i]) == 1) {
+                        logRaw = true;
+                    }
+                }
+                getPreferenceScreen().findPreference(getString(R.string.pref_key_raw_log_type)).setSelectable(logRaw);
+            }
+        };
+        preferences.registerOnSharedPreferenceChangeListener(rawLogListener);
     }
 
     @Override

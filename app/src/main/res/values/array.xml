@@ -29,4 +29,26 @@
 
     <string-array name="log_type_default"></string-array>
 
+
+    <string-array name="raw_log_type_entries">
+        <item>Raw measurements</item>
+        <item>Nmea</item>
+        <item>Location fix</item>
+        <item>Navigation messages</item>
+    </string-array>
+
+    <string-array name="raw_log_type_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+
+    <string-array name="raw_log_type_default">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+
 </resources>

@@ -47,6 +47,13 @@
             android:key="pref_key_log_type"
             android:title="Log Type" />
 
+        <MultiSelectListPreference
+            android:defaultValue="@array/raw_log_type_default"
+            android:entries="@array/raw_log_type_entries"
+            android:entryValues="@array/raw_log_type_values"
+            android:key="pref_key_raw_log_type"
+            android:title="Raw Log Type" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>
