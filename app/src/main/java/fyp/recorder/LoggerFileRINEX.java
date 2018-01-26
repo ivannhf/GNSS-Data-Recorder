@@ -670,7 +670,6 @@ public class LoggerFileRINEX implements MainActivityListener {
             String d1Str = String.format("%.3f", d1);
 
             try {
-                //writeGnssMeasurementToFile(gnssClock, measurement);
                 mFileWriter.write(svid + String.format("%14s", obsStr) + String.format("%14s", LL1Str) + String.format("%14s", singalStr) + String.format("%14s", d1Str));
                 mFileWriter.newLine();
             } catch (IOException e) {
