@@ -649,7 +649,7 @@ public class LoggerFileRINEX implements MainActivityListener {
             int weekNoSecs = weekNo * WEEKSECS;
             Double secOfWeek = (-1 * fullbiasnanos * 1.0e-9) - weekNoSecs - biasnanos * 1.0e-9;
 
-            tRxSeconds = secOfWeek + gnssClock.getTimeNanos() * 1.0e-9 + measurement.getTimeOffsetNanos() * 1.0e-9;
+            tRxSeconds = secOfWeek + gnssClock.getTimeNanos() * 1.0e-9 + TimeOffsetNanos * 1.0e-9;
             //tRxSeconds = gpssow - TimeOffsetNanos * NS_TO_S;
             tTxSeconds = measurement.getReceivedSvTimeNanos() * 1.0e-9;
             travelTime = tRxSeconds - tTxSeconds;
@@ -660,17 +660,19 @@ public class LoggerFileRINEX implements MainActivityListener {
 
             //c1 -= fracPart * measurement.getPseudorangeRateMetersPerSecond();
 
-            Double l1 = -measurement.getAccumulatedDeltaRangeMeters() / GPS_L1_WAVELENGTH;
+            Double l1 = - measurement.getAccumulatedDeltaRangeMeters() / GPS_L1_WAVELENGTH;
 
-            Double d1 = -measurement.getPseudorangeRateMetersPerSecond() / GPS_L1_WAVELENGTH;
+            Double d1 = - measurement.getPseudorangeRateMetersPerSecond() / GPS_L1_WAVELENGTH;
 
             String obsStr = String.format("%.3f", c1);
             String LL1Str = String.format("%.3f", l1);
             String singalStr = String.format("%.3f", measurement.getCn0DbHz());
             String d1Str = String.format("%.3f", d1);
 
+            Log.d (TAG, svid + ":  "+ tRxSeconds + " - " + tTxSeconds + " = " + travelTime );
+
             try {
-                mFileWriter.write(svid + String.format("%14s", obsStr) + String.format("%14s", LL1Str) + String.format("%14s", singalStr) + String.format("%14s", d1Str));
+                mFileWriter.write(svid + String.format("%14s", obsStr) + String.format("%14s", LL1Str) + String.format("%14s", d1Str) + String.format("%14s", singalStr));
                 mFileWriter.newLine();
             } catch (IOException e) {
                 logException(ERROR_WRITING_FILE, e);
