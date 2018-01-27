@@ -669,7 +669,7 @@ public class LoggerFileRINEX implements MainActivityListener {
             String singalStr = String.format("%.3f", measurement.getCn0DbHz());
             String d1Str = String.format("%.3f", d1);
 
-            Log.d (TAG, svid + ":  "+ tRxSeconds + " - " + tTxSeconds + " = " + travelTime );
+            Log.d (TAG, svid + ":  "+ secOfWeek + "     " + tRxSeconds + " - " + tTxSeconds + " = " + travelTime);
 
             try {
                 mFileWriter.write(svid + String.format("%14s", obsStr) + String.format("%14s", LL1Str) + String.format("%14s", d1Str) + String.format("%14s", singalStr));
