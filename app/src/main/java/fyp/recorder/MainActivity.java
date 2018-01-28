@@ -227,7 +227,7 @@ public class MainActivity extends AppCompatActivity
         });
 
         intentService = new Intent(this, bkgdService.class);
-        startService(intentService);
+        //startService(intentService);
 
     }
 
@@ -373,8 +373,9 @@ public class MainActivity extends AppCompatActivity
         hideFloatButton(false);
 
         if ((id != R.id.nav_info) && (id != R.id.nav_quit)) {
-            fragmentManager.beginTransaction().hide(positionFragment).hide(listFragment).hide(radarFragment).hide(logFragment).hide(mapFragment).hide(toolFragment).commit();
+            fragmentManager.beginTransaction().hide(positionFragment).hide(listFragment).hide(logFragment).hide(mapFragment).hide(toolFragment).commit();
             fragmentManager.beginTransaction().detach(radarFragment).commit();
+            fragmentManager.beginTransaction().detach(radarFragment).hide(radarFragment).commit();
         }
 
         if (id == R.id.nav_position) {
@@ -465,7 +466,7 @@ public class MainActivity extends AppCompatActivity
         addOrientationSensorListener();
         //Toast.makeText(this, "App resume", Toast.LENGTH_SHORT).show();
 
-        //startService(new Intent(this, bkgdService.class));
+        startService(new Intent(this, bkgdService.class));
 
         super.onResume();
 
