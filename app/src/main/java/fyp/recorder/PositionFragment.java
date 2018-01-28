@@ -28,9 +28,9 @@ public class PositionFragment extends Fragment implements MainActivityListener {
 
     View myView;
 
-    private TextView longitudeField, latitudeField;
+    private TextView longitudeField, latitudeField, altitudeField, accField;
 
-    double latitude = 0, longitude = 0;
+    double latitude = 0, longitude = 0, altitude = 0, accurate = 0;
 
     private LocationManager locationManager;
     private LocationListener locationListener;
@@ -48,8 +48,10 @@ public class PositionFragment extends Fragment implements MainActivityListener {
         myView = inflater.inflate(R.layout.position_layout, container, false);
         context = container.getContext();
 
-        longitudeField = (TextView) myView.findViewById(R.id.TV_long);
-        latitudeField = (TextView) myView.findViewById(R.id.TV_lat);
+        longitudeField = (TextView) myView.findViewById(R.id.Value_long);
+        latitudeField = (TextView) myView.findViewById(R.id.Value_lat);
+        altitudeField = (TextView) myView.findViewById(R.id.Value_alt);
+        accField = (TextView) myView.findViewById(R.id.Value_accurate);
 
         MainActivity.getInstance().addListener(this);
 
@@ -65,10 +67,6 @@ public class PositionFragment extends Fragment implements MainActivityListener {
             locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 0, 0, PositionFragment.this);
             //locationRequest = new LocationRequest();
         }*/
-
-
-
-
         return myView;
     }
 
@@ -89,9 +87,16 @@ public class PositionFragment extends Fragment implements MainActivityListener {
 
         longitude = mLastLocation.getLongitude();
         latitude = mLastLocation.getLatitude();
+        altitude = mLastLocation.getAltitude();
+        accurate = mLastLocation.getAccuracy();
 
-        longitudeField.setText("Longitude: " + longitude + " .");
-        latitudeField.setText("Latitude: " + latitude + " .");
+        String longStr = String.format("%3.4f", longitude);
+        String latStr = String.format("%3.4f", latitude);
+
+        longitudeField.setText(String.format("%3.4f", longitude));
+        latitudeField.setText(String.format("%3.4f", latitude));
+        altitudeField.setText(String.format("%3.4f", altitude));
+        accField.setText(String.format("%3.4f", accurate));
 
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
