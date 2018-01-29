@@ -634,7 +634,7 @@ public class LoggerFileRINEX implements MainActivityListener {
                 fullbiasnanos = gnssClock.getFullBiasNanos();
             } else fullbiasnanos = 0L;
 
-            gpsweek = fullbiasnanos * NS_TO_S / WEEKSECS;
+            gpsweek = fullbiasnanos * 1.0e-9 / WEEKSECS;
             local_est_GPS_time = gnssClock.getTimeNanos() - (fullbiasnanos + biasnanos);
             gpssow = local_est_GPS_time * NS_TO_S - gpsweek * WEEKSECS;
 
@@ -669,7 +669,7 @@ public class LoggerFileRINEX implements MainActivityListener {
             String singalStr = String.format("%.3f", measurement.getCn0DbHz());
             String d1Str = String.format("%.3f", d1);
 
-            Log.d (TAG, svid + ":  "+ secOfWeek + "     " + tRxSeconds + " - " + tTxSeconds + " = " + travelTime);
+            Log.d (TAG, svid + ":  "+ fullbiasnanos + "   " + secOfWeek + "     " + tRxSeconds + " - " + tTxSeconds + " = " + travelTime);
 
             try {
                 mFileWriter.write(svid + String.format("%14s", obsStr) + String.format("%14s", LL1Str) + String.format("%14s", d1Str) + String.format("%14s", singalStr));
