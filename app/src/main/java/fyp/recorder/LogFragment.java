@@ -215,7 +215,7 @@ public class LogFragment extends Fragment implements MainActivityListener {
 
     public class UIFragmentComponent {
 
-        private static final int MAX_LENGTH = 42000;
+        private static final int MAX_LENGTH = 20000;
         private static final int LOWER_THRESHOLD = (int) (MAX_LENGTH * 0.5);
 
         public synchronized void logTextFragment(final String tag, final String text, int color) {

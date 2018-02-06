@@ -180,9 +180,9 @@ public class MainActivity extends AppCompatActivity
             }, 1001);
         }
 
-        loggerFile = new LoggerFile(this);
-        loggerFileRINEX = new LoggerFileRINEX(this);
-        loggerFileNMEA = new LoggerFileNMEA(this);
+        //loggerFile = new LoggerFile(this);
+        //loggerFileRINEX = new LoggerFileRINEX(this);
+        //loggerFileNMEA = new LoggerFileNMEA(this);
         loggerUI = new LoggerUI();
         logFragment.setLoggerFile(loggerFile);
         logFragment.setUILogger(loggerUI);
@@ -279,12 +279,15 @@ public class MainActivity extends AppCompatActivity
 
         logging = true;
         if (logRaw) {
+            loggerFile = new LoggerFile(this);
             loggerFile.startNewLog();
         }
         if (logRINEX) {
+            loggerFileRINEX = new LoggerFileRINEX(this);
             loggerFileRINEX.startNewLog();
         }
         if (logNMEA) {
+            loggerFileNMEA = new LoggerFileNMEA(this);
             loggerFileNMEA.startNewLog();
         }
     }
@@ -293,12 +296,15 @@ public class MainActivity extends AppCompatActivity
         logging = false;
         if (logRaw) {
             loggerFile.send();
+            loggerFile = null;
         }
         if (logRINEX) {
             loggerFileRINEX.send();
+            loggerFileRINEX = null;
         }
         if (logNMEA) {
             loggerFileNMEA.send();
+            loggerFileNMEA = null;
         }
     }
 
