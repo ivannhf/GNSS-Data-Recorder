@@ -191,7 +191,7 @@ public class LoggerFileRINEX implements MainActivityListener {
                 currentFileWriter.write("C" + String.format("%5s", "4") + String.format("%4s", "C1I") + String.format("%4s", "L1I") + String.format("%4s", "D1I") + String.format("%4s", "S1I")  + String.format("%38s", "") + "SYS / # / OBS TYPES");
                 currentFileWriter.newLine();
                 do {
-                    //Log.d(TAG, "null");
+                    Log.d(TAG, "null, getting first obs");
                 } while ((firstFixStatus == null) || (leapSec == -1));
                 firstObs = null;
                 firstObs = satSysTime(firstFixStatus.getConstellationType(0), leapSec);

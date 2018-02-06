@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity
     private static MainActivity sInstance;
     SharedPreferences setting;
     public Intent intentService;
+    Context context;
 
     double gyroX = 0, gyroY = 0, gyroZ = 0, accelX = 0, accelY = 0, accelZ = 0, heading = 0;
     double orientation = Double.NaN;
@@ -151,6 +152,7 @@ public class MainActivity extends AppCompatActivity
         fragmentManager.beginTransaction().show(positionFragment).commit();
 
         sInstance = this;
+        context = this;
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -279,15 +281,12 @@ public class MainActivity extends AppCompatActivity
 
         logging = true;
         if (logRaw) {
-            loggerFile = new LoggerFile(this);
             loggerFile.startNewLog();
         }
         if (logRINEX) {
-            loggerFileRINEX = new LoggerFileRINEX(this);
             loggerFileRINEX.startNewLog();
         }
         if (logNMEA) {
-            loggerFileNMEA = new LoggerFileNMEA(this);
             loggerFileNMEA.startNewLog();
         }
     }
@@ -296,15 +295,12 @@ public class MainActivity extends AppCompatActivity
         logging = false;
         if (logRaw) {
             loggerFile.send();
-            loggerFile = null;
         }
         if (logRINEX) {
             loggerFileRINEX.send();
-            loggerFileRINEX = null;
         }
         if (logNMEA) {
             loggerFileNMEA.send();
-            loggerFileNMEA = null;
         }
     }
 
@@ -473,6 +469,35 @@ public class MainActivity extends AppCompatActivity
         //Toast.makeText(this, "App resume", Toast.LENGTH_SHORT).show();
 
         startService(new Intent(this, bkgdService.class));
+
+        SharedPreferences setting = this.getSharedPreferences("settings", MODE_PRIVATE);
+        Set<String> selections = setting.getStringSet(getString(R.string.pref_key_log_type), null);
+        String[] selected = selections.toArray(new String[]{});
+
+        logRaw = false;
+        logRINEX = false;
+        logNMEA = false;
+
+        for (int i = 0; i < selected.length; i++) {
+            switch (Integer.parseInt(selected[i])) {
+                case 1:
+                    logRaw = true;
+                    loggerFile = new LoggerFile(context);
+                    break;
+                case 2:
+                    logRINEX = true;
+                    loggerFileRINEX = new LoggerFileRINEX(context);
+                    break;
+                case 3:
+                    logNMEA = true;
+                    loggerFileNMEA = new LoggerFileNMEA(context);
+                    break;
+            }
+        }
+
+        if (!logRaw) loggerFile = null;
+        if (!logRINEX) loggerFileRINEX = null;
+        if (!logNMEA) loggerFileNMEA = null;
 
         super.onResume();
 
