@@ -634,20 +634,13 @@ public class LoggerFileRINEX implements MainActivityListener {
                 fullbiasnanos = gnssClock.getFullBiasNanos();
             } else fullbiasnanos = 0L;
 
-            gpsweek = fullbiasnanos * NS_TO_S / WEEKSECS;
-            local_est_GPS_time = gnssClock.getTimeNanos() - (fullbiasnanos + biasnanos);
-            gpssow = local_est_GPS_time * NS_TO_S - gpsweek * WEEKSECS;
-
-            Double temp = gpssow + 0.5;
-            Double fracPart = gpssow % 1;
-
             if (measurement.getTimeOffsetNanos() > 0) {
                 TimeOffsetNanos = measurement.getTimeOffsetNanos();
             } else TimeOffsetNanos = 0.0;
 
             int weekNo = (int) (Math.floor(-1 * fullbiasnanos * 1.0e-9 / WEEKSECS));
             int weekNoSecs = weekNo * WEEKSECS;
-            Double secOfWeek = (-1 * fullbiasnanos * 1.0e-9) - weekNoSecs - biasnanos * 1.0e-9;
+            Double secOfWeek = (-1 * fullbiasnanos * 1.0e-9) - weekNoSecs - biasnanos * 1.0e-9 + 20180000 / SPEED_OF_LIGHT;
 
             tRxSeconds = secOfWeek + gnssClock.getTimeNanos() * 1.0e-9 + measurement.getTimeOffsetNanos() * 1.0e-9;
             //tRxSeconds = gpssow - TimeOffsetNanos * NS_TO_S;
