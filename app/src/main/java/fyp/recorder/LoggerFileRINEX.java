@@ -191,7 +191,7 @@ public class LoggerFileRINEX implements MainActivityListener {
                 currentFileWriter.write("C" + String.format("%5s", "4") + String.format("%4s", "C1I") + String.format("%4s", "L1I") + String.format("%4s", "D1I") + String.format("%4s", "S1I")  + String.format("%38s", "") + "SYS / # / OBS TYPES");
                 currentFileWriter.newLine();
                 do {
-                    Log.d(TAG, "null, getting first obs");
+                    //Log.d(TAG, "null");
                 } while ((firstFixStatus == null) || (leapSec == -1));
                 firstObs = null;
                 firstObs = satSysTime(firstFixStatus.getConstellationType(0), leapSec);
@@ -634,7 +634,7 @@ public class LoggerFileRINEX implements MainActivityListener {
                 fullbiasnanos = gnssClock.getFullBiasNanos();
             } else fullbiasnanos = 0L;
 
-            gpsweek = fullbiasnanos * 1.0e-9 / WEEKSECS;
+            gpsweek = fullbiasnanos * NS_TO_S / WEEKSECS;
             local_est_GPS_time = gnssClock.getTimeNanos() - (fullbiasnanos + biasnanos);
             gpssow = local_est_GPS_time * NS_TO_S - gpsweek * WEEKSECS;
 
@@ -649,7 +649,7 @@ public class LoggerFileRINEX implements MainActivityListener {
             int weekNoSecs = weekNo * WEEKSECS;
             Double secOfWeek = (-1 * fullbiasnanos * 1.0e-9) - weekNoSecs - biasnanos * 1.0e-9;
 
-            tRxSeconds = secOfWeek + gnssClock.getTimeNanos() * 1.0e-9 + TimeOffsetNanos * 1.0e-9;
+            tRxSeconds = secOfWeek + gnssClock.getTimeNanos() * 1.0e-9 + measurement.getTimeOffsetNanos() * 1.0e-9;
             //tRxSeconds = gpssow - TimeOffsetNanos * NS_TO_S;
             tTxSeconds = measurement.getReceivedSvTimeNanos() * 1.0e-9;
             travelTime = tRxSeconds - tTxSeconds;
@@ -660,19 +660,18 @@ public class LoggerFileRINEX implements MainActivityListener {
 
             //c1 -= fracPart * measurement.getPseudorangeRateMetersPerSecond();
 
-            Double l1 = - measurement.getAccumulatedDeltaRangeMeters() / GPS_L1_WAVELENGTH;
+            Double l1 = -measurement.getAccumulatedDeltaRangeMeters() / GPS_L1_WAVELENGTH;
 
-            Double d1 = - measurement.getPseudorangeRateMetersPerSecond() / GPS_L1_WAVELENGTH;
+            Double d1 = -measurement.getPseudorangeRateMetersPerSecond() / GPS_L1_WAVELENGTH;
 
             String obsStr = String.format("%.3f", c1);
             String LL1Str = String.format("%.3f", l1);
             String singalStr = String.format("%.3f", measurement.getCn0DbHz());
             String d1Str = String.format("%.3f", d1);
 
-            Log.d (TAG, svid + ":  "+ fullbiasnanos + "   " + secOfWeek + "     " + tRxSeconds + " - " + tTxSeconds + " = " + travelTime);
-
             try {
-                mFileWriter.write(svid + String.format("%14s", obsStr) + String.format("%14s", LL1Str) + String.format("%14s", d1Str) + String.format("%14s", singalStr));
+                //writeGnssMeasurementToFile(gnssClock, measurement);
+                mFileWriter.write(svid + String.format("%14s", obsStr) + String.format("%14s", LL1Str) + String.format("%14s", singalStr) + String.format("%14s", d1Str));
                 mFileWriter.newLine();
             } catch (IOException e) {
                 logException(ERROR_WRITING_FILE, e);
