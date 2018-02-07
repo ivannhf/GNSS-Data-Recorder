@@ -12,6 +12,10 @@ import fyp.layout.R;
 public class RadarFragment extends Fragment {
     View myView;
 
+    View radar;
+
+    SkyViewFragment skyViewFragment;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
