@@ -470,7 +470,7 @@ public class MainActivity extends AppCompatActivity
 
         startService(new Intent(this, bkgdService.class));
 
-        SharedPreferences setting = this.getSharedPreferences("settings", MODE_PRIVATE);
+        SharedPreferences setting = getSharedPreferences("settings", MODE_PRIVATE);
         Set<String> selections = setting.getStringSet(getString(R.string.pref_key_log_type), null);
         String[] selected = selections.toArray(new String[]{});
 
@@ -478,20 +478,22 @@ public class MainActivity extends AppCompatActivity
         logRINEX = false;
         logNMEA = false;
 
-        for (int i = 0; i < selected.length; i++) {
-            switch (Integer.parseInt(selected[i])) {
-                case 1:
-                    logRaw = true;
-                    loggerFile = new LoggerFile(context);
-                    break;
-                case 2:
-                    logRINEX = true;
-                    loggerFileRINEX = new LoggerFileRINEX(context);
-                    break;
-                case 3:
-                    logNMEA = true;
-                    loggerFileNMEA = new LoggerFileNMEA(context);
-                    break;
+        if (selected.length != 0) {
+            for (int i = 0; i < selected.length; i++) {
+                switch (Integer.parseInt(selected[i])) {
+                    case 1:
+                        logRaw = true;
+                        loggerFile = new LoggerFile(context);
+                        break;
+                    case 2:
+                        logRINEX = true;
+                        loggerFileRINEX = new LoggerFileRINEX(context);
+                        break;
+                    case 3:
+                        logNMEA = true;
+                        loggerFileNMEA = new LoggerFileNMEA(context);
+                        break;
+                }
             }
         }
 

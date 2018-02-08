@@ -44,7 +44,7 @@
             android:defaultValue="@array/log_type_default"
             android:entries="@array/log_type_entries"
             android:entryValues="@array/log_type_values"
-            android:key="pref_key_log_type"
+            android:key="@string/pref_key_log_type"
             android:title="Log Type" />
 
         <MultiSelectListPreference
