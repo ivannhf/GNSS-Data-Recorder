@@ -49,10 +49,10 @@
             android:name="fyp.recorder.settings"
             android:label="@string/title_activity_settings"></activity>
 
-        <service android:name="fyp.recorder.bkgdService"
+        <!--<service android:name="fyp.recorder.bkgdService"
             android:process=":bkgd_service"
             android:enabled="true"
-            android:stopWithTask="false"/>
+            android:stopWithTask="false"/>-->
 
     </application>
 

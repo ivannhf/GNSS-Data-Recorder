@@ -228,7 +228,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        intentService = new Intent(this, bkgdService.class);
+        //intentService = new Intent(this, bkgdService.class);
         //startService(intentService);
 
     }
@@ -311,7 +311,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void quitApp() {
-        stopService(intentService);
+        //stopService(intentService);
         MainActivity.getInstance().finish();
     }
 
