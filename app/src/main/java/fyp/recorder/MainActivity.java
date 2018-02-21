@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity
         //loggerFileRINEX = new LoggerFileRINEX(this);
         //loggerFileNMEA = new LoggerFileNMEA(this);
         loggerUI = new LoggerUI();
-        logFragment.setLoggerFile(loggerFile);
+        //logFragment.setLoggerFile(loggerFile);
         logFragment.setUILogger(loggerUI);
 
         //FloatingActionButton
