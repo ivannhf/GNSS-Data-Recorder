@@ -182,6 +182,14 @@ public class MainActivity extends AppCompatActivity
             }, 1001);
         }
 
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.INTERNET,
+                    Manifest.permission.ACCESS_NETWORK_STATE
+            }, 1002);
+        }
+
         //loggerFile = new LoggerFile(this);
         //loggerFileRINEX = new LoggerFileRINEX(this);
         //loggerFileNMEA = new LoggerFileNMEA(this);

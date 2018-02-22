@@ -32,6 +32,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.security.Key;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -255,7 +256,7 @@ public class LoggerFile implements MainActivityListener {
         //getUiComponent().startActivity(Intent.createChooser(emailIntent, "Send log.."));
 
         int SOCKET_PORT = 12345;
-        String SERVER_IP = "192.168.0.167";
+        String SERVER_IP = "192.168.0.168";
         int FILE_SIZE = 99999;
 
         FileInputStream fileInputStream = null;
@@ -274,7 +275,10 @@ public class LoggerFile implements MainActivityListener {
             System.out.println("Sending " + outFilePath + "(" + bytearray.length + " bytes)");
             outputStream.write(bytearray,0,bytearray.length);
             outputStream.flush();
+        } catch (UnknownHostException e) {
+            Log.d(TAG, "Fail UnknownHostException");
         } catch (IOException e) {
+            Log.d(TAG, "Fail IOException");
         } finally {
             try {
                 if (bufferedInputStream != null) bufferedInputStream.close();
