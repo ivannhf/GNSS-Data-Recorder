@@ -273,9 +273,15 @@ public class LoggerFile implements MainActivityListener {
             outputStream = socket.getOutputStream();
             System.out.println("Sending " + outFilePath + "(" + bytearray.length + " bytes)");
             outputStream.write(bytearray,0,bytearray.length);
-            os.flush();
+            outputStream.flush();
         } catch (IOException e) {
-
+        } finally {
+            try {
+                if (bufferedInputStream != null) bufferedInputStream.close();
+                if (outputStream != null) outputStream.close();
+                if (socket != null) socket.close();
+            } catch (IOException e) {
+            }
         }
 
         if (mFileWriter != null) {
