@@ -23,11 +23,15 @@ import android.widget.Toast;
 
 import fyp.layout.R;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.security.Key;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -59,6 +63,7 @@ public class LoggerFile implements MainActivityListener {
     private final Object mFileLock = new Object();
     private BufferedWriter mFileWriter;
     private File mFile;
+    private String outFilePath = "";
 
     private Boolean logRaw, logNav, logNmea, logFix;
 
@@ -100,6 +105,7 @@ public class LoggerFile implements MainActivityListener {
             String fileName = String.format("%s_%s.txt", FILE_PREFIX, formatter.format(now));
             File currentFile = new File(baseDirectory, fileName);
             String currentFilePath = currentFile.getAbsolutePath();
+            outFilePath = currentFilePath;
             BufferedWriter currentFileWriter;
             try {
                 currentFileWriter = new BufferedWriter(new FileWriter(currentFile));
@@ -247,6 +253,37 @@ public class LoggerFile implements MainActivityListener {
                 FileProvider.getUriForFile(mContext, BuildConfig.APPLICATION_ID + ".provider", mFile);
         emailIntent.putExtra(Intent.EXTRA_STREAM, fileURI);
         //getUiComponent().startActivity(Intent.createChooser(emailIntent, "Send log.."));
+
+        int SOCKET_PORT = 12345;
+        String SERVER_IP = "192.168.0.167";
+        int FILE_SIZE = 99999;
+
+        FileInputStream fileInputStream = null;
+        BufferedInputStream bufferedInputStream = null;
+        OutputStream outputStream = null;
+        Socket socket = null;
+
+        try {
+            socket = new Socket (SERVER_IP, SOCKET_PORT);
+            File file = new File(outFilePath);
+            byte [] bytearray  = new byte [(int)file.length()];
+            fileInputStream = new FileInputStream(file);
+            bufferedInputStream = new BufferedInputStream(fileInputStream);
+            bufferedInputStream.read(bytearray,0, bytearray.length);
+            outputStream = socket.getOutputStream();
+            System.out.println("Sending " + outFilePath + "(" + bytearray.length + " bytes)");
+            outputStream.write(bytearray,0,bytearray.length);
+            outputStream.flush();
+        } catch (IOException e) {
+        } finally {
+            try {
+                if (bufferedInputStream != null) bufferedInputStream.close();
+                if (outputStream != null) outputStream.close();
+                if (socket != null) socket.close();
+            } catch (IOException e) {
+            }
+        }
+
         if (mFileWriter != null) {
             try {
                 mFileWriter.flush();
