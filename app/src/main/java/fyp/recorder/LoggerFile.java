@@ -263,6 +263,8 @@ public class LoggerFile implements MainActivityListener {
         OutputStream outputStream = null;
         Socket socket = null;
 
+        Log.d(TAG, outFilePath);
+
         try {
             socket = new Socket (SERVER_IP, SOCKET_PORT);
             File file = new File(outFilePath);
