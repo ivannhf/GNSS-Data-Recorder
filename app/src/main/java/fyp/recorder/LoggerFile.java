@@ -64,7 +64,7 @@ public class LoggerFile implements MainActivityListener {
     private final Object mFileLock = new Object();
     private BufferedWriter mFileWriter;
     private File mFile;
-    private String outFilePath = "";
+    public String outFilePath = "";
 
     private Boolean logRaw, logNav, logNmea, logFix;
 

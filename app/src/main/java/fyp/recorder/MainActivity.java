@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity
     LogFragment logFragment;
     MapFragment mapFragment;
     ToolFragment toolFragment;
+    FileTCP fileTCP;
 
     LoggerFile loggerFile;
     LoggerFileRINEX loggerFileRINEX;
@@ -140,6 +141,8 @@ public class MainActivity extends AppCompatActivity
         logFragment = new LogFragment();
         mapFragment = new MapFragment();
         toolFragment = new ToolFragment();
+
+        fileTCP = new FileTCP();
 
         navigationView.setCheckedItem(R.id.nav_position);
         fragmentManager = getSupportFragmentManager();
@@ -472,6 +475,8 @@ public class MainActivity extends AppCompatActivity
                     android.Manifest.permission.WRITE_EXTERNAL_STORAGE
             }, 1001);
         }
+
+        fileTCP.sendFile();
 
         addOrientationSensorListener();
         //Toast.makeText(this, "App resume", Toast.LENGTH_SHORT).show();
