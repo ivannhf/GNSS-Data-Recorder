@@ -476,8 +476,6 @@ public class MainActivity extends AppCompatActivity
             }, 1001);
         }
 
-        fileTCP.sendFile();
-
         addOrientationSensorListener();
         //Toast.makeText(this, "App resume", Toast.LENGTH_SHORT).show();
 

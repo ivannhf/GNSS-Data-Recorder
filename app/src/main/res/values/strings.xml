@@ -62,4 +62,9 @@
     <string name="pref_log_type_summary">Sets the type of logging format</string>
     <string name="pref_log_type_dialog_title">Choose Log Type</string>
 
+    <string name="pref_tcp_category_title">File Transfer</string>
+
+    <string name="pref_tcp_ip_title">IP Address</string>
+    <string name="pref_tcp_port_title">Port</string>
+
 </resources>

@@ -56,4 +56,26 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:key="@string/pref_key_tcp_category"
+        android:title="@string/pref_tcp_category_title">
+
+        <EditTextPreference
+            android:defaultValue="0.0.0.0"
+            android:key="@string/pref_key_ip_address"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_tcp_ip_title"
+            android:inputType="numberDecimal"/>
+
+        <EditTextPreference
+            android:defaultValue="25565"
+            android:key="@string/pref_key_port"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_tcp_port_title"
+            android:inputType="number"/>
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

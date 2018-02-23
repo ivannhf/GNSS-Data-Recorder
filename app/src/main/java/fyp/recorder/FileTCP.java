@@ -10,6 +10,8 @@ import java.net.Socket;
 
 public class FileTCP {
 
+    private static final String TAG = "SendFile";
+
     private Socket socket;
     private ServerSocket serverSocket;
     private BufferedReader bufferedReader;
@@ -19,7 +21,13 @@ public class FileTCP {
     private String IP = "192.168.0.122";
     private int PORT = 25565;
 
-    public void sendFile () {
+    String rawPath = "", rinexPath = "", nmeaPath = "";
+
+    public void sendFile (String RawPath, String RINEXPath, String NMEAPath) {
+        rawPath = RawPath;
+        rinexPath = RINEXPath;
+        nmeaPath = NMEAPath;
+
         Task task = new Task();
         task.execute();
     }
@@ -29,11 +37,14 @@ public class FileTCP {
         protected Void doInBackground (Void... params) {
             try{
                 socket = new Socket(IP, PORT);
+
                 printWriter = new PrintWriter(socket.getOutputStream());
                 printWriter.write("Success");
+
                 printWriter.flush();
                 printWriter.close();
                 socket.close();
+
             } catch (IOException e){
 
             }

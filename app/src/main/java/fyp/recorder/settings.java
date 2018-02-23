@@ -43,7 +43,7 @@ public class settings extends PreferenceActivity {
                         logRaw = true;
                     }
                 }
-                getPreferenceScreen().findPreference(getString(R.string.pref_key_raw_log_type)).setSelectable(logRaw);
+                getPreferenceScreen().findPreference(getString(R.string.pref_key_raw_log_type)).setEnabled(logRaw);
             }
         };
         preferences.registerOnSharedPreferenceChangeListener(rawLogListener);
