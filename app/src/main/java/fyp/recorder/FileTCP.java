@@ -1,9 +1,15 @@
 package fyp.recorder;
 
 import android.os.AsyncTask;
+import android.os.Environment;
+import android.util.Log;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -37,6 +43,16 @@ public class FileTCP {
         protected Void doInBackground (Void... params) {
             try{
                 socket = new Socket(IP, PORT);
+                File file = new File("/storage/emulated/0/AAE01_GNSS_Data/test.jpg");
+
+                byte[] bytes = new byte[1024];
+                InputStream is = socket.getInputStream();
+                FileOutputStream fos = new FileOutputStream(file);
+                BufferedOutputStream bos = new BufferedOutputStream(fos);
+                int bytesRead = is.read(bytes, 0, bytes.length);
+                bos.write(bytes, 0, bytesRead);
+                bos.close();
+                Log.d(TAG, "JPG finish");
 
                 printWriter = new PrintWriter(socket.getOutputStream());
                 printWriter.write("Success");

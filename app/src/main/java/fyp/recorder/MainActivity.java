@@ -391,6 +391,10 @@ public class MainActivity extends AppCompatActivity
             fragmentManager.beginTransaction().detach(radarFragment).hide(radarFragment).commit();
         }
 
+        if ((id != R.id.nav_log) && (id != R.id.nav_quit) && (id != R.id.nav_info)) {
+            logFragment.logView.setText("");
+        }
+
         if (id == R.id.nav_position) {
             fragmentManager.beginTransaction()
                     .show(positionFragment)
@@ -508,6 +512,8 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         }
+
+        fileTCP.sendFile("", "", "");
 
         if (!logRaw) loggerFile = null;
         if (!logRINEX) loggerFileRINEX = null;
