@@ -255,39 +255,6 @@ public class LoggerFile implements MainActivityListener {
         emailIntent.putExtra(Intent.EXTRA_STREAM, fileURI);
         //getUiComponent().startActivity(Intent.createChooser(emailIntent, "Send log.."));
 
-        int SOCKET_PORT = 12345;
-        String SERVER_IP = "192.168.0.168";
-        int FILE_SIZE = 99999;
-
-        FileInputStream fileInputStream = null;
-        BufferedInputStream bufferedInputStream = null;
-        OutputStream outputStream = null;
-        Socket socket = null;
-
-        try {
-            socket = new Socket (SERVER_IP, SOCKET_PORT);
-            File file = new File(outFilePath);
-            byte [] bytearray  = new byte [(int)file.length()];
-            fileInputStream = new FileInputStream(file);
-            bufferedInputStream = new BufferedInputStream(fileInputStream);
-            bufferedInputStream.read(bytearray,0, bytearray.length);
-            outputStream = socket.getOutputStream();
-            System.out.println("Sending " + outFilePath + "(" + bytearray.length + " bytes)");
-            outputStream.write(bytearray,0,bytearray.length);
-            outputStream.flush();
-        } catch (UnknownHostException e) {
-            Log.d(TAG, "Fail UnknownHostException");
-        } catch (IOException e) {
-            Log.d(TAG, "Fail IOException");
-        } finally {
-            try {
-                if (bufferedInputStream != null) bufferedInputStream.close();
-                if (outputStream != null) outputStream.close();
-                if (socket != null) socket.close();
-            } catch (IOException e) {
-            }
-        }
-
         if (mFileWriter != null) {
             try {
                 mFileWriter.flush();
