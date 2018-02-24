@@ -46,11 +46,13 @@ public class FileTCP {
             try{
                 socket = new Socket(IP, PORT);
 
-                File file = new File("/storage/emulated/0/AAE01_GNSS_Data/test.jpg");
+                String path = "/storage/emulated/0/AAE01_GNSS_Data/test.jpg";
+                File file = new File(path);
+                File dirAsFile = file.getParentFile();
                 long length = file.length();
 
-                byte[] bytes = new byte[64 * 1024];
-                InputStream in = new FileInputStream(file);
+                byte[] bytes = new byte[2048];
+                InputStream in = new FileInputStream(dirAsFile);
                 OutputStream out = socket.getOutputStream();
                 int count;
                 while ((count = in.read(bytes)) > 0) {
@@ -58,14 +60,18 @@ public class FileTCP {
                 }
                 Log.d(TAG, "JPG finish");
 
-                printWriter = new PrintWriter(socket.getOutputStream());
+                out.close();
+                in.close();
+                socket.close();
+
+                /*printWriter = new PrintWriter(socket.getOutputStream());
                 printWriter.write("Success");
 
                 printWriter.flush();
                 printWriter.close();
                 in.close();
                 out.close();
-                socket.close();
+                socket.close();*/
 
             } catch (IOException e){
 

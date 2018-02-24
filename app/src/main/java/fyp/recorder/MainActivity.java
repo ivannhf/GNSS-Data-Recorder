@@ -313,6 +313,9 @@ public class MainActivity extends AppCompatActivity
         if (logNMEA) {
             loggerFileNMEA.send();
         }
+        Log.d(TAG, "Stop Logging");
+
+        fileTCP.sendFile("", "", "");
     }
 
     public boolean showQuitDialog() {
@@ -512,8 +515,6 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         }
-
-        fileTCP.sendFile("", "", "");
 
         if (!logRaw) loggerFile = null;
         if (!logRINEX) loggerFileRINEX = null;
