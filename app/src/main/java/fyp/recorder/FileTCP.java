@@ -7,9 +7,11 @@ import android.util.Log;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -43,15 +45,17 @@ public class FileTCP {
         protected Void doInBackground (Void... params) {
             try{
                 socket = new Socket(IP, PORT);
-                File file = new File("/storage/emulated/0/AAE01_GNSS_Data/test.jpg");
 
-                byte[] bytes = new byte[1024];
-                InputStream is = socket.getInputStream();
-                FileOutputStream fos = new FileOutputStream(file);
-                BufferedOutputStream bos = new BufferedOutputStream(fos);
-                int bytesRead = is.read(bytes, 0, bytes.length);
-                bos.write(bytes, 0, bytesRead);
-                bos.close();
+                File file = new File("/storage/emulated/0/AAE01_GNSS_Data/test.jpg");
+                long length = file.length();
+
+                byte[] bytes = new byte[64 * 1024];
+                InputStream in = new FileInputStream(file);
+                OutputStream out = socket.getOutputStream();
+                int count;
+                while ((count = in.read(bytes)) > 0) {
+                    out.write(bytes, 0, count);
+                }
                 Log.d(TAG, "JPG finish");
 
                 printWriter = new PrintWriter(socket.getOutputStream());
@@ -59,6 +63,8 @@ public class FileTCP {
 
                 printWriter.flush();
                 printWriter.close();
+                in.close();
+                out.close();
                 socket.close();
 
             } catch (IOException e){
