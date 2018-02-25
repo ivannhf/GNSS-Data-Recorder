@@ -30,14 +30,31 @@ public class FileTCP {
     private int PORT = 25565;
 
     String rawPath = "", rinexPath = "", nmeaPath = "";
+    String[] path = new String[] {"", "", ""};
+    String[] prefix = new String[] {"/Raw", "/RINEX", "/NMEA"};
 
-    public void sendFile (String RawPath, String RINEXPath, String NMEAPath) {
-        rawPath = RawPath;
-        rinexPath = RINEXPath;
-        nmeaPath = NMEAPath;
+    String filePath = "";
+    String fileName = "";
 
-        Task task = new Task();
-        task.execute();
+    //int i = 0;
+
+    public void sendFile (String RawName, String RINEXName, String NMEAName) {
+        rawPath = RawName;
+        rinexPath = RINEXName;
+        nmeaPath = NMEAName;
+
+        path[0] = RawName;
+        path[1] = RINEXName;
+        path[2] = NMEAName;
+
+        Log.d(TAG, "sending: " + rawPath);
+        for (int i = 0; i < 2; i++) {
+            if(path[i] == "") continue;
+            filePath = Environment.getExternalStorageDirectory().toString() + "/AAE01_GNSS_Data" + prefix[i];
+            fileName = path[i];
+            Task task = new Task();
+            task.execute();
+        }
     }
 
     class Task extends AsyncTask<Void, Void, Void>{
@@ -46,13 +63,14 @@ public class FileTCP {
             try{
                 socket = new Socket(IP, PORT);
 
-                String path = "/storage/emulated/0/AAE01_GNSS_Data/test.jpg";
-                File file = new File(path);
-                File dirAsFile = file.getParentFile();
+                //filePath = Environment.getExternalStorageDirectory().toString() + "/AAE01_GNSS_Data";
+                //fileName = "test.txt";
+
+                File file = new File(filePath, fileName);
                 long length = file.length();
 
                 byte[] bytes = new byte[2048];
-                InputStream in = new FileInputStream(dirAsFile);
+                InputStream in = new FileInputStream(file);
                 OutputStream out = socket.getOutputStream();
                 int count;
                 while ((count = in.read(bytes)) > 0) {

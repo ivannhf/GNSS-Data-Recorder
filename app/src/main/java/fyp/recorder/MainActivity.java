@@ -315,7 +315,7 @@ public class MainActivity extends AppCompatActivity
         }
         Log.d(TAG, "Stop Logging");
 
-        fileTCP.sendFile("", "", "");
+        fileTCP.sendFile(loggerFile.outFileName, "", "");
     }
 
     public boolean showQuitDialog() {
