@@ -1,11 +1,14 @@
 package fyp.recorder;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -15,10 +18,16 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+
+import fyp.layout.R;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class FileTCP {
 
     private static final String TAG = "SendFile";
+    private Context mContext;
 
     private Socket socket;
     private ServerSocket serverSocket;
@@ -27,7 +36,7 @@ public class FileTCP {
     private PrintWriter printWriter;
 
     private String IP = "192.168.0.122";
-    private int PORT = 25565;
+    private int PORT = 8080;
 
     String rawPath = "", rinexPath = "", nmeaPath = "";
     String[] path = new String[] {"", "", ""};
@@ -39,6 +48,8 @@ public class FileTCP {
     //int i = 0;
 
     public void sendFile (String RawName, String RINEXName, String NMEAName) {
+        this.mContext = MainActivity.getInstance().context;
+
         rawPath = RawName;
         rinexPath = RINEXName;
         nmeaPath = NMEAName;
@@ -47,12 +58,17 @@ public class FileTCP {
         path[1] = RINEXName;
         path[2] = NMEAName;
 
-        Log.d(TAG, "sending: " + rawPath);
+        Log.d(TAG, "sending: " + rawPath + " to " + IP + ":" + PORT);
+
+        SharedPreferences setting = mContext.getSharedPreferences("settings", MODE_PRIVATE);
+        IP = setting.getString(mContext.getString(R.string.pref_key_ip_address), "");
+        PORT = Integer.parseInt(setting.getString(mContext.getString(R.string.pref_key_port), "8080"));
+
         for (int i = 0; i < 2; i++) {
             if(path[i] == "") continue;
             filePath = Environment.getExternalStorageDirectory().toString() + "/AAE01_GNSS_Data" + prefix[i];
             fileName = path[i];
-            Task task = new Task();
+            Task_t task = new Task_t();
             task.execute();
         }
     }
@@ -69,7 +85,7 @@ public class FileTCP {
                 File file = new File(filePath, fileName);
                 long length = file.length();
 
-                byte[] bytes = new byte[2048];
+                byte[] bytes = new byte[4096];
                 InputStream in = new FileInputStream(file);
                 OutputStream out = socket.getOutputStream();
                 int count;
@@ -91,6 +107,33 @@ public class FileTCP {
                 out.close();
                 socket.close();*/
 
+            } catch (IOException e){
+
+            }
+            return null;
+        }
+    }
+
+    class Task_t extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            try{
+                socket = new Socket(IP, PORT);
+
+                File file = new File(filePath, fileName);
+                long length = file.length();
+
+                BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream());
+                DataOutputStream d = new DataOutputStream(out);
+
+                d.writeUTF(fileName);
+                Files.copy(file.toPath(), d);
+
+                out.close();
+                d.close();
+                socket.close();
+
+                Log.d(TAG, "file finish");
             } catch (IOException e){
 
             }
