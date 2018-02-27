@@ -49,6 +49,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Set;
 
 import fyp.layout.R;
@@ -303,22 +304,26 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void stopLogging() {
+        String rawPath = "", rinexPath = "", nmeaPath = "";
         SharedPreferences setting = this.getSharedPreferences("settings", MODE_PRIVATE);
 
         logging = false;
         if (logRaw) {
             loggerFile.send();
+            rawPath = loggerFile.outFileName;
         }
         if (logRINEX) {
             loggerFileRINEX.send();
+            rinexPath = loggerFileRINEX.outFileName;
         }
         if (logNMEA) {
             loggerFileNMEA.send();
+            nmeaPath = loggerFileNMEA.outFileName;
         }
         Log.d(TAG, "Stop Logging");
 
         if (setting.getBoolean(getString(R.string.pref_key_send_to_tcp), true)) {
-            fileTCP.sendFile(loggerFile.outFileName, loggerFileRINEX.outFileName, loggerFileNMEA.outFileName);
+            fileTCP.sendFile(rawPath, rinexPath, nmeaPath);
         }
     }
 
@@ -492,7 +497,7 @@ public class MainActivity extends AppCompatActivity
 
         startService(new Intent(this, bkgdService.class));
 
-        //SharedPreferences setting = getSharedPreferences("settings", MODE_PRIVATE);
+        SharedPreferences setting = getSharedPreferences("settings", MODE_PRIVATE);
         Set<String> selections = setting.getStringSet(getString(R.string.pref_key_log_type), null);
         String[] selected = null;
         if (selections != null) {selected = selections.toArray(new String[]{});}
@@ -500,6 +505,8 @@ public class MainActivity extends AppCompatActivity
         logRaw = false;
         logRINEX = false;
         logNMEA = false;
+
+        Log.d(TAG, Arrays.toString(selections.toArray(new String[]{})));
 
         if ((selected.length != 0)) {
             for (int i = 0; i < selected.length; i++) {
