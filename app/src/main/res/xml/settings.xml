@@ -56,4 +56,33 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:key="@string/pref_key_tcp_category"
+        android:title="@string/pref_tcp_category_title">
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/pref_key_send_to_tcp"
+            android:title="@string/pref_send_to_tcp" />
+
+        <EditTextPreference
+            android:defaultValue="0.0.0.0"
+            android:key="@string/pref_key_ip_address"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_tcp_ip_title"
+            android:inputType="number"
+            android:digits="0123456789."/>
+
+        <EditTextPreference
+            android:defaultValue="8080"
+            android:key="@string/pref_key_port"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_tcp_port_title"
+            android:inputType="number"
+            android:digits="0123456789"/>
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

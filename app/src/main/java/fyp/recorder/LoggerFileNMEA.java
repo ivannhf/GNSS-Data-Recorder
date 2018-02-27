@@ -53,6 +53,7 @@ public class LoggerFileNMEA implements MainActivityListener {
     private final Object mFileLock = new Object();
     private BufferedWriter mFileWriter;
     private File mFile;
+    public String outFilePath = "", outFileName = "";
 
     private LogFragment.UIFragmentComponent mUiComponent;
 
@@ -90,8 +91,10 @@ public class LoggerFileNMEA implements MainActivityListener {
             SimpleDateFormat formatter = new SimpleDateFormat("yyy_MM_dd_HH_mm_ss");
             Date now = new Date();
             String fileName = String.format("%s_%s.txt", FILE_PREFIX, formatter.format(now));
+            outFileName = fileName;
             File currentFile = new File(baseDirectory, fileName);
             String currentFilePath = currentFile.getAbsolutePath();
+            outFilePath = currentFilePath;
             BufferedWriter currentFileWriter;
             try {
                 currentFileWriter = new BufferedWriter(new FileWriter(currentFile));

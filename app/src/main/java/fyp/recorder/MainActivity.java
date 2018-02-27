@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity
     LogFragment logFragment;
     MapFragment mapFragment;
     ToolFragment toolFragment;
+    FileTCP fileTCP;
 
     LoggerFile loggerFile;
     LoggerFileRINEX loggerFileRINEX;
@@ -141,6 +142,8 @@ public class MainActivity extends AppCompatActivity
         mapFragment = new MapFragment();
         toolFragment = new ToolFragment();
 
+        fileTCP = new FileTCP();
+
         navigationView.setCheckedItem(R.id.nav_position);
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().add(R.id.content_frame, positionFragment).
@@ -182,12 +185,20 @@ public class MainActivity extends AppCompatActivity
             }, 1001);
         }
 
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.INTERNET,
+                    Manifest.permission.ACCESS_NETWORK_STATE
+            }, 1002);
+        }
+
         //loggerFile = new LoggerFile(this);
         //loggerFileRINEX = new LoggerFileRINEX(this);
         //loggerFileNMEA = new LoggerFileNMEA(this);
-        loggerUI = new LoggerUI();
-        logFragment.setLoggerFile(loggerFile);
-        logFragment.setUILogger(loggerUI);
+        //loggerUI = new LoggerUI();
+        //logFragment.setLoggerFile(loggerFile);
+        //logFragment.setUILogger(loggerUI);
 
         //FloatingActionButton
         fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -292,6 +303,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void stopLogging() {
+        SharedPreferences setting = this.getSharedPreferences("settings", MODE_PRIVATE);
+
         logging = false;
         if (logRaw) {
             loggerFile.send();
@@ -301,6 +314,11 @@ public class MainActivity extends AppCompatActivity
         }
         if (logNMEA) {
             loggerFileNMEA.send();
+        }
+        Log.d(TAG, "Stop Logging");
+
+        if (setting.getBoolean(getString(R.string.pref_key_send_to_tcp), true)) {
+            fileTCP.sendFile(loggerFile.outFileName, loggerFileRINEX.outFileName, loggerFileNMEA.outFileName);
         }
     }
 
@@ -378,6 +396,10 @@ public class MainActivity extends AppCompatActivity
             fragmentManager.beginTransaction().hide(positionFragment).hide(listFragment).hide(logFragment).hide(mapFragment).hide(toolFragment).commit();
             fragmentManager.beginTransaction().detach(radarFragment).commit();
             fragmentManager.beginTransaction().detach(radarFragment).hide(radarFragment).commit();
+        }
+
+        if ((id != R.id.nav_log) && (id != R.id.nav_quit) && (id != R.id.nav_info)) {
+            logFragment.logView.setText("");
         }
 
         if (id == R.id.nav_position) {

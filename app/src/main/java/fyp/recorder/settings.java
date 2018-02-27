@@ -20,7 +20,7 @@ public class settings extends PreferenceActivity {
 
     private Toolbar mActionBar;
 
-    SharedPreferences.OnSharedPreferenceChangeListener rawLogListener;
+    SharedPreferences.OnSharedPreferenceChangeListener rawLogListener, sendLogTCP;
 
     Boolean logRaw = false;
 
@@ -43,10 +43,20 @@ public class settings extends PreferenceActivity {
                         logRaw = true;
                     }
                 }
-                getPreferenceScreen().findPreference(getString(R.string.pref_key_raw_log_type)).setSelectable(logRaw);
+                getPreferenceScreen().findPreference(getString(R.string.pref_key_raw_log_type)).setEnabled(logRaw);
             }
         };
         preferences.registerOnSharedPreferenceChangeListener(rawLogListener);
+
+        sendLogTCP = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                boolean sendLog = preferences.getBoolean(getString(R.string.pref_key_send_to_tcp), true);
+                getPreferenceScreen().findPreference(getString(R.string.pref_key_ip_address)).setEnabled(sendLog);
+                getPreferenceScreen().findPreference(getString(R.string.pref_key_port)).setEnabled(sendLog);
+            }
+        };
+        preferences.registerOnSharedPreferenceChangeListener(sendLogTCP);
     }
 
     @Override

@@ -14,6 +14,7 @@ import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -216,7 +217,7 @@ public class LogFragment extends Fragment implements MainActivityListener {
     public class UIFragmentComponent {
 
         private static final int MAX_LENGTH = 15000;
-        private static final int LOWER_THRESHOLD = (int) (MAX_LENGTH * 0.5);
+        private static final int LOWER_THRESHOLD = (int) (MAX_LENGTH * 0.7);
 
         public synchronized void logTextFragment(final String tag, final String text, int color) {
             final SpannableStringBuilder builder = new SpannableStringBuilder();
