@@ -303,6 +303,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void stopLogging() {
+        SharedPreferences setting = this.getSharedPreferences("settings", MODE_PRIVATE);
+
         logging = false;
         if (logRaw) {
             loggerFile.send();
@@ -315,7 +317,9 @@ public class MainActivity extends AppCompatActivity
         }
         Log.d(TAG, "Stop Logging");
 
-        fileTCP.sendFile(loggerFile.outFileName, "", "");
+        if (setting.getBoolean(getString(R.string.pref_key_send_to_tcp), true)) {
+            fileTCP.sendFile(loggerFile.outFileName, loggerFileRINEX.outFileName, loggerFileNMEA.outFileName);
+        }
     }
 
     public boolean showQuitDialog() {
