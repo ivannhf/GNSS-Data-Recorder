@@ -38,7 +38,7 @@ public class FileTCP {
     private String IP = "192.168.0.122";
     private int PORT = 8080;
 
-    String rawPath = "", rinexPath = "", nmeaPath = "";
+    String rawName = "", rinexName = "", nmeaName = "";
     String[] path = new String[] {"", "", ""};
     String[] prefix = new String[] {"/Raw", "/RINEX", "/NMEA"};
 
@@ -50,27 +50,30 @@ public class FileTCP {
     public void sendFile (String RawName, String RINEXName, String NMEAName) {
         this.mContext = MainActivity.getInstance().context;
 
-        rawPath = RawName;
-        rinexPath = RINEXName;
-        nmeaPath = NMEAName;
+        rawName = RawName;
+        rinexName = RINEXName;
+        nmeaName = NMEAName;
 
         path[0] = RawName;
         path[1] = RINEXName;
         path[2] = NMEAName;
 
-        Log.d(TAG, "sending: " + rawPath + " to " + IP + ":" + PORT);
+        //Log.d(TAG, "sending: " + rawPath + " to " + IP + ":" + PORT);
 
         SharedPreferences setting = mContext.getSharedPreferences("settings", MODE_PRIVATE);
         IP = setting.getString(mContext.getString(R.string.pref_key_ip_address), "");
         PORT = Integer.parseInt(setting.getString(mContext.getString(R.string.pref_key_port), "8080"));
 
-        for (int i = 0; i < 2; i++) {
+        Task_t task = new Task_t();
+        task.execute();
+
+        /*for (int i = 0; i < 2; i++) {
             if(path[i] == "") continue;
             filePath = Environment.getExternalStorageDirectory().toString() + "/AAE01_GNSS_Data" + prefix[i];
             fileName = path[i];
             Task_t task = new Task_t();
             task.execute();
-        }
+        }*/
     }
 
     class Task extends AsyncTask<Void, Void, Void>{
@@ -120,17 +123,64 @@ public class FileTCP {
             try{
                 socket = new Socket(IP, PORT);
 
-                File file = new File(filePath, fileName);
-                long length = file.length();
+                BufferedOutputStream outRaw = new BufferedOutputStream(socket.getOutputStream());
+                DataOutputStream dosRaw = new DataOutputStream(outRaw);
 
-                BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream());
-                DataOutputStream d = new DataOutputStream(out);
+                /*BufferedOutputStream outRinex = new BufferedOutputStream(socket.getOutputStream());
+                DataOutputStream dosRinex = new DataOutputStream(outRinex);
 
-                d.writeUTF(fileName);
-                Files.copy(file.toPath(), d);
+                BufferedOutputStream outNmea = new BufferedOutputStream(socket.getOutputStream());
+                DataOutputStream dosNmea = new DataOutputStream(outNmea);*/
 
-                out.close();
-                d.close();
+                File rawfile = null;
+                File rinexfile = null;
+                File nmeafile = null;
+
+                String pathPrefix = Environment.getExternalStorageDirectory().toString() + "/AAE01_GNSS_Data";
+
+                //if (path[0] != "") {
+                    String rawPath = pathPrefix + prefix[0];
+                    rawfile = new File(rawPath, rawName);
+               // }
+                /*if (path[1] != "") {
+                    String rinexPath = pathPrefix + prefix[1];
+                    rinexfile = new File(rinexPath, rinexName);
+                }
+                if (path[2] != "") {
+                    String nmeaPath = pathPrefix + prefix[2];
+                    nmeafile = new File(nmeaPath, nmeaName);
+                }*/
+
+                dosRaw.writeUTF(rawName);
+                /*dosRinex.writeUTF(rinexName);
+                dosNmea.writeUTF(nmeaName);*/
+
+                //if (rawfile != null) {
+                    Files.copy(rawfile.toPath(), dosRaw);
+                //}
+                /*if (rinexfile != null) {
+                    Files.copy(rinexfile.toPath(), dosRinex);
+                }
+                if (nmeafile != null) {
+                    Files.copy(nmeafile.toPath(), dosNmea);
+                }*/
+
+                outRaw.close();
+                dosRaw.close();
+
+                /*outRinex.close();
+                dosRinex.close();
+
+                outNmea.close();
+                dosNmea.close();*/
+
+                //long length = file.length();
+
+                //d.writeUTF(fileName);
+                //Files.copy(file.toPath(), d);
+
+                //out.close();
+                //d.close();
                 socket.close();
 
                 Log.d(TAG, "file finish");
