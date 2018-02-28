@@ -499,14 +499,14 @@ public class MainActivity extends AppCompatActivity
 
         SharedPreferences setting = getSharedPreferences("settings", MODE_PRIVATE);
         Set<String> selections = setting.getStringSet(getString(R.string.pref_key_log_type), null);
-        String[] selected = null;
+        String[] selected = new String[]{};
         if (selections != null) {selected = selections.toArray(new String[]{});}
 
         logRaw = false;
         logRINEX = false;
         logNMEA = false;
 
-        Log.d(TAG, Arrays.toString(selections.toArray(new String[]{})));
+        //Log.d(TAG, Arrays.toString(selections.toArray(new String[]{})));
 
         if ((selected.length != 0)) {
             for (int i = 0; i < selected.length; i++) {
