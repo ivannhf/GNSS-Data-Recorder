@@ -14,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -38,25 +39,30 @@ public class FileTCP {
     private String IP = "192.168.0.122";
     private int PORT = 8080;
 
+    public String echo = "";
+
     String rawName = "", rinexName = "", nmeaName = "";
     String[] path = new String[] {"", "", ""};
     String[] prefix = new String[] {"/Raw", "/RINEX", "/NMEA"};
 
     String filePath = "";
     String fileName = "";
+    int fileType = 0;
 
     //int i = 0;
 
-    public void sendFile (String RawName, String RINEXName, String NMEAName) {
+    public void sendFile (String RawName, int type) {
         this.mContext = MainActivity.getInstance().context;
 
         rawName = RawName;
-        rinexName = RINEXName;
+
+        fileType = type;
+        /*rinexName = RINEXName;
         nmeaName = NMEAName;
 
         path[0] = RawName;
         path[1] = RINEXName;
-        path[2] = NMEAName;
+        path[2] = NMEAName;*/
 
         //Log.d(TAG, "sending: " + rawPath + " to " + IP + ":" + PORT);
 
@@ -139,7 +145,7 @@ public class FileTCP {
                 String pathPrefix = Environment.getExternalStorageDirectory().toString() + "/AAE01_GNSS_Data";
 
                 //if (path[0] != "") {
-                    String rawPath = pathPrefix + prefix[0];
+                    String rawPath = pathPrefix + prefix[fileType];
                     rawfile = new File(rawPath, rawName);
                // }
                 /*if (path[1] != "") {

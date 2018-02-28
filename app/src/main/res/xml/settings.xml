@@ -71,8 +71,7 @@
             android:selectAllOnFocus="true"
             android:singleLine="true"
             android:title="@string/pref_tcp_ip_title"
-            android:inputType="number"
-            android:digits="0123456789."/>
+            android:inputType="none"/>
 
         <EditTextPreference
             android:defaultValue="8080"

@@ -322,8 +322,15 @@ public class MainActivity extends AppCompatActivity
         }
         Log.d(TAG, "Stop Logging");
 
+        String[] path = new String[]{rawPath, rinexPath, nmeaPath};
+
         if (setting.getBoolean(getString(R.string.pref_key_send_to_tcp), true)) {
-            fileTCP.sendFile(rawPath, rinexPath, nmeaPath);
+            for (int i = 0; i < 2; i++) {
+                if (path[i].compareTo("") == 0) continue;
+                    fileTCP = new FileTCP();
+                    fileTCP.sendFile(path[i], i);
+                    fileTCP = null;
+            }
         }
     }
 
