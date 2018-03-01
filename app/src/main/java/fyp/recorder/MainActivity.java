@@ -513,7 +513,7 @@ public class MainActivity extends AppCompatActivity
         logRINEX = false;
         logNMEA = false;
 
-        Log.d(TAG, Arrays.toString(selections.toArray(new String[]{})));
+        Log.d(TAG, selected.toString());
 
         if ((selected.length != 0)) {
             for (int i = 0; i < selected.length; i++) {
