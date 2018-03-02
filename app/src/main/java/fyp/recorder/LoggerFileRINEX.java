@@ -688,9 +688,10 @@ public class LoggerFileRINEX implements MainActivityListener {
             Log.d(TAG, "fail");
         }
 
-        Log.d(TAG, "Write record");
+        Log.d(TAG, "Write record: " + recCount);
 
-        for (int i = 0; i < recCount; i++) {
+        if (recCount < 1) return;
+        for (int i = 1; i < recCount; i++) {
             try {
                 mFileWriter.write(svidArr[i] + String.format("%14s", c1Arr[i]) + String.format("%14s", l1Arr[i]) + String.format("%14s", s1Arr[i]) + String.format("%14s", d1Arr[i]));
                 mFileWriter.newLine();

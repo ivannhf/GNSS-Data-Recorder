@@ -327,9 +327,9 @@ public class MainActivity extends AppCompatActivity
         if (setting.getBoolean(getString(R.string.pref_key_send_to_tcp), true)) {
             for (int i = 0; i < 2; i++) {
                 if (path[i].compareTo("") == 0) continue;
-                    fileTCP = new FileTCP();
-                    fileTCP.sendFile(path[i], i);
-                    fileTCP = null;
+                fileTCP = new FileTCP();
+                fileTCP.sendFile(path[i], i);
+                fileTCP = null;
             }
         }
     }
@@ -408,6 +408,7 @@ public class MainActivity extends AppCompatActivity
             fragmentManager.beginTransaction().hide(positionFragment).hide(listFragment).hide(logFragment).hide(mapFragment).hide(toolFragment).commit();
             fragmentManager.beginTransaction().detach(radarFragment).commit();
             fragmentManager.beginTransaction().detach(radarFragment).hide(radarFragment).commit();
+            radarFragment = null;
         }
 
         if ((id != R.id.nav_log) && (id != R.id.nav_quit) && (id != R.id.nav_info)) {
@@ -423,6 +424,7 @@ public class MainActivity extends AppCompatActivity
                     .show(listFragment)
                     .commit();
         } else if (id == R.id.nav_radar) {
+            radarFragment = new RadarFragment();
             fragmentManager.beginTransaction().detach(radarFragment).attach(radarFragment).commit();
             fragmentManager.beginTransaction()
                     .show(radarFragment)
@@ -507,7 +509,9 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences setting = getSharedPreferences("settings", MODE_PRIVATE);
         Set<String> selections = setting.getStringSet(getString(R.string.pref_key_log_type), null);
         String[] selected = new String[]{};
-        if (selections != null) {selected = selections.toArray(new String[]{});}
+        if (selections != null) {
+            selected = selections.toArray(new String[]{});
+        }
 
         logRaw = false;
         logRINEX = false;
