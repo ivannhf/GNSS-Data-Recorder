@@ -185,13 +185,13 @@ public class LoggerFileRINEX implements MainActivityListener {
                 currentFileWriter.newLine();
                 currentFileWriter.write(String.format("%14s", "0.0000") + String.format("%14s", "0.0000") + String.format("%14s", "0.0000") + String.format("%-18s", "") + "ANTENNA: DELTA H/E/N");
                 currentFileWriter.newLine();
-                currentFileWriter.write("G" + String.format("%5s", "4") + String.format("%4s", "C1C") + String.format("%4s", "L1C") + String.format("%4s", "D1C") + String.format("%4s", "S1C")  + String.format("%38s", "") + "SYS / # / OBS TYPES");
+                currentFileWriter.write("G" + String.format("%5s", "4") + String.format("%4s", "C1C") + String.format("%4s", "L1C") + String.format("%4s", "D1C") + String.format("%4s", "S1C") + String.format("%38s", "") + "SYS / # / OBS TYPES");
                 currentFileWriter.newLine();
-                currentFileWriter.write("R" + String.format("%5s", "4") + String.format("%4s", "C1C") + String.format("%4s", "L1C") + String.format("%4s", "D1C") + String.format("%4s", "S1C")  + String.format("%38s", "") + "SYS / # / OBS TYPES");
+                currentFileWriter.write("R" + String.format("%5s", "4") + String.format("%4s", "C1C") + String.format("%4s", "L1C") + String.format("%4s", "D1C") + String.format("%4s", "S1C") + String.format("%38s", "") + "SYS / # / OBS TYPES");
                 currentFileWriter.newLine();
-                currentFileWriter.write("E" + String.format("%5s", "4") + String.format("%4s", "C1B") + String.format("%4s", "L1B") + String.format("%4s", "D1B") + String.format("%4s", "S1B")  + String.format("%38s", "") + "SYS / # / OBS TYPES");
+                currentFileWriter.write("E" + String.format("%5s", "4") + String.format("%4s", "C1B") + String.format("%4s", "L1B") + String.format("%4s", "D1B") + String.format("%4s", "S1B") + String.format("%38s", "") + "SYS / # / OBS TYPES");
                 currentFileWriter.newLine();
-                currentFileWriter.write("C" + String.format("%5s", "4") + String.format("%4s", "C1I") + String.format("%4s", "L1I") + String.format("%4s", "D1I") + String.format("%4s", "S1I")  + String.format("%38s", "") + "SYS / # / OBS TYPES");
+                currentFileWriter.write("C" + String.format("%5s", "4") + String.format("%4s", "C1I") + String.format("%4s", "L1I") + String.format("%4s", "D1I") + String.format("%4s", "S1I") + String.format("%38s", "") + "SYS / # / OBS TYPES");
                 currentFileWriter.newLine();
                 do {
                     //Log.d(TAG, "null");
@@ -555,7 +555,10 @@ public class LoggerFileRINEX implements MainActivityListener {
 
         Integer satCount = 0;
 
-        Long fullbiasnanos = 0L;
+        double firstFullBiasNanos = 0;
+        boolean getfirstFullBiasNanos = false;
+
+        /*Long fullbiasnanos = 0L;
         Double biasnanos = 0.0;
         Double gpsweek = 0.0;
         Double local_est_GPS_time = 0.0;
@@ -563,7 +566,7 @@ public class LoggerFileRINEX implements MainActivityListener {
         Double TimeOffsetNanos = 0.0;
         Double tRxSeconds = 0.0;
         Double tTxSeconds = 0.0;
-        Double travelTime = 0.0;
+        Double travelTime = 0.0;*/
 
         for (GnssMeasurement measurement : localMeasurementsEvent.getMeasurements()) {
             Integer type = measurement.getConstellationType();
@@ -601,6 +604,8 @@ public class LoggerFileRINEX implements MainActivityListener {
         }
 
         for (GnssMeasurement measurement : localMeasurementsEvent.getMeasurements()) {
+            if (!getfirstFullBiasNanos) firstFullBiasNanos = gnssClock.getFullBiasNanos();
+
             String svid = "";
             Integer prn = measurement.getSvid();
             String prnStr = "";
@@ -629,15 +634,40 @@ public class LoggerFileRINEX implements MainActivityListener {
                 continue;
             }
 
+            double timeNanos = gnssClock.getTimeNanos();
+            double timeOffsetNanos = measurement.getTimeOffsetNanos();
+            double ReceivedSvTimeNanos = measurement.getReceivedSvTimeNanos();
+
+            long fullBiasNanos;
+            if (gnssClock.hasFullBiasNanos()) {
+                fullBiasNanos = gnssClock.getFullBiasNanos();
+            } else fullBiasNanos = 0L;
+
+            double biasnanos;
             if (gnssClock.hasBiasNanos()) {
                 biasnanos = gnssClock.getBiasNanos();
             } else biasnanos = 0.0;
 
-            if (gnssClock.hasFullBiasNanos()) {
-                fullbiasnanos = gnssClock.getFullBiasNanos();
-            } else fullbiasnanos = 0L;
+            double timeUncertaintyNanos;
+            if (gnssClock.hasTimeUncertaintyNanos()) {
+                timeUncertaintyNanos = gnssClock.getTimeUncertaintyNanos();
+            } else timeUncertaintyNanos = 0.0;
 
-            gpsweek = fullbiasnanos * NS_TO_S / WEEKSECS;
+
+            int weekNum = (int) Math.floor(-(double) fullBiasNanos * 1.0e9 / WEEKSECS);
+            int weekNanos = (int) (WEEKSECS * 1.0e9);
+            int weekNumNanos = weekNum * weekNanos;
+
+            double tRxNanos = timeNanos - firstFullBiasNanos - weekNumNanos;
+
+            double tRxSeconds = ((double) tRxNanos - timeOffsetNanos - biasnanos) * 1.0e-9;
+            double tTxSeconds = (double) (ReceivedSvTimeNanos * 1.0e-9);
+
+            double travelTime = tRxSeconds - tTxSeconds;
+
+
+
+            /*gpsweek = fullbiasnanos * NS_TO_S / WEEKSECS;
             local_est_GPS_time = gnssClock.getTimeNanos() - (fullbiasnanos + biasnanos);
             gpssow = local_est_GPS_time * NS_TO_S - gpsweek * WEEKSECS;
 
@@ -653,15 +683,11 @@ public class LoggerFileRINEX implements MainActivityListener {
             Double secOfWeek = (-1 * fullbiasnanos * 1.0e-9) - weekNoSecs - biasnanos * 1.0e-9;
 
             tRxSeconds = secOfWeek + gnssClock.getTimeNanos() * 1.0e-9 + measurement.getTimeOffsetNanos() * 1.0e-9;
-            //tRxSeconds = gpssow - TimeOffsetNanos * NS_TO_S;
             tTxSeconds = measurement.getReceivedSvTimeNanos() * 1.0e-9;
-            travelTime = tRxSeconds - tTxSeconds;
+            travelTime = tRxSeconds - tTxSeconds;*/
 
-            //if (travelTime < 0) travelTime += GPS_WEEKSECS;
 
             Double c1 = travelTime * SPEED_OF_LIGHT;
-
-            //c1 -= fracPart * measurement.getPseudorangeRateMetersPerSecond();
 
             Double l1 = -measurement.getAccumulatedDeltaRangeMeters() / GPS_L1_WAVELENGTH;
 
