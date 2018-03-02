@@ -42,8 +42,8 @@ public class FileTCP {
     public String echo = "";
 
     String rawName = "", rinexName = "", nmeaName = "";
-    String[] path = new String[] {"", "", ""};
-    String[] prefix = new String[] {"/Raw", "/RINEX", "/NMEA"};
+    String[] path = new String[]{"", "", ""};
+    String[] prefix = new String[]{"/Raw", "/RINEX", "/NMEA"};
 
     String filePath = "";
     String fileName = "";
@@ -51,7 +51,7 @@ public class FileTCP {
 
     //int i = 0;
 
-    public void sendFile (String RawName, int type) {
+    public void sendFile(String RawName, int type) {
         this.mContext = MainActivity.getInstance().context;
 
         rawName = RawName;
@@ -82,10 +82,10 @@ public class FileTCP {
         }*/
     }
 
-    class Task extends AsyncTask<Void, Void, Void>{
+    class Task extends AsyncTask<Void, Void, Void> {
         @Override
-        protected Void doInBackground (Void... params) {
-            try{
+        protected Void doInBackground(Void... params) {
+            try {
                 socket = new Socket(IP, PORT);
 
                 //filePath = Environment.getExternalStorageDirectory().toString() + "/AAE01_GNSS_Data";
@@ -116,7 +116,7 @@ public class FileTCP {
                 out.close();
                 socket.close();*/
 
-            } catch (IOException e){
+            } catch (IOException e) {
 
             }
             return null;
@@ -126,71 +126,29 @@ public class FileTCP {
     class Task_t extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-            try{
+            try {
                 socket = new Socket(IP, PORT);
 
                 BufferedOutputStream outRaw = new BufferedOutputStream(socket.getOutputStream());
                 DataOutputStream dosRaw = new DataOutputStream(outRaw);
 
-                /*BufferedOutputStream outRinex = new BufferedOutputStream(socket.getOutputStream());
-                DataOutputStream dosRinex = new DataOutputStream(outRinex);
-
-                BufferedOutputStream outNmea = new BufferedOutputStream(socket.getOutputStream());
-                DataOutputStream dosNmea = new DataOutputStream(outNmea);*/
-
                 File rawfile = null;
-                File rinexfile = null;
-                File nmeafile = null;
 
                 String pathPrefix = Environment.getExternalStorageDirectory().toString() + "/AAE01_GNSS_Data";
+                String rawPath = pathPrefix + prefix[fileType];
 
-                //if (path[0] != "") {
-                    String rawPath = pathPrefix + prefix[fileType];
-                    rawfile = new File(rawPath, rawName);
-               // }
-                /*if (path[1] != "") {
-                    String rinexPath = pathPrefix + prefix[1];
-                    rinexfile = new File(rinexPath, rinexName);
-                }
-                if (path[2] != "") {
-                    String nmeaPath = pathPrefix + prefix[2];
-                    nmeafile = new File(nmeaPath, nmeaName);
-                }*/
+                rawfile = new File(rawPath, rawName);
 
                 dosRaw.writeUTF(rawName);
-                /*dosRinex.writeUTF(rinexName);
-                dosNmea.writeUTF(nmeaName);*/
 
-                //if (rawfile != null) {
-                    Files.copy(rawfile.toPath(), dosRaw);
-                //}
-                /*if (rinexfile != null) {
-                    Files.copy(rinexfile.toPath(), dosRinex);
-                }
-                if (nmeafile != null) {
-                    Files.copy(nmeafile.toPath(), dosNmea);
-                }*/
+                Files.copy(rawfile.toPath(), dosRaw);
 
                 outRaw.close();
                 dosRaw.close();
-
-                /*outRinex.close();
-                dosRinex.close();
-
-                outNmea.close();
-                dosNmea.close();*/
-
-                //long length = file.length();
-
-                //d.writeUTF(fileName);
-                //Files.copy(file.toPath(), d);
-
-                //out.close();
-                //d.close();
                 socket.close();
 
                 Log.d(TAG, "file finish");
-            } catch (IOException e){
+            } catch (IOException e) {
 
             }
             return null;
