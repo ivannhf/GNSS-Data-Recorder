@@ -31,9 +31,11 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -94,8 +96,7 @@ public class LoggerFileRINEX implements MainActivityListener {
         public void run() {
 
             if (mFileWriter != null) {
-                writeRecord();
-                Log.d(TAG, "Write record");
+                writeRecord1();
             }
             //Log.d(TAG, "write");
         }
@@ -548,6 +549,157 @@ public class LoggerFileRINEX implements MainActivityListener {
         return sysTime;
     }
 
+    private void writeRecord1() {
+        GnssMeasurementsEvent localMeasurementsEvent = gnssMeasurementsEvent;
+        GnssClock localClock = gnssClock;
+        GnssStatus localStatus = gnssStatus;
+
+        Integer satCount = 0;
+
+        double firstFullBiasNanos = 0;
+        boolean getfirstFullBiasNanos = false;
+
+        Set<String> svidSet = new HashSet<>();
+        Set<String> c1Set = new HashSet<>();
+        Set<String> l1Set = new HashSet<>();
+        Set<String> d1Set = new HashSet<>();
+        Set<String> s1Set = new HashSet<>();
+        int recCount = 0;
+
+        for (GnssMeasurement measurement : localMeasurementsEvent.getMeasurements()) {
+            if (!getfirstFullBiasNanos) firstFullBiasNanos = gnssClock.getFullBiasNanos();
+
+            String svid = "";
+            Integer prn = measurement.getSvid();
+            String prnStr = "";
+            if (prn < 10) {
+                prnStr = "0" + prn;
+            } else prnStr = "" + prn;
+            if (measurement.getConstellationType() == CONSTELLATION_GPS) {
+                svid = String.format("G%s", prnStr);
+            } else if (measurement.getConstellationType() == CONSTELLATION_GLONASS) {
+                if (prn >= 93) {
+                    Log.d(TAG, "skip measurement");
+                    continue;
+                } else svid = String.format("R%s", prnStr);
+            } else if (measurement.getConstellationType() == CONSTELLATION_GALILEO) {
+                svid = String.format("E%s", prnStr);
+            } else if (measurement.getConstellationType() == CONSTELLATION_BEIDOU) {
+                svid = String.format("C%s", prnStr);
+            } else if (measurement.getConstellationType() == CONSTELLATION_QZSS) {
+                Log.d(TAG, "skip measurement");
+                continue;
+            } else if (measurement.getConstellationType() == GnssStatus.CONSTELLATION_SBAS) {
+                Log.d(TAG, "skip measurement");
+                continue;
+            } else {
+                Log.d(TAG, "skip measurement");
+                continue;
+            }
+
+            double timeNanos = gnssClock.getTimeNanos();
+            double timeOffsetNanos = measurement.getTimeOffsetNanos();
+            double ReceivedSvTimeNanos = measurement.getReceivedSvTimeNanos();
+
+            long fullBiasNanos;
+            if (gnssClock.hasFullBiasNanos()) {
+                fullBiasNanos = gnssClock.getFullBiasNanos();
+            } else fullBiasNanos = 0L;
+
+            double biasnanos;
+            if (gnssClock.hasBiasNanos()) {
+                biasnanos = gnssClock.getBiasNanos();
+            } else biasnanos = 0.0;
+
+            double timeUncertaintyNanos;
+            if (gnssClock.hasTimeUncertaintyNanos()) {
+                timeUncertaintyNanos = gnssClock.getTimeUncertaintyNanos();
+            } else timeUncertaintyNanos = 0.0;
+
+
+            int weekNum = (int) Math.floor(-(double) fullBiasNanos * 1.0e9 / WEEKSECS);
+            int weekNanos = (int) (WEEKSECS * 1.0e9);
+            int weekNumNanos = weekNum * weekNanos;
+
+            double tRxNanos = timeNanos - firstFullBiasNanos - weekNumNanos;
+
+            double tRxSeconds = ((double) tRxNanos - timeOffsetNanos - biasnanos) * 1.0e-9;
+            double tTxSeconds = (double) (ReceivedSvTimeNanos * 1.0e-9);
+
+            double prSeconds = tRxSeconds - tTxSeconds;
+
+            if (prSeconds > (WEEKSECS / 2)) {
+                double prS = prSeconds;
+                double delS = Math.round(prS / WEEKSECS) * WEEKSECS;
+                prS -= delS;
+                int maxBiasSeconds = 10;
+                if (prS > maxBiasSeconds) {
+                    continue;
+                } else {
+                    prSeconds = prS;
+                    tRxSeconds -= delS;
+                }
+            }
+
+            Double c1 = prSeconds * SPEED_OF_LIGHT;
+
+            Double l1 = -measurement.getAccumulatedDeltaRangeMeters() / GPS_L1_WAVELENGTH;
+
+            Double d1 = -measurement.getPseudorangeRateMetersPerSecond() / GPS_L1_WAVELENGTH;
+
+            String obsStr = String.format("%.3f", c1);
+            String LL1Str = String.format("%.3f", l1);
+            String singalStr = String.format("%.3f", measurement.getCn0DbHz());
+            String d1Str = String.format("%.3f", d1);
+
+            svidSet.add(svid);
+            c1Set.add(obsStr);
+            l1Set.add(LL1Str);
+            s1Set.add(singalStr);
+            d1Set.add(d1Str);
+            recCount++;
+        }
+
+        recCount--;
+
+        String[] svidArr = svidSet.toArray(new String[]{});
+        String[] c1Arr = c1Set.toArray(new String[]{});
+        String[] l1Arr = l1Set.toArray(new String[]{});
+        String[] s1Arr = s1Set.toArray(new String[]{});
+        String[] d1Arr = d1Set.toArray(new String[]{});
+
+        Date date = satSysTime(satTypeint, leapSec);
+        String year = String.format("%1$tY", date);
+        String month = String.format("%1$tm", date);
+        String day = String.format("%1$te", date);
+        String hour = String.format("%1$tk", date);
+        String min = String.format("%1$tM", date);
+        Double sec_db = Double.parseDouble(String.format("%1$tS", date)) + Double.parseDouble(String.format("%1$tL", date)) / 1000.0 + Double.parseDouble(String.format("%1$tL", date)) / 1000000000.0;
+        String sec = String.format("%.7f", sec_db);
+        if (gnssStatus.getSatelliteCount() > 0) {
+            satCount = gnssStatus.getSatelliteCount();
+        } else satCount = 0;
+        try {
+            mFileWriter.write(">" + String.format("%5s", year) + String.format("%3s", month) + String.format("%3s", day)
+                    + String.format("%3s", hour) + String.format("%3s", min) + String.format("%11s", sec)
+                    + String.format("%3s", "0") + String.format("%3s", recCount + ""));
+            mFileWriter.newLine();
+        } catch (IOException e) {
+            Log.d(TAG, "fail");
+        }
+
+        Log.d(TAG, "Write record");
+
+        for (int i = 0; i < recCount; i++) {
+            try {
+                mFileWriter.write(svidArr[i] + String.format("%14s", c1Arr[i]) + String.format("%14s", l1Arr[i]) + String.format("%14s", s1Arr[i]) + String.format("%14s", d1Arr[i]));
+                mFileWriter.newLine();
+            } catch (IOException e) {
+                logException(ERROR_WRITING_FILE, e);
+            }
+        }
+    }
+
     private void writeRecord() {
         GnssMeasurementsEvent localMeasurementsEvent = gnssMeasurementsEvent;
         GnssClock localClock = gnssClock;
@@ -557,6 +709,12 @@ public class LoggerFileRINEX implements MainActivityListener {
 
         double firstFullBiasNanos = 0;
         boolean getfirstFullBiasNanos = false;
+
+        double[] c1Set = new double[]{};
+        double[] l1Set = new double[]{};
+        double[] d1Set = new double[]{};
+        double[] s1Set = new double[]{};
+        int recCount = 0;
 
         /*Long fullbiasnanos = 0L;
         Double biasnanos = 0.0;
@@ -663,9 +821,20 @@ public class LoggerFileRINEX implements MainActivityListener {
             double tRxSeconds = ((double) tRxNanos - timeOffsetNanos - biasnanos) * 1.0e-9;
             double tTxSeconds = (double) (ReceivedSvTimeNanos * 1.0e-9);
 
-            double travelTime = tRxSeconds - tTxSeconds;
+            double prSeconds = tRxSeconds - tTxSeconds;
 
-
+            if (prSeconds > (WEEKSECS / 2)) {
+                double prS = prSeconds;
+                double delS = Math.round(prS / WEEKSECS) * WEEKSECS;
+                prS -= delS;
+                int maxBiasSeconds = 10;
+                if (prS > maxBiasSeconds) {
+                    continue;
+                } else {
+                    prSeconds = prS;
+                    tRxSeconds -= delS;
+                }
+            }
 
             /*gpsweek = fullbiasnanos * NS_TO_S / WEEKSECS;
             local_est_GPS_time = gnssClock.getTimeNanos() - (fullbiasnanos + biasnanos);
@@ -687,7 +856,7 @@ public class LoggerFileRINEX implements MainActivityListener {
             travelTime = tRxSeconds - tTxSeconds;*/
 
 
-            Double c1 = travelTime * SPEED_OF_LIGHT;
+            Double c1 = prSeconds * SPEED_OF_LIGHT;
 
             Double l1 = -measurement.getAccumulatedDeltaRangeMeters() / GPS_L1_WAVELENGTH;
 
