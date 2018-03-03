@@ -408,7 +408,6 @@ public class MainActivity extends AppCompatActivity
             fragmentManager.beginTransaction().hide(positionFragment).hide(listFragment).hide(logFragment).hide(mapFragment).hide(toolFragment).commit();
             fragmentManager.beginTransaction().detach(radarFragment).commit();
             fragmentManager.beginTransaction().detach(radarFragment).hide(radarFragment).commit();
-            radarFragment = null;
         }
 
         if ((id != R.id.nav_log) && (id != R.id.nav_quit) && (id != R.id.nav_info)) {
@@ -424,7 +423,6 @@ public class MainActivity extends AppCompatActivity
                     .show(listFragment)
                     .commit();
         } else if (id == R.id.nav_radar) {
-            radarFragment = new RadarFragment();
             fragmentManager.beginTransaction().detach(radarFragment).attach(radarFragment).commit();
             fragmentManager.beginTransaction()
                     .show(radarFragment)

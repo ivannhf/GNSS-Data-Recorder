@@ -1,11 +1,13 @@
 package fyp.recorder;
 
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
+import android.provider.SyncStateContract;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +25,7 @@ public class settings extends PreferenceActivity {
     SharedPreferences.OnSharedPreferenceChangeListener rawLogListener, sendLogTCP;
 
     Boolean logRaw = false;
+    boolean sendLog = false;
 
     @SuppressWarnings("deprecation")
     @Override
@@ -51,7 +54,7 @@ public class settings extends PreferenceActivity {
         sendLogTCP = new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                boolean sendLog = preferences.getBoolean(getString(R.string.pref_key_send_to_tcp), true);
+                sendLog = preferences.getBoolean(getString(R.string.pref_key_send_to_tcp), true);
                 getPreferenceScreen().findPreference(getString(R.string.pref_key_ip_address)).setEnabled(sendLog);
                 getPreferenceScreen().findPreference(getString(R.string.pref_key_port)).setEnabled(sendLog);
             }
@@ -88,5 +91,24 @@ public class settings extends PreferenceActivity {
             }
         });
 
+    }
+
+    public void onResume(){
+        super.onResume();
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("settings", Context.MODE_PRIVATE);
+
+        sendLog = pref.getBoolean(getString(R.string.pref_key_send_to_tcp), true);
+        getPreferenceScreen().findPreference(getString(R.string.pref_key_ip_address)).setEnabled(sendLog);
+        getPreferenceScreen().findPreference(getString(R.string.pref_key_port)).setEnabled(sendLog);
+
+        Set<String> selections = pref.getStringSet(getString(R.string.pref_key_log_type), null);
+        String[] selected = selections.toArray(new String[]{});
+        logRaw = false;
+        for (int i = 0; i < selected.length; i++) {
+            if (Integer.parseInt(selected[i]) == 1) {
+                logRaw = true;
+            }
+        }
+        getPreferenceScreen().findPreference(getString(R.string.pref_key_raw_log_type)).setEnabled(logRaw);
     }
 }

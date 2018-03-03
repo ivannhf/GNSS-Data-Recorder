@@ -564,6 +564,13 @@ public class LoggerFileRINEX implements MainActivityListener {
         Set<String> l1Set = new HashSet<>();
         Set<String> d1Set = new HashSet<>();
         Set<String> s1Set = new HashSet<>();
+
+        String[] svidArr =new String[100];
+        String[] c1Arr = new String[100];
+        String[] l1Arr = new String[100];
+        String[] s1Arr = new String[100];
+        String[] d1Arr = new String[100];
+
         int recCount = 0;
 
         for (GnssMeasurement measurement : localMeasurementsEvent.getMeasurements()) {
@@ -657,16 +664,21 @@ public class LoggerFileRINEX implements MainActivityListener {
             l1Set.add(LL1Str);
             s1Set.add(singalStr);
             d1Set.add(d1Str);
+
+            svidArr[recCount] = svid;
+            c1Arr[recCount] = obsStr;
+            l1Arr[recCount] = LL1Str;
+            s1Arr[recCount] = singalStr;
+            d1Arr[recCount] = d1Str;
+
             recCount++;
         }
 
-        recCount--;
-
-        String[] svidArr = svidSet.toArray(new String[]{});
+        /*String[] svidArr = svidSet.toArray(new String[]{});
         String[] c1Arr = c1Set.toArray(new String[]{});
         String[] l1Arr = l1Set.toArray(new String[]{});
         String[] s1Arr = s1Set.toArray(new String[]{});
-        String[] d1Arr = d1Set.toArray(new String[]{});
+        String[] d1Arr = d1Set.toArray(new String[]{});*/
 
         Date date = satSysTime(satTypeint, leapSec);
         String year = String.format("%1$tY", date);
@@ -688,7 +700,7 @@ public class LoggerFileRINEX implements MainActivityListener {
             Log.d(TAG, "fail");
         }
 
-        Log.d(TAG, "Write record: " + recCount);
+        //Log.d(TAG, "Write record: " + recCount + " " + svidArr.length + " " + c1Arr.length + " " + l1Arr.length + " " + s1Arr.length + " " + d1Arr.length);
 
         if (recCount < 1) return;
         for (int i = 1; i < recCount; i++) {
