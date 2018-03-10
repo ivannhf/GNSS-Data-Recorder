@@ -324,14 +324,9 @@ public class MainActivity extends AppCompatActivity
 
         String[] path = new String[]{rawPath, rinexPath, nmeaPath};
 
-        if (setting.getBoolean(getString(R.string.pref_key_send_to_tcp), true)) {
-            for (int i = 0; i < 2; i++) {
-                if (path[i].compareTo("") == 0) continue;
-                fileTCP = new FileTCP();
-                fileTCP.sendFile(path[i], i);
-                fileTCP = null;
-            }
-        }
+        fileTCP = new FileTCP();
+        Log.d(TAG, "Start send");
+        fileTCP.sendFile(rawPath, 0);
     }
 
     public boolean showQuitDialog() {

@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
+import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 
 import java.io.BufferedOutputStream;
@@ -72,16 +73,8 @@ public class FileTCP {
         IP = setting.getString(mContext.getString(R.string.pref_key_ip_address), "");
         PORT = Integer.parseInt(setting.getString(mContext.getString(R.string.pref_key_port), "8080"));
 
-        Task_t task = new Task_t();
-        task.execute();
-
-        /*for (int i = 0; i < 2; i++) {
-            if(path[i] == "") continue;
-            filePath = Environment.getExternalStorageDirectory().toString() + "/AAE01_GNSS_Data" + prefix[i];
-            fileName = path[i];
-            Task_t task = new Task_t();
-            task.execute();
-        }*/
+        TaskFTP taskFTP = new TaskFTP();
+        taskFTP.execute();
     }
 
     class TaskFTP extends AsyncTask<Void, Void, Void> {
@@ -91,10 +84,21 @@ public class FileTCP {
                 FTPClient ftpClient = new FTPClient();
                 ftpClient.connect(IP, PORT);
 
-                ftpClient.setSoTimeout(10000);
+                ftpClient.setSoTimeout(100000);
                 ftpClient.enterLocalPassiveMode();
 
+                ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+                ftpClient.setFileTransferMode(FTP.BINARY_FILE_TYPE);
 
+                String pathPrefix = Environment.getExternalStorageDirectory().toString() + "/AAE01_GNSS_Data";
+                String rawPath = pathPrefix + prefix[fileType];
+
+                File file = new File(rawPath, rawName);
+
+                FileInputStream fs = new FileInputStream(file);
+
+                ftpClient.storeFile(fileName, fs);
+                fs.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
