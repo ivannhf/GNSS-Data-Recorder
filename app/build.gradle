@@ -36,4 +36,5 @@ dependencies {
     compile 'com.android.support:support-v4:27.0.2'
     compile 'com.android.support:design:27.0.2'
     compile 'com.google.guava:guava:23.6-android'
+    implementation files('src/lib/commons-net-3.6.jar')
 }

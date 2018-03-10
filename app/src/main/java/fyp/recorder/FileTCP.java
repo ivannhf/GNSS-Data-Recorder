@@ -6,6 +6,8 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
+import org.apache.commons.net.ftp.FTPClient;
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -80,6 +82,24 @@ public class FileTCP {
             Task_t task = new Task_t();
             task.execute();
         }*/
+    }
+
+    class TaskFTP extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                FTPClient ftpClient = new FTPClient();
+                ftpClient.connect(IP, PORT);
+
+                ftpClient.setSoTimeout(10000);
+                ftpClient.enterLocalPassiveMode();
+
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
     }
 
     class Task extends AsyncTask<Void, Void, Void> {
