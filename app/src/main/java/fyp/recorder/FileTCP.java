@@ -9,6 +9,7 @@ import android.util.Log;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -83,22 +84,29 @@ public class FileTCP {
             try {
                 FTPClient ftpClient = new FTPClient();
                 ftpClient.connect(IP, PORT);
+                ftpClient.login("anonymous", "");
 
                 ftpClient.setSoTimeout(100000);
                 ftpClient.enterLocalPassiveMode();
 
-                ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
-                ftpClient.setFileTransferMode(FTP.BINARY_FILE_TYPE);
+                ftpClient.setFileType(FTP.STREAM_TRANSFER_MODE);
+                ftpClient.setFileTransferMode(FTP.STREAM_TRANSFER_MODE);
 
                 String pathPrefix = Environment.getExternalStorageDirectory().toString() + "/AAE01_GNSS_Data";
                 String rawPath = pathPrefix + prefix[fileType];
 
-                File file = new File(rawPath, rawName);
+                //Log.d(TAG, rawName + " _ from _ " + rawPath + " " + ftpClient.getStatus());
+                //File file = new File(rawPath, rawName);
+                File file = new File(pathPrefix, "test.txt");
+                Log.d(TAG, file + "\n" + ftpClient.getStatus());
 
                 FileInputStream fs = new FileInputStream(file);
 
                 ftpClient.storeFile(fileName, fs);
                 fs.close();
+
+                ftpClient.disconnect();
+                Log.d(TAG, "Sent");
             } catch (IOException e) {
                 e.printStackTrace();
             }

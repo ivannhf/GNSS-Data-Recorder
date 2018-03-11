@@ -325,7 +325,6 @@ public class MainActivity extends AppCompatActivity
         String[] path = new String[]{rawPath, rinexPath, nmeaPath};
 
         fileTCP = new FileTCP();
-        Log.d(TAG, "Start send");
         fileTCP.sendFile(rawPath, 0);
     }
 
