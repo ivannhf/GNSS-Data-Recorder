@@ -83,6 +83,7 @@ public class FileTCP {
             try {
                 FTPClient ftpClient = new FTPClient();
                 ftpClient.connect(IP, PORT);
+                ftpClient.login("anonymous", "");
 
                 ftpClient.setSoTimeout(100000);
                 ftpClient.enterLocalPassiveMode();
@@ -93,13 +94,17 @@ public class FileTCP {
                 String pathPrefix = Environment.getExternalStorageDirectory().toString() + "/AAE01_GNSS_Data";
                 String rawPath = pathPrefix + prefix[fileType];
 
-                File file = new File(rawPath, rawName);
+                File file = new File(pathPrefix, "test.txt");
+
+                Log.d(TAG, "Sending " + file + " to " + ftpClient.getStatus());
 
                 FileInputStream fs = new FileInputStream(file);
 
-                ftpClient.storeFile(fileName, fs);
+                ftpClient.storeFile("test.txt", fs);
                 fs.close();
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return null;

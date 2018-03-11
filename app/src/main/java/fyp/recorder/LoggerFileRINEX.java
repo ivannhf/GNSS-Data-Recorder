@@ -709,6 +709,7 @@ public class LoggerFileRINEX implements MainActivityListener {
                 mFileWriter.newLine();
             } catch (IOException e) {
                 logException(ERROR_WRITING_FILE, e);
+                Log.d(TAG, "cannot write");
             }
         }
     }
