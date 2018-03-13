@@ -88,7 +88,7 @@ public class FileTCP {
 
                 //File file = new File(pathPrefix, "test.txt");
 
-                String temp = pathPrefix + "/test.txt";
+                String temp = pathPrefix + "/test1.txt";
                 File file = new File(temp);
 
                 Log.d(TAG, "Sending " + file + " " + file.exists());
