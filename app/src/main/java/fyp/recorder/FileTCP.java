@@ -9,6 +9,7 @@ import android.util.Log;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -23,6 +24,8 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 
 import fyp.layout.R;
 
@@ -88,11 +91,6 @@ public class FileTCP {
 
                 //File file = new File(pathPrefix, "test.txt");
 
-                String temp = pathPrefix + "/test1.txt";
-                File file = new File(temp);
-
-                Log.d(TAG, "Sending " + file + " " + file.exists());
-
                 FTPClient ftpClient = new FTPClient();
                 ftpClient.connect(IP, PORT);
 
@@ -104,10 +102,24 @@ public class FileTCP {
                     ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
                     ftpClient.setFileTransferMode(FTP.BINARY_FILE_TYPE);
 
-                    FileInputStream fs = new FileInputStream(file);
+                    String temp = pathPrefix + "/test.txt";
+                    File file = null;
+                    FileInputStream fs = null;
 
-                    Log.d(TAG, "Sent " + ftpClient.storeFile("test.txt", fs));
-                    fs.close();
+                    List<File> fileList= new ArrayList<File>();
+                    fileList.add(new File(pathPrefix + "/test.txt"));
+                    fileList.add(new File(pathPrefix + "/test1.txt"));
+                    fileList.add(new File(pathPrefix + "/test2.txt"));
+
+                    for(File upFile : fileList) {
+                        Log.d(TAG, "Sending " + upFile + " " + upFile.exists());
+
+                        fs = new FileInputStream(upFile);
+
+                        Log.d(TAG, "Sent " + ftpClient.storeFile(upFile.getName(), fs));
+
+                        fs.close();
+                    }
 
                     ftpClient.logout();
                     ftpClient.disconnect();
