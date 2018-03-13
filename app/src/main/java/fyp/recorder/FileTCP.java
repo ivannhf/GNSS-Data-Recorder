@@ -86,7 +86,10 @@ public class FileTCP {
                 String pathPrefix = Environment.getExternalStorageDirectory().toString() + "/AAE01_GNSS_Data";
                 String rawPath = pathPrefix + prefix[fileType];
 
-                File file = new File(pathPrefix, "test.txt");
+                //File file = new File(pathPrefix, "test.txt");
+
+                String temp = pathPrefix + "/test.txt";
+                File file = new File(temp);
 
                 Log.d(TAG, "Sending " + file + " " + file.exists());
 
@@ -109,6 +112,7 @@ public class FileTCP {
                     ftpClient.logout();
                     ftpClient.disconnect();
                 }
+
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (Exception e) {
