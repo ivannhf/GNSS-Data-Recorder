@@ -57,30 +57,46 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="@string/pref_key_tcp_category"
-        android:title="@string/pref_tcp_category_title">
+        android:key="@string/pref_key_ftp_category"
+        android:title="@string/pref_ftp_category_title">
 
         <CheckBoxPreference
             android:defaultValue="true"
-            android:key="@string/pref_key_send_to_tcp"
-            android:title="@string/pref_send_to_tcp" />
+            android:key="@string/pref_key_send_to_ftp"
+            android:title="@string/pref_send_to_ftp" />
 
         <EditTextPreference
             android:defaultValue="0.0.0.0"
             android:key="@string/pref_key_ip_address"
             android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:title="@string/pref_tcp_ip_title"
+            android:title="@string/pref_ftp_ip_title"
             android:inputType="none"/>
 
         <EditTextPreference
-            android:defaultValue="8080"
+            android:defaultValue="21"
             android:key="@string/pref_key_port"
             android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:title="@string/pref_tcp_port_title"
+            android:title="@string/pref_ftp_port_title"
             android:inputType="number"
             android:digits="0123456789"/>
+
+        <EditTextPreference
+            android:defaultValue="@string/pref_ftp_login_name_default"
+            android:key="@string/pref_key_ftp_login_name"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_ftp_login_name"
+            android:hint="Leave black if anonymous login"/>
+
+        <EditTextPreference
+            android:defaultValue="@string/pref_ftp_login_name_default"
+            android:key="@string/pref_key_ftp_login_pw"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_ftp_login_pw"
+            android:password="true"/>
 
     </PreferenceCategory>
 
