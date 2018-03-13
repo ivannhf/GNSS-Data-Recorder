@@ -81,27 +81,34 @@ public class FileTCP {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                FTPClient ftpClient = new FTPClient();
-                ftpClient.connect(IP, PORT);
-                ftpClient.login("anonymous", "");
 
-                ftpClient.setSoTimeout(100000);
-                ftpClient.enterLocalPassiveMode();
-
-                ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
-                ftpClient.setFileTransferMode(FTP.BINARY_FILE_TYPE);
 
                 String pathPrefix = Environment.getExternalStorageDirectory().toString() + "/AAE01_GNSS_Data";
                 String rawPath = pathPrefix + prefix[fileType];
 
                 File file = new File(pathPrefix, "test.txt");
 
-                Log.d(TAG, "Sending " + file + " to " + ftpClient.getStatus());
+                Log.d(TAG, "Sending " + file + " " + file.exists());
 
-                FileInputStream fs = new FileInputStream(file);
+                FTPClient ftpClient = new FTPClient();
+                ftpClient.connect(IP, PORT);
 
-                ftpClient.storeFile("test.txt", fs);
-                fs.close();
+                if(ftpClient.login("anonymous", "")) {
+
+                    ftpClient.setSoTimeout(100000);
+                    ftpClient.enterLocalPassiveMode();
+
+                    ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+                    ftpClient.setFileTransferMode(FTP.BINARY_FILE_TYPE);
+
+                    FileInputStream fs = new FileInputStream(file);
+
+                    Log.d(TAG, "Sent " + ftpClient.storeFile("test.txt", fs));
+                    fs.close();
+
+                    ftpClient.logout();
+                    ftpClient.disconnect();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (Exception e) {
