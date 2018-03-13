@@ -9,6 +9,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.provider.SyncStateContract;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,10 +23,11 @@ public class settings extends PreferenceActivity {
 
     private Toolbar mActionBar;
 
-    SharedPreferences.OnSharedPreferenceChangeListener rawLogListener, sendLogTCP;
+    SharedPreferences.OnSharedPreferenceChangeListener rawLogListener, sendLogFTP, hasLoginName;
 
     Boolean logRaw = false;
     boolean sendLog = false;
+    boolean loginName = false;
 
     @SuppressWarnings("deprecation")
     @Override
@@ -51,15 +53,33 @@ public class settings extends PreferenceActivity {
         };
         preferences.registerOnSharedPreferenceChangeListener(rawLogListener);
 
-        sendLogTCP = new SharedPreferences.OnSharedPreferenceChangeListener() {
+        sendLogFTP = new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                sendLog = preferences.getBoolean(getString(R.string.pref_key_send_to_tcp), true);
+                sendLog = preferences.getBoolean(getString(R.string.pref_key_send_to_ftp), true);
                 getPreferenceScreen().findPreference(getString(R.string.pref_key_ip_address)).setEnabled(sendLog);
                 getPreferenceScreen().findPreference(getString(R.string.pref_key_port)).setEnabled(sendLog);
+                getPreferenceScreen().findPreference(getString(R.string.pref_key_ftp_login_name)).setEnabled(sendLog);
+                getPreferenceScreen().findPreference(getString(R.string.pref_key_ftp_login_pw)).setEnabled((sendLog && loginName));
             }
         };
-        preferences.registerOnSharedPreferenceChangeListener(sendLogTCP);
+        preferences.registerOnSharedPreferenceChangeListener(sendLogFTP);
+
+        hasLoginName = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                String name = preferences.getString(getString(R.string.pref_key_ftp_login_name), "");
+                if (name.compareTo("") == 0) {
+                    loginName = false;
+                    getPreferenceScreen().findPreference(getString(R.string.pref_key_ftp_login_name)).setSummary("Now is anonymous login");
+                } else {
+                    loginName = true;
+                    getPreferenceScreen().findPreference(getString(R.string.pref_key_ftp_login_name)).setSummary("Now login as " + name);
+                }
+                getPreferenceScreen().findPreference(getString(R.string.pref_key_ftp_login_pw)).setEnabled((sendLog && loginName));
+            }
+        };
+        preferences.registerOnSharedPreferenceChangeListener(hasLoginName);
     }
 
     @Override
@@ -93,13 +113,25 @@ public class settings extends PreferenceActivity {
 
     }
 
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         SharedPreferences pref = getApplicationContext().getSharedPreferences("settings", Context.MODE_PRIVATE);
 
-        sendLog = pref.getBoolean(getString(R.string.pref_key_send_to_tcp), true);
+        sendLog = pref.getBoolean(getString(R.string.pref_key_send_to_ftp), true);
         getPreferenceScreen().findPreference(getString(R.string.pref_key_ip_address)).setEnabled(sendLog);
         getPreferenceScreen().findPreference(getString(R.string.pref_key_port)).setEnabled(sendLog);
+
+        String name = pref.getString(getString(R.string.pref_key_ftp_login_name), "");
+        if (name.compareTo("") == 0) {
+            loginName = false;
+            getPreferenceScreen().findPreference(getString(R.string.pref_key_ftp_login_name)).setSummary("Now is anonymous login");
+        } else {
+            loginName = true;
+            getPreferenceScreen().findPreference(getString(R.string.pref_key_ftp_login_name)).setSummary("Now login as " + name);
+        }
+
+        getPreferenceScreen().findPreference(getString(R.string.pref_key_ftp_login_name)).setEnabled(sendLog);
+        getPreferenceScreen().findPreference(getString(R.string.pref_key_ftp_login_pw)).setEnabled((sendLog && loginName));
 
         Set<String> selections = pref.getStringSet(getString(R.string.pref_key_log_type), null);
         String[] selected = selections.toArray(new String[]{});
@@ -110,5 +142,6 @@ public class settings extends PreferenceActivity {
             }
         }
         getPreferenceScreen().findPreference(getString(R.string.pref_key_raw_log_type)).setEnabled(logRaw);
+
     }
 }

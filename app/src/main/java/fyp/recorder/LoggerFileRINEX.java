@@ -574,6 +574,8 @@ public class LoggerFileRINEX implements MainActivityListener {
         int recCount = 0;
 
         for (GnssMeasurement measurement : localMeasurementsEvent.getMeasurements()) {
+            boolean satSkip = false;
+
             if (!getfirstFullBiasNanos) firstFullBiasNanos = gnssClock.getFullBiasNanos();
 
             String svid = "";
@@ -587,6 +589,7 @@ public class LoggerFileRINEX implements MainActivityListener {
             } else if (measurement.getConstellationType() == CONSTELLATION_GLONASS) {
                 if (prn >= 93) {
                     Log.d(TAG, "skip measurement");
+                    satSkip = true;
                     continue;
                 } else svid = String.format("R%s", prnStr);
             } else if (measurement.getConstellationType() == CONSTELLATION_GALILEO) {
@@ -595,14 +598,19 @@ public class LoggerFileRINEX implements MainActivityListener {
                 svid = String.format("C%s", prnStr);
             } else if (measurement.getConstellationType() == CONSTELLATION_QZSS) {
                 Log.d(TAG, "skip measurement");
+                satSkip = true;
                 continue;
             } else if (measurement.getConstellationType() == GnssStatus.CONSTELLATION_SBAS) {
                 Log.d(TAG, "skip measurement");
+                satSkip = true;
                 continue;
             } else {
                 Log.d(TAG, "skip measurement");
+                satSkip = true;
                 continue;
             }
+
+            if(satSkip) continue;
 
             double timeNanos = gnssClock.getTimeNanos();
             double timeOffsetNanos = measurement.getTimeOffsetNanos();
@@ -641,12 +649,15 @@ public class LoggerFileRINEX implements MainActivityListener {
                 prS -= delS;
                 int maxBiasSeconds = 10;
                 if (prS > maxBiasSeconds) {
+                    satSkip = true;
                     continue;
                 } else {
                     prSeconds = prS;
                     tRxSeconds -= delS;
                 }
             }
+
+            if(satSkip) continue;
 
             Double c1 = prSeconds * SPEED_OF_LIGHT;
 
@@ -709,6 +720,7 @@ public class LoggerFileRINEX implements MainActivityListener {
                 mFileWriter.newLine();
             } catch (IOException e) {
                 logException(ERROR_WRITING_FILE, e);
+                Log.d(TAG, "cannot write");
             }
         }
     }
