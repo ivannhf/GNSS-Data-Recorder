@@ -50,6 +50,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import fyp.layout.R;
@@ -310,22 +311,27 @@ public class MainActivity extends AppCompatActivity
         logging = false;
         if (logRaw) {
             loggerFile.send();
-            rawPath = loggerFile.outFileName;
+            rawPath = loggerFile.outFilePath;
         }
         if (logRINEX) {
             loggerFileRINEX.send();
-            rinexPath = loggerFileRINEX.outFileName;
+            rinexPath = loggerFileRINEX.outFilePath;
         }
         if (logNMEA) {
             loggerFileNMEA.send();
-            nmeaPath = loggerFileNMEA.outFileName;
+            nmeaPath = loggerFileNMEA.outFilePath;
         }
         Log.d(TAG, "Stop Logging");
 
-        String[] path = new String[]{rawPath, rinexPath, nmeaPath};
+        List<String> pathList = new ArrayList<>();
+        pathList.add(rawPath);
+        pathList.add(rinexPath);
+        pathList.add(nmeaPath);
+
+        Log.d(TAG, pathList + "");
 
         fileTCP = new FileTCP();
-        fileTCP.sendFile(rawPath, 0);
+        fileTCP.sendFile(pathList);
     }
 
     public boolean showQuitDialog() {

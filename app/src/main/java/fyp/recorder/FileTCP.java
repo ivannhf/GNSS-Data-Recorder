@@ -44,12 +44,15 @@ public class FileTCP {
 
     private String IP = "192.168.0.122";
     private int PORT = 8080;
+    private String loginName = "anonymous";
+    private String loginPW = "";
 
     public String echo = "";
 
     String rawName = "", rinexName = "", nmeaName = "";
     String[] path = new String[]{"", "", ""};
     String[] prefix = new String[]{"/Raw", "/RINEX", "/NMEA"};
+    List<String> logPath;
 
     String filePath = "";
     String fileName = "";
@@ -57,24 +60,21 @@ public class FileTCP {
 
     //int i = 0;
 
-    public void sendFile(String RawName, int type) {
+    public void sendFile(List<String> path) {
         this.mContext = MainActivity.getInstance().context;
 
-        rawName = RawName;
-
-        fileType = type;
-        /*rinexName = RINEXName;
-        nmeaName = NMEAName;
-
-        path[0] = RawName;
-        path[1] = RINEXName;
-        path[2] = NMEAName;*/
-
-        //Log.d(TAG, "sending: " + rawPath + " to " + IP + ":" + PORT);
+        logPath = path;
 
         SharedPreferences setting = mContext.getSharedPreferences("settings", MODE_PRIVATE);
         IP = setting.getString(mContext.getString(R.string.pref_key_ip_address), "");
         PORT = Integer.parseInt(setting.getString(mContext.getString(R.string.pref_key_port), "8080"));
+        loginName = setting.getString(mContext.getString(R.string.pref_key_ftp_login_name), "anonymous");
+        loginPW = setting.getString(mContext.getString(R.string.pref_key_ftp_login_pw), "");
+
+        if(loginName.compareTo("") == 0) {
+            loginName = "anonymous";
+            loginPW = "";
+        }
 
         TaskFTP taskFTP = new TaskFTP();
         taskFTP.execute();
@@ -84,34 +84,27 @@ public class FileTCP {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-
-
-                String pathPrefix = Environment.getExternalStorageDirectory().toString() + "/AAE01_GNSS_Data";
-                String rawPath = pathPrefix + prefix[fileType];
-
-                //File file = new File(pathPrefix, "test.txt");
+                //String pathPrefix = Environment.getExternalStorageDirectory().toString() + "/AAE01_GNSS_Data";
 
                 FTPClient ftpClient = new FTPClient();
                 ftpClient.connect(IP, PORT);
 
-                if(ftpClient.login("anonymous", "")) {
+                if(ftpClient.login(loginName, loginPW)) {
 
                     ftpClient.setSoTimeout(100000);
                     ftpClient.enterLocalPassiveMode();
 
                     ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
                     ftpClient.setFileTransferMode(FTP.BINARY_FILE_TYPE);
-
-                    String temp = pathPrefix + "/test.txt";
-                    File file = null;
                     FileInputStream fs = null;
 
-                    List<File> fileList= new ArrayList<File>();
-                    fileList.add(new File(pathPrefix + "/test.txt"));
-                    fileList.add(new File(pathPrefix + "/test1.txt"));
-                    fileList.add(new File(pathPrefix + "/test2.txt"));
+                    for(String pathStr : logPath) {
+                        if (pathStr.compareTo("") == 0) continue;
 
-                    for(File upFile : fileList) {
+                        //File upFile = new File(Environment.getExternalStorageDirectory().toString() + "/" + pathStr);
+
+                        File upFile = new File(pathStr);
+
                         Log.d(TAG, "Sending " + upFile + " " + upFile.exists());
 
                         fs = new FileInputStream(upFile);
