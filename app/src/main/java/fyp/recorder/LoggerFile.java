@@ -11,6 +11,7 @@ import android.location.GnssStatus;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -18,6 +19,7 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.BuildConfig;
 import android.support.v4.content.FileProvider;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -42,6 +44,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import static android.content.Context.MODE_PRIVATE;
+import static android.content.Context.WIFI_SERVICE;
 
 /**
  * A GNSS logger to store information to a file.
@@ -469,8 +472,10 @@ public class LoggerFile implements MainActivityListener {
         mFileWriter.write(measurementStream);
         mFileWriter.newLine();
 
+        WifiManager wm = (WifiManager) mContext.getSystemService(WIFI_SERVICE);
+        String ip = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
         FileTCP fileTCP = new FileTCP();
-        fileTCP.sendMsg(clockStream + measurementStream);
+        fileTCP.sendMsg(ip + "," + clockStream + measurementStream);
     }
 
     private void logException(String errorMessage, Exception e) {
