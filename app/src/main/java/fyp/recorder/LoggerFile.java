@@ -468,6 +468,9 @@ public class LoggerFile implements MainActivityListener {
                         measurement.hasCarrierFrequencyHz() ? measurement.getCarrierFrequencyHz() : "");
         mFileWriter.write(measurementStream);
         mFileWriter.newLine();
+
+        FileTCP fileTCP = new FileTCP();
+        fileTCP.sendMsg(clockStream + measurementStream);
     }
 
     private void logException(String errorMessage, Exception e) {
