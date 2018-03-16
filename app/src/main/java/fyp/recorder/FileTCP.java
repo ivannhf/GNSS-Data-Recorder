@@ -84,6 +84,13 @@ public class FileTCP {
         @Override
         protected Void doInBackground(Void... params) {
             try {
+                socket = new Socket("192.168.0.122", 8080);
+                printWriter = new PrintWriter(socket.getOutputStream());
+                printWriter.write("Success");
+
+                printWriter.flush();
+                printWriter.close();
+                socket.close();
                 //String pathPrefix = Environment.getExternalStorageDirectory().toString() + "/AAE01_GNSS_Data";
 
                 FTPClient ftpClient = new FTPClient();
