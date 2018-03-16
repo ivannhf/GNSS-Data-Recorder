@@ -47,7 +47,7 @@ public class FileTCP {
     private String loginName = "anonymous";
     private String loginPW = "";
 
-    public String echo = "";
+    public String message = "";
 
     String rawName = "", rinexName = "", nmeaName = "";
     String[] path = new String[]{"", "", ""};
@@ -80,17 +80,19 @@ public class FileTCP {
         taskFTP.execute();
     }
 
+    public void sendMsg(String msg) {
+        this.mContext = MainActivity.getInstance().context;
+
+        message = msg;
+
+        MsgTCP msgTCP = new MsgTCP();
+        msgTCP.execute();
+    }
+
     class TaskFTP extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                socket = new Socket("192.168.0.122", 8080);
-                printWriter = new PrintWriter(socket.getOutputStream());
-                printWriter.write("Success");
-
-                printWriter.flush();
-                printWriter.close();
-                socket.close();
                 //String pathPrefix = Environment.getExternalStorageDirectory().toString() + "/AAE01_GNSS_Data";
 
                 FTPClient ftpClient = new FTPClient();
@@ -134,72 +136,17 @@ public class FileTCP {
         }
     }
 
-    class Task extends AsyncTask<Void, Void, Void> {
+    class MsgTCP extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                socket = new Socket(IP, PORT);
-
-                //filePath = Environment.getExternalStorageDirectory().toString() + "/AAE01_GNSS_Data";
-                //fileName = "test.txt";
-
-                File file = new File(filePath, fileName);
-                long length = file.length();
-
-                byte[] bytes = new byte[4096];
-                InputStream in = new FileInputStream(file);
-                OutputStream out = socket.getOutputStream();
-                int count;
-                while ((count = in.read(bytes)) > 0) {
-                    out.write(bytes, 0, count);
-                }
-                Log.d(TAG, "JPG finish");
-
-                out.close();
-                in.close();
-                socket.close();
-
-                /*printWriter = new PrintWriter(socket.getOutputStream());
-                printWriter.write("Success");
+                socket = new Socket("192.168.0.122", 8080);
+                printWriter = new PrintWriter(socket.getOutputStream());
+                printWriter.write(message);
 
                 printWriter.flush();
                 printWriter.close();
-                in.close();
-                out.close();
-                socket.close();*/
-
-            } catch (IOException e) {
-
-            }
-            return null;
-        }
-    }
-
-    class Task_t extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                socket = new Socket(IP, PORT);
-
-                BufferedOutputStream outRaw = new BufferedOutputStream(socket.getOutputStream());
-                DataOutputStream dosRaw = new DataOutputStream(outRaw);
-
-                File rawfile = null;
-
-                String pathPrefix = Environment.getExternalStorageDirectory().toString() + "/AAE01_GNSS_Data";
-                String rawPath = pathPrefix + prefix[fileType];
-
-                rawfile = new File(rawPath, rawName);
-
-                dosRaw.writeUTF(rawName);
-
-                Files.copy(rawfile.toPath(), dosRaw);
-
-                outRaw.close();
-                dosRaw.close();
                 socket.close();
-
-                Log.d(TAG, "file finish");
             } catch (IOException e) {
 
             }
