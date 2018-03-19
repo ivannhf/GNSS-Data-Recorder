@@ -10,7 +10,7 @@ android {
     compileSdkVersion 26
     buildToolsVersion '26.0.2'
     defaultConfig {
-        applicationId 'com.android.gnss.data.recorder'
+        applicationId 'gnss.data.recorder'
         minSdkVersion 24
         targetSdkVersion 27
         versionCode 1
