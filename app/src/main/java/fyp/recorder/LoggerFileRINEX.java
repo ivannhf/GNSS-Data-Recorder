@@ -45,6 +45,7 @@ import static android.location.GnssStatus.CONSTELLATION_GALILEO;
 import static android.location.GnssStatus.CONSTELLATION_GLONASS;
 import static android.location.GnssStatus.CONSTELLATION_GPS;
 import static android.location.GnssStatus.CONSTELLATION_QZSS;
+import static java.lang.Math.floor;
 
 /**
  * A GNSS logger to store information to a file.
@@ -59,7 +60,7 @@ public class LoggerFileRINEX implements MainActivityListener {
     private static final char RECORD_DELIMITER = ',';
     private static final String VERSION_TAG = "Version: ";
 
-    private static final String RINEX_VERSION = "3.03";
+    private static final String RINEX_VERSION = "3.02";
     private static final String RINEX_TYPE = "OBSERVATION DATA";
     private static final String RINEX_SYS = "M: Mixed";
 
@@ -152,7 +153,7 @@ public class LoggerFileRINEX implements MainActivityListener {
 
             // initialize the contents of the file
             try {
-                currentFileWriter.write("----|---1|0---|---2|0---|---3|0---|---4|0---|---5|0---|---6|0---|---7|0---|---8|0\n");
+                //currentFileWriter.write("----|---1|0---|---2|0---|---3|0---|---4|0---|---5|0---|---6|0---|---7|0---|---8|0\n");
                 //currentFileWriter.write("     3.03           OBSERVATION DATA    M: Mixed            RINEX VERSION / TYPE");
                 //currentFileWriter.write("{0:9.2f}           {1:<20}{2:<20}RINEX VERSION / TYPE\n".format(RINEX_VERSION, RINEX_TYPE, RINEX_SYS));
                 //currentFileWriter.write(String.format("%5s", "") + RINEX_VERSION + String.format("%11s", "") + RINEX_TYPE + String.format("%4s", "") + RINEX_SYS + String.format("%10s", "") +"RINEX VERSION / TYPE");
@@ -219,8 +220,8 @@ public class LoggerFileRINEX implements MainActivityListener {
                 currentFileWriter.newLine();
                 currentFileWriter.write("C" + String.format("%59s", "") + "SYS / PHASE SHIFTS");
                 currentFileWriter.newLine();
-                currentFileWriter.write(String.format("%-59s", leapSec) + " LEAP SECONDS");
-                currentFileWriter.newLine();
+                //currentFileWriter.write(String.format("%-59s", leapSec) + " LEAP SECONDS");
+                //currentFileWriter.newLine();
 
 
                 currentFileWriter.write(String.format("%-60s", "") + "END OF HEADER");
@@ -554,6 +555,8 @@ public class LoggerFileRINEX implements MainActivityListener {
         GnssClock localClock = gnssClock;
         GnssStatus localStatus = gnssStatus;
 
+        Date date = satSysTime(satTypeint, leapSec);
+
         Integer satCount = 0;
 
         double firstFullBiasNanos = 0;
@@ -581,25 +584,23 @@ public class LoggerFileRINEX implements MainActivityListener {
             String svid = "";
             Integer prn = measurement.getSvid();
             String prnStr = "";
-            if (prn < 10) {
+            /*if (prn < 10) {
                 prnStr = "0" + prn;
-            } else prnStr = "" + prn;
+            } else prnStr = "" + prn;*/
             if (measurement.getConstellationType() == CONSTELLATION_GPS) {
-                svid = String.format("G%s", prnStr);
+                svid = String.format("G%2s", prnStr);
             } else if (measurement.getConstellationType() == CONSTELLATION_GLONASS) {
                 if (prn >= 93) {
                     Log.d(TAG, "skip measurement");
                     satSkip = true;
                     continue;
-                } else svid = String.format("R%s", prnStr);
+                } else svid = String.format("R%2s", Integer.toString(Integer.valueOf(prnStr) - 64));
             } else if (measurement.getConstellationType() == CONSTELLATION_GALILEO) {
-                svid = String.format("E%s", prnStr);
+                svid = String.format("E%2s", prnStr);
             } else if (measurement.getConstellationType() == CONSTELLATION_BEIDOU) {
-                svid = String.format("C%s", prnStr);
+                svid = String.format("C%2s", Integer.toString(Integer.valueOf(prnStr) - 200));
             } else if (measurement.getConstellationType() == CONSTELLATION_QZSS) {
-                Log.d(TAG, "skip measurement");
-                satSkip = true;
-                continue;
+                svid = String.format("J%2s", Integer.toString(Integer.valueOf(prnStr) - 192));
             } else if (measurement.getConstellationType() == GnssStatus.CONSTELLATION_SBAS) {
                 Log.d(TAG, "skip measurement");
                 satSkip = true;
@@ -632,7 +633,7 @@ public class LoggerFileRINEX implements MainActivityListener {
             } else timeUncertaintyNanos = 0.0;
 
 
-            int weekNum = (int) Math.floor(-(double) fullBiasNanos * 1.0e9 / WEEKSECS);
+            int weekNum = (int) floor(-(double) fullBiasNanos * 1.0e9 / WEEKSECS);
             int weekNanos = (int) (WEEKSECS * 1.0e9);
             int weekNumNanos = weekNum * weekNanos;
 
@@ -650,14 +651,18 @@ public class LoggerFileRINEX implements MainActivityListener {
                 int maxBiasSeconds = 10;
                 if (prS > maxBiasSeconds) {
                     satSkip = true;
-                    continue;
+                    //continue;
                 } else {
                     prSeconds = prS;
                     tRxSeconds -= delS;
                 }
             }
 
-            if(satSkip) continue;
+            //if(satSkip) continue;
+
+            double local_est_GPS_time = timeNanos - (fullBiasNanos + biasnanos);
+            double gpssow = local_est_GPS_time * 1.0e-9 - weekNum * WEEKSECS;
+            //date = new Date((new Date (1980, 1, 6)).getTime() + (weekNum * WEEKSECS + (int) (Math.floor(gpssow))) * 1000);
 
             Double c1 = prSeconds * SPEED_OF_LIGHT;
 
@@ -691,7 +696,8 @@ public class LoggerFileRINEX implements MainActivityListener {
         String[] s1Arr = s1Set.toArray(new String[]{});
         String[] d1Arr = d1Set.toArray(new String[]{});*/
 
-        Date date = satSysTime(satTypeint, leapSec);
+        //Date
+        date = satSysTime(satTypeint, leapSec);
         String year = String.format("%1$tY", date);
         String month = String.format("%1$tm", date);
         String day = String.format("%1$te", date);
@@ -716,7 +722,7 @@ public class LoggerFileRINEX implements MainActivityListener {
         if (recCount < 1) return;
         for (int i = 1; i < recCount; i++) {
             try {
-                mFileWriter.write(svidArr[i] + String.format("%14s", c1Arr[i]) + String.format("%14s", l1Arr[i]) + String.format("%14s", s1Arr[i]) + String.format("%14s", d1Arr[i]));
+                mFileWriter.write(svidArr[i] + String.format("%14s", c1Arr[i]) + String.format("%14s", l1Arr[i]) + String.format("%14s", d1Arr[i]) + String.format("%14s", s1Arr[i]));
                 mFileWriter.newLine();
             } catch (IOException e) {
                 logException(ERROR_WRITING_FILE, e);
@@ -837,7 +843,7 @@ public class LoggerFileRINEX implements MainActivityListener {
             } else timeUncertaintyNanos = 0.0;
 
 
-            int weekNum = (int) Math.floor(-(double) fullBiasNanos * 1.0e9 / WEEKSECS);
+            int weekNum = (int) floor(-(double) fullBiasNanos * 1.0e9 / WEEKSECS);
             int weekNanos = (int) (WEEKSECS * 1.0e9);
             int weekNumNanos = weekNum * weekNanos;
 
