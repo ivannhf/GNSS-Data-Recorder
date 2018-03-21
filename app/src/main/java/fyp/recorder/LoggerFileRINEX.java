@@ -583,24 +583,24 @@ public class LoggerFileRINEX implements MainActivityListener {
 
             String svid = "";
             Integer prn = measurement.getSvid();
-            String prnStr = "";
+            String prnStr = Integer.toString(prn);
             /*if (prn < 10) {
                 prnStr = "0" + prn;
             } else prnStr = "" + prn;*/
             if (measurement.getConstellationType() == CONSTELLATION_GPS) {
-                svid = String.format("G%2s", prnStr);
+                svid = String.format("G%2d", prn);
             } else if (measurement.getConstellationType() == CONSTELLATION_GLONASS) {
                 if (prn >= 93) {
                     Log.d(TAG, "skip measurement");
                     satSkip = true;
                     continue;
-                } else svid = String.format("R%2s", Integer.toString(Integer.valueOf(prnStr) - 64));
+                } else svid = String.format("R%2d", prn - 64);
             } else if (measurement.getConstellationType() == CONSTELLATION_GALILEO) {
-                svid = String.format("E%2s", prnStr);
+                svid = String.format("E%s", prnStr);
             } else if (measurement.getConstellationType() == CONSTELLATION_BEIDOU) {
-                svid = String.format("C%2s", Integer.toString(Integer.valueOf(prnStr) - 200));
+                svid = String.format("C%s", Integer.toString(Integer.valueOf(prnStr) - 200));
             } else if (measurement.getConstellationType() == CONSTELLATION_QZSS) {
-                svid = String.format("J%2s", Integer.toString(Integer.valueOf(prnStr) - 192));
+                svid = String.format("J%s", Integer.toString(Integer.valueOf(prnStr) - 192));
             } else if (measurement.getConstellationType() == GnssStatus.CONSTELLATION_SBAS) {
                 Log.d(TAG, "skip measurement");
                 satSkip = true;
