@@ -594,13 +594,13 @@ public class LoggerFileRINEX implements MainActivityListener {
                     Log.d(TAG, "skip measurement");
                     satSkip = true;
                     continue;
-                } else svid = String.format("R%2d", prn - 64);
+                } else svid = String.format("R%2d", prn);
             } else if (measurement.getConstellationType() == CONSTELLATION_GALILEO) {
-                svid = String.format("E%s", prnStr);
+                svid = String.format("E%2d", prn);
             } else if (measurement.getConstellationType() == CONSTELLATION_BEIDOU) {
-                svid = String.format("C%s", Integer.toString(Integer.valueOf(prnStr) - 200));
+                svid = String.format("C%2d", prn);
             } else if (measurement.getConstellationType() == CONSTELLATION_QZSS) {
-                svid = String.format("J%s", Integer.toString(Integer.valueOf(prnStr) - 192));
+                svid = String.format("J%2d", prn - 192);
             } else if (measurement.getConstellationType() == GnssStatus.CONSTELLATION_SBAS) {
                 Log.d(TAG, "skip measurement");
                 satSkip = true;
