@@ -531,7 +531,7 @@ public class LoggerFileRINEX implements MainActivityListener {
         int gpsweek = (int) Math.floor(-fullbiasnanos * 1.0e-9 / WEEKSECS);
         double local_est_GPS_time = timenanos - (fullbiasnanos + biasnanos);
         double gpssow = local_est_GPS_time * 1.0e-9 - gpsweek * WEEKSECS;
-        double frac = gpssow - (gpssow % 1);
+        double frac = gpssow - (gpssow / 1);
 
         // define GPS time start
         GPSstart = Calendar.getInstance();
@@ -544,6 +544,7 @@ public class LoggerFileRINEX implements MainActivityListener {
 
         GPSstart.add(Calendar.WEEK_OF_YEAR, gpsweek);
         GPSstart.add(Calendar.SECOND, (int) gpssow);
+        GPSstart.add(Calendar.MILLISECOND, (int) (frac * 1000));
         //GPSstart.add(Calendar.HOUR, -12);
 
         try {
@@ -687,14 +688,14 @@ public class LoggerFileRINEX implements MainActivityListener {
 
             double prSeconds = tRxSeconds - tTxSeconds;
 
-            while (prSeconds > (WEEKSECS / 2)) {
+            if (prSeconds > (WEEKSECS / 2)) {
                 double prS = prSeconds;
                 double delS = Math.round(prS / WEEKSECS) * WEEKSECS;
                 prS -= delS;
                 int maxBiasSeconds = 10;
                 if (prS > maxBiasSeconds) {
                     satSkip = true;
-                    break;
+                    continue;
                 } else {
                     prSeconds = prS;
                     tRxSeconds -= delS;
