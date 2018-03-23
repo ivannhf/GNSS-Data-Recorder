@@ -69,6 +69,7 @@ public class LoggerFileRINEX implements MainActivityListener {
     private GnssStatus gnssStatus = null;
     private GnssClock gnssClock = null;
     private GnssMeasurementsEvent gnssMeasurementsEvent = null;
+    private Calendar GPSstart, now;
     private int leapSec = -1;
     private String satTypestr = "";
     private Integer satTypeint = -1;
@@ -197,16 +198,16 @@ public class LoggerFileRINEX implements MainActivityListener {
                 currentFileWriter.newLine();
                 do {
                     //Log.d(TAG, "null");
-                } while ((firstFixStatus == null) || (leapSec == -1));
-                firstObs = null;
-                firstObs = satSysTime(firstFixStatus.getConstellationType(0), leapSec);
+                } while (((firstFixStatus == null) || (leapSec == -1)) && (gnssClock == null));
+                firstObs = getTime();
+                //firstObs = satSysTime(firstFixStatus.getConstellationType(0), leapSec);
                 String year = String.format("%1$tY", firstObs);
                 String month = String.format("%1$tm", firstObs);
                 String day = String.format("%1$te", firstObs);
-                String hour = String.format("%1$tk", firstObs);
-                String min = String.format("%1$tM", firstObs);
+                String hour = String.format("%02d", Integer.parseInt(String.format("%1$tk", date)));
+                String min = String.format("%02d", Integer.parseInt(String.format("%1$tM", date)));
                 Double sec_db = Double.parseDouble(String.format("%1$tS", firstObs)) + Double.parseDouble(String.format("%1$tL", firstObs)) / 1000.0 + Double.parseDouble(String.format("%1$tL", firstObs)) / 1000000000.0;
-                String sec = String.format("%.7f", sec_db);
+                String sec = String.format("%02.7f", sec_db);
                 currentFileWriter.write(String.format("%6s", year) + String.format("%6s", month) + String.format("%6s", day)
                         + String.format("%6s", hour) + String.format("%6s", min) + String.format("%13s", sec)
                         + String.format("%8s", satTypestr) + String.format("%9s", "") + "TIME OF FIRST OBS");
@@ -512,6 +513,46 @@ public class LoggerFileRINEX implements MainActivityListener {
             String UTCdate = dateFormatUTC.format(new Date());
             SimpleDateFormat dateFormatLocal = new SimpleDateFormat("yyyyMMdd HHmmss");
             utcTime = dateFormatLocal.parse(UTCdate);
+            //Log.d(TAG, UTCdate.toString());
+        } catch (java.text.ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return utcTime;
+    }
+
+    private Date getTime() {
+        Date utcTime = null;
+
+        Long fullbiasnanos = gnssClock.getFullBiasNanos();
+        Long timenanos = gnssClock.getTimeNanos();
+        double biasnanos = gnssClock.getBiasNanos();
+
+        int gpsweek = (int) Math.floor(-fullbiasnanos * 1.0e-9 / WEEKSECS);
+        double local_est_GPS_time = timenanos - (fullbiasnanos + biasnanos);
+        double gpssow = local_est_GPS_time * 1.0e-9 - gpsweek * WEEKSECS;
+        double frac = gpssow - (gpssow % 1);
+
+        // define GPS time start
+        GPSstart = Calendar.getInstance();
+        GPSstart.set(Calendar.YEAR, 1980);
+        GPSstart.set(Calendar.MONTH, 0);
+        GPSstart.set(Calendar.DATE, 6);
+        GPSstart.set(Calendar.HOUR, 0);
+        GPSstart.set(Calendar.MINUTE, 0);
+        GPSstart.set(Calendar.SECOND, 0);
+
+        GPSstart.add(Calendar.WEEK_OF_YEAR, gpsweek);
+        GPSstart.add(Calendar.SECOND, (int) gpssow);
+        //GPSstart.add(Calendar.HOUR, -12);
+
+        try {
+            SimpleDateFormat dateFormatUTC = new SimpleDateFormat("yyyyMMdd HHmmss");
+            dateFormatUTC.setTimeZone(TimeZone.getTimeZone("Etc/GMT+4"));
+            String UTCdate = dateFormatUTC.format(GPSstart.getTime());
+            SimpleDateFormat dateFormatLocal = new SimpleDateFormat("yyyyMMdd HHmmss");
+            utcTime = dateFormatLocal.parse(UTCdate);
+            Log.d(TAG, utcTime + "");
         } catch (java.text.ParseException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -588,19 +629,19 @@ public class LoggerFileRINEX implements MainActivityListener {
                 prnStr = "0" + prn;
             } else prnStr = "" + prn;*/
             if (measurement.getConstellationType() == CONSTELLATION_GPS) {
-                svid = String.format("G%2d", prn);
+                svid = String.format("G%1$02d", prn);
             } else if (measurement.getConstellationType() == CONSTELLATION_GLONASS) {
                 if (prn >= 93) {
                     Log.d(TAG, "skip measurement");
                     satSkip = true;
                     continue;
-                } else svid = String.format("R%2d", prn);
+                } else svid = String.format("R%1$02d", prn);
             } else if (measurement.getConstellationType() == CONSTELLATION_GALILEO) {
-                svid = String.format("E%2d", prn);
+                svid = String.format("E%1$02d", prn);
             } else if (measurement.getConstellationType() == CONSTELLATION_BEIDOU) {
-                svid = String.format("C%2d", prn);
+                svid = String.format("C%1$02d", prn);
             } else if (measurement.getConstellationType() == CONSTELLATION_QZSS) {
-                svid = String.format("J%2d", prn - 192);
+                svid = String.format("J%1$02d", prn - 192);
             } else if (measurement.getConstellationType() == GnssStatus.CONSTELLATION_SBAS) {
                 Log.d(TAG, "skip measurement");
                 satSkip = true;
@@ -610,6 +651,8 @@ public class LoggerFileRINEX implements MainActivityListener {
                 satSkip = true;
                 continue;
             }
+
+            Log.d(TAG, svid);
 
             if(satSkip) continue;
 
@@ -644,14 +687,14 @@ public class LoggerFileRINEX implements MainActivityListener {
 
             double prSeconds = tRxSeconds - tTxSeconds;
 
-            if (prSeconds > (WEEKSECS / 2)) {
+            while (prSeconds > (WEEKSECS / 2)) {
                 double prS = prSeconds;
                 double delS = Math.round(prS / WEEKSECS) * WEEKSECS;
                 prS -= delS;
                 int maxBiasSeconds = 10;
                 if (prS > maxBiasSeconds) {
                     satSkip = true;
-                    //continue;
+                    break;
                 } else {
                     prSeconds = prS;
                     tRxSeconds -= delS;
@@ -697,21 +740,21 @@ public class LoggerFileRINEX implements MainActivityListener {
         String[] d1Arr = d1Set.toArray(new String[]{});*/
 
         //Date
-        date = satSysTime(satTypeint, leapSec);
+        date = getTime();
         String year = String.format("%1$tY", date);
         String month = String.format("%1$tm", date);
         String day = String.format("%1$te", date);
-        String hour = String.format("%1$tk", date);
-        String min = String.format("%1$tM", date);
+        String hour = String.format("%02d", Integer.parseInt(String.format("%1$tk", date)));
+        String min = String.format("%02d", Integer.parseInt(String.format("%1$tM", date)));
         Double sec_db = Double.parseDouble(String.format("%1$tS", date)) + Double.parseDouble(String.format("%1$tL", date)) / 1000.0 + Double.parseDouble(String.format("%1$tL", date)) / 1000000000.0;
-        String sec = String.format("%.7f", sec_db);
+        String sec = String.format("%02.7f", sec_db);
         if (gnssStatus.getSatelliteCount() > 0) {
             satCount = gnssStatus.getSatelliteCount();
         } else satCount = 0;
         try {
             mFileWriter.write(">" + String.format("%5s", year) + String.format("%3s", month) + String.format("%3s", day)
                     + String.format("%3s", hour) + String.format("%3s", min) + String.format("%11s", sec)
-                    + String.format("%3s", "0") + String.format("%3s", recCount + ""));
+                    + String.format("%3s", "0") + String.format("%3s", svidSet.size() - 1));
             mFileWriter.newLine();
         } catch (IOException e) {
             Log.d(TAG, "fail");
