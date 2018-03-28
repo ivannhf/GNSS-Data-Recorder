@@ -2,10 +2,18 @@ package fyp.recorder;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.GnssClock;
+import android.location.GnssMeasurement;
+import android.location.GnssMeasurementsEvent;
+import android.location.GnssNavigationMessage;
+import android.location.GnssStatus;
+import android.location.Location;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.text.format.Formatter;
 import android.util.Log;
 
@@ -35,7 +43,7 @@ import fyp.layout.R;
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.Context.WIFI_SERVICE;
 
-public class FileTCP {
+public class FileTCP implements MainActivityListener {
 
     private static final String TAG = "SendFile";
     private Context mContext;
@@ -68,6 +76,12 @@ public class FileTCP {
 
     //int i = 0;
 
+    public FileTCP() {
+        mContext = MainActivity.getInstance().context;
+
+        MainActivity.getInstance().addListener(this);
+    }
+
     public void sendFile(List<String> path) {
         this.mContext = MainActivity.getInstance().context;
 
@@ -95,7 +109,7 @@ public class FileTCP {
         TCPIP = setting.getString(mContext.getString(R.string.pref_key_tcp_ip_address), "");
         TCPPort = setting.getInt(mContext.getString(R.string.pref_key_tcp_port), 8080);
         TCPuser = setting.getString(mContext.getString(R.string.pref_key_tcp_user), "User");
-        message = getIP() + ", " + Build.MODEL + ", " + TCPuser + ", " + msg;
+        message = getIP() + "," + Build.MODEL + "," + TCPuser + "," + msg;
 
         MsgTCP msgTCP = new MsgTCP();
         msgTCP.execute();
@@ -106,6 +120,133 @@ public class FileTCP {
         String ip = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
 
         return ip;
+    }
+
+    @Override
+    public void gpsStart() {
+
+    }
+
+    @Override
+    public void gpsStop() {
+
+    }
+
+    @Override
+    public void onGnssFirstFix(int ttffMillis) {
+
+    }
+
+    @Override
+    public void onSatelliteStatusChanged(GnssStatus status) {
+
+    }
+
+    @Override
+    public void onGnssStarted() {
+
+    }
+
+    @Override
+    public void onGnssStopped() {
+
+    }
+
+    @Override
+    public void onGnssMeasurementsReceived(GnssMeasurementsEvent event) {
+        GnssClock clock = event.getClock();
+        for (GnssMeasurement measurement : event.getMeasurements()) {
+            try {
+                String clockStream =
+                        String.format(
+                                "Raw,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+                                SystemClock.elapsedRealtime(),
+                                clock.getTimeNanos(),
+                                clock.hasLeapSecond() ? clock.getLeapSecond() : "",
+                                clock.hasTimeUncertaintyNanos() ? clock.getTimeUncertaintyNanos() : "",
+                                clock.getFullBiasNanos(),
+                                clock.hasBiasNanos() ? clock.getBiasNanos() : "",
+                                clock.hasBiasUncertaintyNanos() ? clock.getBiasUncertaintyNanos() : "",
+                                clock.hasDriftNanosPerSecond() ? clock.getDriftNanosPerSecond() : "",
+                                clock.hasDriftUncertaintyNanosPerSecond()
+                                        ? clock.getDriftUncertaintyNanosPerSecond()
+                                        : "",
+                                clock.getHardwareClockDiscontinuityCount() + ",");
+
+                String measurementStream =
+                        String.format(
+                                "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+                                measurement.getSvid(),
+                                measurement.getTimeOffsetNanos(),
+                                measurement.getState(),
+                                measurement.getReceivedSvTimeNanos(),
+                                measurement.getReceivedSvTimeUncertaintyNanos(),
+                                measurement.getCn0DbHz(),
+                                measurement.getPseudorangeRateMetersPerSecond(),
+                                measurement.getPseudorangeRateUncertaintyMetersPerSecond(),
+                                measurement.getAccumulatedDeltaRangeState(),
+                                measurement.getAccumulatedDeltaRangeMeters(),
+                                measurement.getAccumulatedDeltaRangeUncertaintyMeters(),
+                                measurement.hasCarrierFrequencyHz() ? measurement.getCarrierFrequencyHz() : "",
+                                measurement.hasCarrierCycles() ? measurement.getCarrierCycles() : "",
+                                measurement.hasCarrierPhase() ? measurement.getCarrierPhase() : "",
+                                measurement.hasCarrierPhaseUncertainty()
+                                        ? measurement.getCarrierPhaseUncertainty()
+                                        : "",
+                                measurement.getMultipathIndicator(),
+                                measurement.hasSnrInDb() ? measurement.getSnrInDb() : "",
+                                measurement.getConstellationType(),
+                                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                                        && measurement.hasAutomaticGainControlLevelDb()
+                                        ? measurement.getAutomaticGainControlLevelDb()
+                                        : "",
+                                measurement.hasCarrierFrequencyHz() ? measurement.getCarrierFrequencyHz() : "");
+
+                sendMsg(clockStream + measurementStream);
+            } catch (Exception e) {
+
+            }
+        }
+    }
+
+    @Override
+    public void onGnssNavigationMessageReceived(GnssNavigationMessage event) {
+
+    }
+
+    @Override
+    public void onNmeaReceived(long l, String s) {
+
+    }
+
+    @Override
+    public void onOrientationChanged(double orientation, double tilt) {
+
+    }
+
+    @Override
+    public void sensorValue(double gyroX, double gyroY, double gyroZ, double accelX, double accelY, double accelZ, double heading) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
     }
 
     class TaskFTP extends AsyncTask<Void, Void, Void> {
@@ -159,7 +300,7 @@ public class FileTCP {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                socket = new Socket("158.132.32.190", 8080);
+                socket = new Socket(TCPIP, TCPPort);
                 printWriter = new PrintWriter(socket.getOutputStream());
                 printWriter.write(message);
 

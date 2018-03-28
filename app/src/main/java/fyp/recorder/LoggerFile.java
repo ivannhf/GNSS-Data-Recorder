@@ -472,10 +472,10 @@ public class LoggerFile implements MainActivityListener {
         mFileWriter.write(measurementStream);
         mFileWriter.newLine();
 
-        WifiManager wm = (WifiManager) mContext.getSystemService(WIFI_SERVICE);
+        /*WifiManager wm = (WifiManager) mContext.getSystemService(WIFI_SERVICE);
         String ip = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
         FileTCP fileTCP = new FileTCP();
-        fileTCP.sendMsg(ip + "," + clockStream + measurementStream);
+        fileTCP.sendMsg(ip + "," + clockStream + measurementStream);*/
     }
 
     private void logException(String errorMessage, Exception e) {

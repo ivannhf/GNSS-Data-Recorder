@@ -332,7 +332,7 @@ public class MainActivity extends AppCompatActivity
 
         Log.d(TAG, pathList + "");
 
-        fileTCP = new FileTCP();
+        //fileTCP = new FileTCP();
         fileTCP.sendFile(pathList);
 
         //fileTCP.sendMsg("1");
