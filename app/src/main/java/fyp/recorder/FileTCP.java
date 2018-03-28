@@ -2,8 +2,11 @@ package fyp.recorder;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
+import android.text.format.Formatter;
 import android.util.Log;
 
 import org.apache.commons.net.ftp.FTP;
@@ -30,6 +33,7 @@ import java.util.List;
 import fyp.layout.R;
 
 import static android.content.Context.MODE_PRIVATE;
+import static android.content.Context.WIFI_SERVICE;
 
 public class FileTCP {
 
@@ -46,6 +50,10 @@ public class FileTCP {
     private int PORT = 8080;
     private String loginName = "anonymous";
     private String loginPW = "";
+
+    private String TCPIP = "192.168.0.0";
+    private int TCPPort = 8080;
+    private String TCPuser = "User";
 
     public String message = "";
 
@@ -83,10 +91,21 @@ public class FileTCP {
     public void sendMsg(String msg) {
         this.mContext = MainActivity.getInstance().context;
 
-        message = msg;
+        SharedPreferences setting = mContext.getSharedPreferences("settings", MODE_PRIVATE);
+        TCPIP = setting.getString(mContext.getString(R.string.pref_key_tcp_ip_address), "");
+        TCPPort = setting.getInt(mContext.getString(R.string.pref_key_tcp_port), 8080);
+        TCPuser = setting.getString(mContext.getString(R.string.pref_key_tcp_user), "User");
+        message = getIP() + ", " + Build.MODEL + ", " + TCPuser + ", " + msg;
 
         MsgTCP msgTCP = new MsgTCP();
         msgTCP.execute();
+    }
+
+    public String getIP() {
+        WifiManager wm = (WifiManager) mContext.getSystemService(WIFI_SERVICE);
+        String ip = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
+
+        return ip;
     }
 
     class TaskFTP extends AsyncTask<Void, Void, Void> {
