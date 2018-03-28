@@ -140,7 +140,7 @@ public class FileTCP {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                socket = new Socket("192.168.0.122", 8080);
+                socket = new Socket("158.132.201.163", 8080);
                 printWriter = new PrintWriter(socket.getOutputStream());
                 printWriter.write(message);
 
