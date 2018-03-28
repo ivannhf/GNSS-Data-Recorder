@@ -335,7 +335,7 @@ public class MainActivity extends AppCompatActivity
         fileTCP = new FileTCP();
         fileTCP.sendFile(pathList);
 
-        //fileTCP.sendMsg("1");
+        fileTCP.sendMsg("1");
     }
 
     public boolean showQuitDialog() {
