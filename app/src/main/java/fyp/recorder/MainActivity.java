@@ -146,8 +146,6 @@ public class MainActivity extends AppCompatActivity
         mapFragment = new MapFragment();
         toolFragment = new ToolFragment();
 
-        fileTCP = new FileTCP();
-
         navigationView.setCheckedItem(R.id.nav_position);
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().add(R.id.content_frame, positionFragment).
@@ -507,6 +505,8 @@ public class MainActivity extends AppCompatActivity
         //Toast.makeText(this, "App resume", Toast.LENGTH_SHORT).show();
 
         startService(new Intent(this, bkgdService.class));
+
+        fileTCP = new FileTCP();
 
         SharedPreferences setting = getSharedPreferences("settings", MODE_PRIVATE);
         Set<String> selections = setting.getStringSet(getString(R.string.pref_key_log_type), null);
