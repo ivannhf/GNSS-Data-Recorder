@@ -681,7 +681,8 @@ public class LoggerFileRINEX implements MainActivityListener {
             int weekNanos = (int) (WEEKSECS * 1.0e9);
             int weekNumNanos = weekNum * weekNanos;
 
-            double tRxNanos = timeNanos - firstFullBiasNanos - weekNumNanos;
+            //double tRxNanos = timeNanos - firstFullBiasNanos - weekNumNanos;
+            double tRxNanos = timeNanos - fullBiasNanos - weekNumNanos;
 
             double tRxSeconds = ((double) tRxNanos - timeOffsetNanos - biasnanos) * 1.0e-9;
             double tTxSeconds = (double) (ReceivedSvTimeNanos * 1.0e-9);
