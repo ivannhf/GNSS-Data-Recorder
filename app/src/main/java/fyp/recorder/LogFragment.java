@@ -129,6 +129,7 @@ public class LogFragment extends Fragment implements MainActivityListener {
             }
         });
 
+        this.setUILogger(MainActivity.getInstance().loggerUI);
 
         return myView;
     }
